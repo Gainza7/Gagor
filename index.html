@@ -892,7 +892,7 @@ a.g-btn { text-decoration: none; }
 .edx__ib:disabled { opacity: .3; cursor: default; }
 .edx__ib:focus-visible { outline: 2px solid var(--focus); outline-offset: 0; }
 .edx__grid { display: grid; gap: 6px; container-type: inline-size; }
-.edx__row { display: grid; grid-template-columns: 32px minmax(160px, 1fr) repeat(2, 56px) 68px 64px 68px 52px 56px 134px; gap: 6px; align-items: center; }
+.edx__row { display: grid; grid-template-columns: 32px minmax(160px, 1fr) repeat(3, 56px) 68px 64px 68px 52px 56px 134px; gap: 6px; align-items: center; }
 .edx__row--head span { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); white-space: nowrap; overflow: hidden; }
 .edx__ex { display: grid; gap: 4px; padding: 6px 0; border-top: 1px solid var(--line); }
 .edx__ex.is-ss { box-shadow: inset 3px 0 0 var(--accent); padding-left: 6px; margin-left: -6px; }
@@ -968,6 +968,8 @@ a.g-btn { text-decoration: none; }
 .g-set--nocheck .g-set__check, .g-set--nocheck .g-set__spacer { display: none; }
 .aviso-cierre { display: grid; gap: 10px; padding: 12px; border-radius: var(--radius-md); background: var(--alert-soft); border: 1px solid var(--alert); }
 .aviso-cierre p { margin: 0; font-size: 15px; line-height: 22px; }
+/* edx-seg */
+.g-phase--down .g-phase__value { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -2221,34 +2223,35 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function PhaseTimer(props) {
     var p = props || {};
     var rest = p.phase === 'rest';
-    var total = p.total || 0;
-    var st = React.useState(rest ? total : 0);
+    var down = rest || p.countdown > 0;
+    var total = rest ? (p.total || 0) : (p.countdown || 0);
+    var st = React.useState(down ? total : 0);
     var rn = React.useState(p.running !== false);
     var secs = st[0], setT = st[1], running = rn[0], setRunning = rn[1];
 
-    React.useEffect(function () { setT(rest ? total : 0); setRunning(p.running !== false); }, [p.phase, p.total, p.resetKey]);
+    React.useEffect(function () { setT(down ? total : 0); setRunning(p.running !== false); }, [p.phase, p.total, p.countdown, p.resetKey]);
     React.useEffect(function () {
       if (!running) return undefined;
       var id = setInterval(function () {
         setT(function (v) {
-          if (rest) {
-            if (v <= 1) { setRunning(false); if (p.onEnd) p.onEnd(); return 0; }
+          if (down) {
+            if (v <= 1) { setRunning(false); if (rest) { if (p.onEnd) p.onEnd(); } else if (navigator.vibrate) { try { navigator.vibrate(200); } catch (x) {} } return 0; }
             return v - 1;
           }
           return v + 1;
         });
       }, 1000);
       return function () { clearInterval(id); };
-    }, [running, rest]);
+    }, [running, down]);
 
-    var pct = rest && total ? Math.max(0, Math.min(1, secs / total)) : 0;
+    var pct = down && total ? Math.max(0, Math.min(1, secs / total)) : 0;
     return h(
       'div',
-      { className: cx('g-phase', rest ? 'g-phase--rest' : 'g-phase--work', p.className) },
+      { className: cx('g-phase', rest ? 'g-phase--rest' : 'g-phase--work', !rest && down && 'g-phase--down', p.className) },
       h('span', { className: 'g-phase__label' }, t(rest ? (p.label || 'Descanso') : (p.label || 'Trabajo'))),
       h('p', { className: 'g-phase__value', role: 'timer' }, fmt(secs)),
       p.detail ? h('p', { className: 'g-phase__detail' }, p.detail) : null,
-      rest
+      down
         ? h('div', { className: 'g-phase__track' }, h('div', { className: 'g-phase__fill', style: { width: pct * 100 + '%' } }))
         : null,
       h(
@@ -2257,7 +2260,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         h(Button, { variant: 'secondary', size: 'md', icon: running ? 'pausar' : 'reproducir', onClick: function () { setRunning(!running); } }, running ? t('Pausar') : t('Reanudar')),
         rest
           ? h(Button, { variant: 'primary', size: 'lg', icon: 'saltar', onClick: function () { setRunning(false); if (p.onEnd) p.onEnd(); } }, p.skipLabel || t('Saltar descanso'))
-          : h(Button, { variant: 'primary', size: 'lg', icon: 'check', onClick: function () { setRunning(false); if (p.onDone) p.onDone(secs); } }, p.doneLabel || t('Serie hecha'))
+          : h(Button, { variant: 'primary', size: 'lg', icon: 'check', onClick: function () { setRunning(false); if (p.onDone) p.onDone(down ? total - secs : secs); } }, p.doneLabel || t('Serie hecha'))
       )
     );
   }
@@ -2530,7 +2533,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.1.1";
+<script>window.GAGOR_VERSION = "1.1.2";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -3089,7 +3092,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var ej = 0, series = 0, seg = 0;
     (bloques || []).forEach(function (b) { b.ejercicios.forEach(function (e) {
       ej++; var s = Number(e.series) || 0; series += s;
-      var trabajo = (Number(e.reps) || 0) > 20 ? Number(e.reps) : (Number(e.reps) || 0) * 4;
+      var trabajo = e.seg ? (Number(e.reps) || 1) * Number(e.seg) : ((Number(e.reps) || 0) > 20 ? Number(e.reps) : (Number(e.reps) || 0) * 4);
       seg += s * trabajo + Math.max(0, s - 1) * (Number(e.descanso) || 0) + 45; // 45 s de cambio de ejercicio
     }); });
     return { ejercicios: ej, series: series, minutos: Math.round(seg / 60 / 5) * 5 || (ej ? 5 : 0) };
@@ -3100,6 +3103,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
   /* Guarda los bloques editados de una sesión sin perder lo que el jugador ya
      haya registrado: cada ejercicio del borrador recuerda su clave original. */
+  function repTxt(e) { return e && e.seg ? ((Number(e.reps) > 1 ? e.reps + ' \u00d7 ' : '') + e.seg + ' s') : (e ? e.reps : ''); }
   function aplicarEdicion(ses, bloques) {
     var reg = {};
     var limpio = bloques.map(function (b, bi) { return { titulo: b.titulo, ejercicios: b.ejercicios.map(function (e, ei) {
@@ -3615,7 +3619,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
 
   global.GAGOR_STORE = { rango: rango, horaCorta: horaCorta, vacio: vacio, cargar: cargar, guardar: guardar, borrar: borrar, semilla: semilla, iso: iso, addDays: addDays, hoy: hoy, uid: uid,
-    fmtFecha: fmtFecha, fmtFechaMin: fmtFechaMin, fmtCorta: fmtCorta, relativo: relativo, sesionDesde: sesionDesde, ejerciciosPlanos: ejerciciosPlanos, etiquetas: etiquetas, ejerciciosNuevos: ejerciciosNuevos, companeros: companeros, resumenBloques: resumenBloques, sesionEnBlanco: sesionEnBlanco, aplicarEdicion: aplicarEdicion, borradorBloques: borradorBloques,
+    fmtFecha: fmtFecha, fmtFechaMin: fmtFechaMin, fmtCorta: fmtCorta, relativo: relativo, sesionDesde: sesionDesde, ejerciciosPlanos: ejerciciosPlanos, etiquetas: etiquetas, ejerciciosNuevos: ejerciciosNuevos, companeros: companeros, resumenBloques: resumenBloques, sesionEnBlanco: sesionEnBlanco, aplicarEdicion: aplicarEdicion, repTxt: repTxt, borradorBloques: borradorBloques,
     bloquesSemana: bloquesSemana, grupos: grupos, grupoBase: grupoBase, clientesDestino: clientesDestino, calendarioPrograma: calendarioPrograma, asignarPrograma: asignarPrograma, retirarAsignacion: retirarAsignacion, nombreDestino: nombreDestino,
     cargasSemanales: cargasSemanales, recuperacion: recuperacion, records: records, nombreEj: nombreEj, ejercicio: ejercicio,
     ultimaCargaReal: ultimaCargaReal, avisos: avisos, semanaDe: semanaDe, DIAS: DIAS,
@@ -3925,7 +3929,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var meta = s.estado === 'hecha' ? t('Hecha · RPE ') + (s.rpe || '—') : (s.fecha < hoyIso ? t('Sin hacer') : (s.fecha === hoyIso ? tt.done + '/' + tt.all + t(' series') : fl.length + t(' ejercicios')));
       return h(G.ListGroup, { title: ST.fmtFecha(s.fecha) + ' · ' + t(s.titulo), meta: meta },
         fl.map(function (fx, i) { var e = fx.e;
-          return h(G.ExerciseRow, { key: fx.key, index: ST.etiquetas(s.bloques)[fx.key] || i + 1, name: ST.nombreEj(state, e.ejId), sets: e.series, reps: e.reps, load: e.carga, state: exDone(s, fx) && s.estado !== 'pendiente' || (s.estado === 'hecha') ? 'done' : 'pending',
+          return h(G.ExerciseRow, { key: fx.key, index: ST.etiquetas(s.bloques)[fx.key] || i + 1, name: ST.nombreEj(state, e.ejId), sets: e.series, reps: ST.repTxt(e), load: e.carga, state: exDone(s, fx) && s.estado !== 'pendiente' || (s.estado === 'hecha') ? 'done' : 'pending',
             onOpen: s.fecha <= hoyIso ? function () { setSesId(s.id); setIdx(i); setView('sesion'); } : undefined });
         }));
     }
@@ -4023,7 +4027,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
               b.ejercicios.map(function (e, ei) {
                 var key = bi + '-' + ei; var fi = fl.findIndex(function (x) { return x.key === key; }); var fx = fl[fi];
                 var rr = regs(ses, key, e); var hechas = rr.filter(function (r) { return r.done; }).length;
-                return h(G.ExerciseRow, { key: key, index: ST.etiquetas(ses.bloques)[key] || fi + 1, name: ST.nombreEj(state, e.ejId), sets: e.series, reps: e.reps, load: e.carga, rpe: e.rpe,
+                return h(G.ExerciseRow, { key: key, index: ST.etiquetas(ses.bloques)[key] || fi + 1, name: ST.nombreEj(state, e.ejId), sets: e.series, reps: ST.repTxt(e), load: e.carga, rpe: e.rpe,
                   state: exDone(ses, fx) ? 'done' : 'pending', current: fi === primero && tot.done > 0 && !exDone(ses, fx), progress: hechas && hechas < rr.length ? hechas + '/' + rr.length : null,
                   onOpen: function () { setIdx(fi); setView('sesion'); } });
               }));
@@ -4085,7 +4089,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           })),
           ex.videoUrl ? h(G.ExerciseVideo, { title: ex.nombre, url: ex.videoUrl }) : null,
           h('div', { className: 'target' },
-            h('p', { className: 'target__big' }, e.series + ' \u00d7 ' + e.reps, e.carga ? h('span', null, ' · ' + n(e.carga) + t(' kg')) : null),
+            h('p', { className: 'target__big' }, e.series + ' \u00d7 ' + ST.repTxt(e), e.carga ? h('span', null, ' · ' + n(e.carga) + t(' kg')) : null),
             h('ul', { className: 'chips' }, chips.map(function (c, i) { return h('li', { key: i }, c); })),
             ssCon.length ? h('p', { className: 'target__note' }, t('Alterna con ') + ssCon.map(function (f) { return ST.nombreEj(state, f.e.ejId); }).join(t(' y ')) + t(': una serie de cada y luego descansa.')) : null,
             e.nota ? h('p', { className: 'target__note' }, e.nota) : null),
@@ -4121,8 +4125,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var lastSet = guide.si === rows.length - 1, lastEx = idx === fl.length - 1; var row = rows[guide.si];
       function cargaTxt(x) { return x.carga ? ' × ' + n(x.carga) + t(' kg') : ''; }
       function next() {
-        if (!lastSet) return t('Siguiente: serie ') + (guide.si + 2) + t(' de ') + rows.length + ' · ' + e.reps + cargaTxt(e);
-        if (!lastEx) { var nx = fl[idx + 1].e; return t('Siguiente: ') + ST.nombreEj(state, nx.ejId) + ' · ' + nx.series + ' × ' + nx.reps + cargaTxt(nx); }
+        if (!lastSet) return t('Siguiente: serie ') + (guide.si + 2) + t(' de ') + rows.length + ' · ' + ST.repTxt(e) + cargaTxt(e);
+        if (!lastEx) { var nx = fl[idx + 1].e; return t('Siguiente: ') + ST.nombreEj(state, nx.ejId) + ' · ' + nx.series + ' × ' + ST.repTxt(nx) + cargaTxt(nx); }
         return t('Última serie hecha. Al acabar el descanso, cierre.');
       }
       function advance() {
@@ -4132,7 +4136,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       }
       var body;
       if (guide.phase === 'work') body = [
-        h(G.PhaseTimer, { key: 'w' + guide.key, phase: 'work', resetKey: guide.key, detail: e.reps + t(' reps') + cargaTxt(e) + (e.tempo ? t(' · tempo ') + e.tempo : ''), onDone: function (secs) { setRow(ses, cur.key, e, guide.si, Object.assign({}, row, { tWork: secs })); setGuide(Object.assign({}, guide, { phase: 'confirm' })); } }),
+        h(G.PhaseTimer, { key: 'w' + guide.key, phase: 'work', resetKey: guide.key, countdown: e.seg ? (Number(e.reps) || 1) * e.seg : 0, detail: (e.seg ? ST.repTxt(e) : e.reps + t(' reps')) + cargaTxt(e) + (e.tempo ? t(' · tempo ') + e.tempo : ''), onDone: function (secs) { setRow(ses, cur.key, e, guide.si, Object.assign({}, row, { tWork: secs })); setGuide(Object.assign({}, guide, { phase: 'confirm' })); } }),
         h(G.ExerciseVideo, { key: 'v', title: ex.nombre, url: ex.videoUrl }),
         e.nota ? h('p', { key: 'nt', style: { margin: 0, fontSize: '16px', lineHeight: '24px', color: 'var(--ink-muted)' } }, e.nota) : null];
       else if (guide.phase === 'confirm') body = [
@@ -4150,7 +4154,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         body = [h(G.PhaseTimer, { key: 'r' + guide.key, phase: 'rest', total: e.descanso || 60, resetKey: guide.key, detail: next(), onEnd: advance }),
           h(G.ExerciseVideo, { key: 'nv', title: nxtX.nombre, url: nxtX.videoUrl, note: t('Lo que viene: ') + (nxtX.nombre || '').toLowerCase() })];
       }
-      var upcoming = fl.slice(idx + 1).map(function (fx) { return { exercise: ST.nombreEj(state, fx.e.ejId) + ' · ' + fx.e.series + ' × ' + fx.e.reps, value: fx.e.carga || 0, unit: fx.e.carga ? 'kg' : '', date: descansoTxt(fx.e.descanso) }; });
+      var upcoming = fl.slice(idx + 1).map(function (fx) { return { exercise: ST.nombreEj(state, fx.e.ejId) + ' · ' + fx.e.series + ' × ' + ST.repTxt(fx.e), value: fx.e.carga || 0, unit: fx.e.carga ? 'kg' : '', date: descansoTxt(fx.e.descanso) }; });
       return h('div', { className: 'phone' },
         h(G.AppHeader, { title: ST.nombreEj(state, e.ejId), subtitle: t('Ejercicio ') + (idx + 1) + t(' de ') + fl.length + t(' · Serie ') + (guide.si + 1) + t(' de ') + rows.length, onBack: function () { setView('sesion'); }, action: h(G.Button, { variant: 'ghost', size: 'md', icon: 'cerrar', onClick: function () { setView('hoy'); } }, t('Salir')) }),
         h('div', { className: 'scroll' }, body, upcoming.length ? h(G.Disclosure, { icon: 'adelante', title: t('Lo que viene'), meta: upcoming.length + (upcoming.length === 1 ? t(' ejercicio') : t(' ejercicios')) }, h(G.RecordList, { items: upcoming })) : null)
@@ -4642,7 +4646,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
                   h('span', { className: 'g-planner__itemname' }, s.titulo + (s.estado === 'hecha' ? ' ✓' : '')),
                   s.semana ? h('span', { className: 'g-planner__prog' }, 'Semana ' + s.semana + ' de ' + s.semanas) : null,
                   fl.slice(0, 4).map(function (fx, i) { var ult = ST.ultimaCargaReal(state, cliente.id, fx.e.ejId);
-                    return h('span', { key: i, style: { display: 'block', fontSize: '13px', lineHeight: '18px' } }, ST.nombreEj(state, fx.e.ejId) + ' ' + fx.e.series + '×' + fx.e.reps + (fx.e.carga ? ' ' + n(fx.e.carga) : ''), ult !== null ? h('span', { className: 'g-planner__last' }, ' · real ' + n(ult)) : null); }),
+                    return h('span', { key: i, style: { display: 'block', fontSize: '13px', lineHeight: '18px' } }, ST.nombreEj(state, fx.e.ejId) + ' ' + fx.e.series + '×' + ST.repTxt(fx.e) + (fx.e.carga ? ' ' + n(fx.e.carga) : ''), ult !== null ? h('span', { className: 'g-planner__last' }, ' · real ' + n(ult)) : null); }),
                   fl.length > 4 ? h('span', { style: { display: 'block', fontSize: '13px', color: 'var(--ink-muted)' } }, '+' + (fl.length - 4) + ' más') : null,
                   s.estado === 'hecha' ? null : h('span', { className: 'g-planner__acts' },
                     h('button', { type: 'button', className: 'link', onClick: function () { editarSesion(s); } }, 'Editar'),
@@ -4672,10 +4676,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
        convierte al guardar.                                                   */
     function txtNum(v) { return v === null || v === undefined || v === '' ? '' : String(v).replace('.', ','); }
     function numTxt(v) { var x = parseFloat(String(v || '').replace(',', '.')); return isFinite(x) ? x : null; }
-    function aBorrador(e, k) { return { _u: ST.uid(), _k: k, ejId: e.ejId, series: txtNum(e.series), reps: txtNum(e.reps), carga: txtNum(e.carga), descanso: txtNum(e.descanso), tempo: e.tempo || '', rpe: txtNum(e.rpe), ss: e.ss || '', nota: e.nota || '' }; }
+    function aBorrador(e, k) { return { _u: ST.uid(), _k: k, ejId: e.ejId, series: txtNum(e.series), reps: txtNum(e.reps), seg: txtNum(e.seg), carga: txtNum(e.carga), descanso: txtNum(e.descanso), tempo: e.tempo || '', rpe: txtNum(e.rpe), ss: e.ss || '', nota: e.nota || '' }; }
     function deBorrador(d, conClave) {
       var e = { ejId: d.ejId, series: Math.round(numTxt(d.series) || 0), reps: Math.round(numTxt(d.reps) || 0), carga: numTxt(d.carga), descanso: Math.round(numTxt(d.descanso) || 0) };
-      if (d.tempo && d.tempo.trim()) e.tempo = d.tempo.trim(); if (numTxt(d.rpe)) e.rpe = numTxt(d.rpe); if (d.ss) e.ss = d.ss; if (d.nota && d.nota.trim()) e.nota = d.nota.trim();
+      if (numTxt(d.seg) > 0) e.seg = Math.round(numTxt(d.seg)); if (d.tempo && d.tempo.trim()) e.tempo = d.tempo.trim(); if (numTxt(d.rpe)) e.rpe = numTxt(d.rpe); if (d.ss) e.ss = d.ss; if (d.nota && d.nota.trim()) e.nota = d.nota.trim();
       if (conClave && d._k) e._k = d._k; return e;
     }
     function bloquesDe(draft, conClave) { return draft.bloques.map(function (b) { return { titulo: (b.titulo || '').trim() || 'Bloque', ejercicios: b.ejercicios.map(function (d) { return deBorrador(d, conClave); }) }; }); }
@@ -4719,6 +4723,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           if (!e.ejId) malo = 'Hay un ejercicio sin elegir.';
           else if (!(numTxt(e.series) >= 1 && numTxt(e.series) <= 20)) malo = 'Revisa las series de ' + nm + ' (de 1 a 20).';
           else if (!(numTxt(e.reps) >= 1 && numTxt(e.reps) <= 300)) malo = 'Revisa las repeticiones de ' + nm + '.';
+          else if (e.seg && !(numTxt(e.seg) >= 1 && numTxt(e.seg) <= 600)) malo = 'Los segundos de ' + nm + ' van de 1 a 600.';
           else if (e.carga && numTxt(e.carga) === null) malo = 'La carga de ' + nm + ' no es un número.';
           else if (e.rpe && !(numTxt(e.rpe) >= 1 && numTxt(e.rpe) <= 10)) malo = 'El RPE de ' + nm + ' va de 1 a 10.';
         }); });
@@ -4774,17 +4779,17 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
             conf === 'blq-' + b._u ? h('div', { className: 'confirm' }, h('p', { className: 'small', style: { margin: 0 } }, 'Se quitan también sus ' + b.ejercicios.length + ' ejercicios.'),
               h('div', { className: 'rowline' }, h(G.Button, { size: 'md', variant: 'secondary', onClick: function () { setConf(''); } }, 'Cancelar'), h(G.Button, { size: 'md', icon: 'borrar', className: 'g-btn--danger', onClick: function () { up(function (x) { x.bloques.splice(bi, 1); }); setConf(''); } }, 'Quitar bloque'))) : null,
             b.ejercicios.length ? h('div', { className: 'edx__grid' },
-              h('div', { className: 'edx__row edx__row--head', 'aria-hidden': 'true' }, h('span', null, ''), h('span', null, 'Ejercicio'), h('span', null, 'Series'), h('span', null, 'Reps'), h('span', null, 'Kg'), h('span', { title: 'Descanso entre series, en segundos' }, 'Desc. s'), h('span', null, 'Tempo'), h('span', null, 'RPE'), h('span', { title: 'Superserie: la misma letra en dos o más ejercicios y se hacen alternos (A1, A2)' }, 'Súper'), h('span', null, '')),
+              h('div', { className: 'edx__row edx__row--head', 'aria-hidden': 'true' }, h('span', null, ''), h('span', null, 'Ejercicio'), h('span', null, 'Series'), h('span', null, 'Reps'), h('span', { title: 'Segundos que dura cada repetición (isométricos, planchas…). Vacío si no va por tiempo.' }, 'Seg'), h('span', null, 'Kg'), h('span', { title: 'Descanso entre series, en segundos' }, 'Desc. s'), h('span', null, 'Tempo'), h('span', null, 'RPE'), h('span', { title: 'Superserie: la misma letra en dos o más ejercicios y se hacen alternos (A1, A2)' }, 'Súper'), h('span', null, '')),
               b.ejercicios.map(function (e, ei) {
                 var k = bi + '-' + ei; var lab = eti[k]; var flat = 0; for (var q = 0; q < bi; q++) flat += d.bloques[q].ejercicios.length;
                 var reg = e._k && ses && regsHechos.indexOf(e._k) >= 0;
-                var ROT = { series: 'Series', reps: 'Reps', carga: 'Kg', descanso: 'Desc. s', tempo: 'Tempo', rpe: 'RPE' };
+                var ROT = { series: 'Series', reps: 'Reps', seg: 'Seg', carga: 'Kg', descanso: 'Desc. s', tempo: 'Tempo', rpe: 'RPE' };
                 function inp(campo, ph, extra) { return h('label', { className: 'edx__f' }, h('span', { className: 'edx__fl' }, ROT[campo]), h('input', Object.assign({ className: 'edx__in', value: e[campo], placeholder: ph, 'aria-label': campo, inputMode: 'decimal', onChange: function (ev) { campoEj(bi, ei, campo, ev.target.value); } }, extra || {}))); }
                 return h('div', { key: e._u, className: 'edx__ex' + (lab ? ' is-ss' : '') },
                   h('div', { className: 'edx__row' },
                     h('span', { className: 'edx__n' + (reg ? ' is-reg' : ''), title: reg ? 'Ya registrado' : undefined }, reg ? h(G.Icon, { name: 'check', size: 14 }) : (lab || flat + ei + 1)),
                     h('select', { className: 'edx__in edx__sel', value: e.ejId || '', 'aria-label': 'Ejercicio', onChange: function (ev) { campoEj(bi, ei, 'ejId', ev.target.value); } }, opcionesEj(e.ejId, e.ejId ? null : 'Elige ejercicio…')),
-                    inp('series', '3'), inp('reps', '8'), inp('carga', '—'), inp('descanso', '90'), inp('tempo', '—', { inputMode: 'text' }), inp('rpe', '—'),
+                    inp('series', '3'), inp('reps', '8'), inp('seg', '—'), inp('carga', '—'), inp('descanso', '90'), inp('tempo', '—', { inputMode: 'text' }), inp('rpe', '—'),
                     h('label', { className: 'edx__f' }, h('span', { className: 'edx__fl' }, 'Súper'), h('select', { className: 'edx__in edx__ss', value: e.ss || '', 'aria-label': 'Superserie', onChange: function (ev) { campoEj(bi, ei, 'ss', ev.target.value); } }, h('option', { value: '' }, '—'), 'ABCDEF'.split('').map(function (l) { return h('option', { key: l, value: l }, l); }))),
                     h('span', { className: 'edx__acts' },
                       h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Subir', disabled: bi === 0 && ei === 0, onClick: function () { mover(bi, ei, -1); } }, h(G.Icon, { name: 'arriba', size: 16 })),
@@ -4793,7 +4798,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
                       h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Quitar', onClick: function () { up(function (x) { x.bloques[bi].ejercicios.splice(ei, 1); }); } }, h(G.Icon, { name: 'cerrar', size: 16 })))),
                   h('input', { className: 'edx__nota', value: e.nota, placeholder: 'Nota para el jugador (opcional)', 'aria-label': 'Nota', onChange: function (ev) { campoEj(bi, ei, 'nota', ev.target.value); } }));
               })) : h('p', { className: 'muted small', style: { margin: '4px 0 0' } }, 'Bloque vacío. Añade el primer ejercicio.'),
-            h('select', { className: 'g-import__select edx__add', value: '', 'aria-label': 'Añadir ejercicio a ' + b.titulo, onChange: function (ev) { var id = ev.target.value; if (!id) return; up(function (x) { x.bloques[bi].ejercicios.push({ _u: ST.uid(), _k: null, ejId: id, series: '3', reps: '8', carga: '', descanso: '90', tempo: '', rpe: '', ss: '', nota: '' }); }); } }, opcionesEj('', '+ Añadir ejercicio…')));
+            h('select', { className: 'g-import__select edx__add', value: '', 'aria-label': 'Añadir ejercicio a ' + b.titulo, onChange: function (ev) { var id = ev.target.value; if (!id) return; up(function (x) { x.bloques[bi].ejercicios.push({ _u: ST.uid(), _k: null, ejId: id, series: '3', reps: '8', seg: '', carga: '', descanso: '90', tempo: '', rpe: '', ss: '', nota: '' }); }); } }, opcionesEj('', '+ Añadir ejercicio…')));
         })),
         h('div', { key: 'nb' }, h(G.Button, { size: 'md', variant: 'secondary', icon: 'mas', onClick: function () { up(function (x) { x.bloques.push({ _u: ST.uid(), titulo: 'Bloque ' + (x.bloques.length + 1), ejercicios: [] }); }); } }, 'Añadir bloque')),
         d.error ? h('p', { key: 'er', className: 'g-field__error', role: 'alert', style: { margin: 0 } }, d.error) : null,
@@ -4865,7 +4870,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var finIso = sel ? ST.iso(ST.addDays(new Date(A.desde + 'T12:00:00'), 7 * sel.semanas - 1)) : A.desde;
       // el ejercicio de referencia de cada día: el primero con carga (si no hay, se cuentan series)
       function refEj(bl) { var f = ST.ejerciciosPlanos({ bloques: bl }).filter(function (x) { return x.e.carga; })[0]; return f ? f.key : null; }
-      function lift(bl, k) { if (k) { var f = ST.ejerciciosPlanos({ bloques: bl }).filter(function (x) { return x.key === k; })[0]; if (f) return n(f.e.carga) + ' kg · ' + f.e.series + '×' + f.e.reps; } return ST.resumenBloques(bl).series + ' series'; }
+      function lift(bl, k) { if (k) { var f = ST.ejerciciosPlanos({ bloques: bl }).filter(function (x) { return x.key === k; })[0]; if (f) return n(f.e.carga) + ' kg · ' + f.e.series + '×' + ST.repTxt(f.e); } return ST.resumenBloques(bl).series + ' series'; }
       var diasOrd = sel ? sel.dias.slice().sort(function (a, c) { return ((a.dow + 6) % 7) - ((c.dow + 6) % 7); }).map(function (x) { var pl = state.plantillas.filter(function (q) { return q.id === x.plantillaId; })[0]; return { dow: x.dow, pl: pl, k: pl ? refEj(pl.bloques) : null }; }) : [];
       return shell([
         h(G.AppHeader, { key: 'h', title: 'Programas', subtitle: 'Semanas de trabajo con progresión, para uno o para un grupo', action: h(G.Button, { size: 'md', icon: 'mas', onClick: function () { setPgEd(borradorProg(null)); setConf(''); } }, 'Nuevo programa') }),
@@ -5266,7 +5271,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
               var rr = s.registros[fx.key] || [];
               return h('div', { key: fx.key, style: { padding: '12px', background: 'var(--surface-sunken)', borderRadius: 'var(--radius-md)' } },
                 h('p', { style: { margin: 0, fontWeight: 600 } }, ST.nombreEj(state, fx.e.ejId)),
-                h('p', { style: { margin: '4px 0 0', fontSize: '13px', color: 'var(--ink-muted)' } }, 'Objetivo ' + fx.e.series + ' × ' + fx.e.reps + (fx.e.carga ? ' × ' + n(fx.e.carga) + ' kg' : '')),
+                h('p', { style: { margin: '4px 0 0', fontSize: '13px', color: 'var(--ink-muted)' } }, 'Objetivo ' + fx.e.series + ' × ' + ST.repTxt(fx.e) + (fx.e.carga ? ' × ' + n(fx.e.carga) + ' kg' : '')),
                 h('p', { style: { margin: '4px 0 0', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '20px' } }, rr.length ? rr.map(function (r) { return r.done ? r.reps + (r.carga !== null && r.carga !== undefined ? '×' + n(r.carga) : '') : '—'; }).join('  ') : 'sin registrar'));
             })),
             s.comentario ? h('p', { style: { margin: '12px 0 0' } }, h('b', null, 'Comentario: '), s.comentario) : null);
