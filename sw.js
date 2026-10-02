@@ -1,7 +1,7 @@
 /* GAGOR · service worker: la app abre sin conexión; los datos van siempre al servidor. */
-const VERSION = 'gagor-1.1.2';
-const SHELL = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
-self.addEventListener('install', (e) => { e.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())); });
+const VERSION = 'gagor-1.1.3';
+const SHELL = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
+self.addEventListener('install', (e) => { e.waitUntil(caches.open(VERSION).then((c) => Promise.all(SHELL.map((u) => c.add(u).catch(() => {})))).then(() => self.skipWaiting())); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== VERSION).map((k) => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', (e) => {
   const req = e.request; if (req.method !== 'GET') return;
@@ -19,7 +19,7 @@ self.addEventListener('fetch', (e) => {
 /* Recordatorios: el servidor manda un aviso los días con sesión; tocarlo abre GAGOR. */
 self.addEventListener('push', (e) => {
   let d = {}; try { d = e.data ? e.data.json() : {}; } catch (x) { d = { body: e.data ? e.data.text() : '' }; }
-  e.waitUntil(self.registration.showNotification(d.title || 'GAGOR', { body: d.body || '', icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: d.tag || 'gagor', data: { url: d.url || './' } }));
+  e.waitUntil(self.registration.showNotification(d.title || 'GAGOR', { body: d.body || '', icon: 'icon-192.png', badge: 'icon-192.png', tag: d.tag || 'gagor', data: { url: d.url || './' } }));
 });
 self.addEventListener('notificationclick', (e) => {
   e.notification.close(); const url = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href;
