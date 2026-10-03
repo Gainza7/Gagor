@@ -9,6 +9,6 @@
 window.GAGOR_CONFIG = {
   supabaseUrl: 'https://dbawmulxavhepupulrpt.supabase.co',
   supabaseKey: 'sb_publishable_6A9BtRdN4eMys452G3mWjQ_Ir9kMSeg',
-  vapidPublicKey: '',
+  vapidPublicKey: 'BP1FDCVOBuJHWMXoEuwvwplU8-QfRcpurTeySiYT92Bm-hY3-eM_NEsn1B-Wx1-vGq_AVW08y3HQ2S-5k-9kVFg',
   pwa: true
 };
