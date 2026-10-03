@@ -1,5 +1,5 @@
 /* GAGOR · service worker: la app abre sin conexión; los datos van siempre al servidor. */
-const VERSION = 'gagor-1.1.3';
+const VERSION = 'gagor-1.2.0';
 const SHELL = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(VERSION).then((c) => Promise.all(SHELL.map((u) => c.add(u).catch(() => {})))).then(() => self.skipWaiting())); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== VERSION).map((k) => caches.delete(k)))).then(() => self.clients.claim())); });
@@ -16,12 +16,20 @@ self.addEventListener('fetch', (e) => {
   e.respondWith(caches.match(req).then((m) => { const f = fetch(req).then((r) => { if (r.ok || r.type === 'opaque') { const cp = r.clone(); caches.open(VERSION).then((c) => c.put(req, cp)); } return r; }).catch(() => m); return m || f; }));
 });
 
-/* Recordatorios: el servidor manda un aviso los días con sesión; tocarlo abre GAGOR. */
+/* Avisos: recordatorios de sesión (jugador) y dudas del chat (entrenador, con «Responder» / «Ahora no»). */
 self.addEventListener('push', (e) => {
   let d = {}; try { d = e.data ? e.data.json() : {}; } catch (x) { d = { body: e.data ? e.data.text() : '' }; }
-  e.waitUntil(self.registration.showNotification(d.title || 'GAGOR', { body: d.body || '', icon: 'icon-192.png', badge: 'icon-192.png', tag: d.tag || 'gagor', data: { url: d.url || './' } }));
+  const op = { body: d.body || '', icon: 'icon-192.png', badge: 'icon-192.png', tag: d.tag || 'gagor', data: { url: d.url || './' } };
+  if (d.actions) { op.actions = d.actions; op.requireInteraction = true; op.renotify = true; op.vibrate = [120, 60, 120]; }
+  e.waitUntil(self.registration.showNotification(d.title || 'GAGOR', op));
 });
 self.addEventListener('notificationclick', (e) => {
-  e.notification.close(); const url = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href;
-  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((cs) => { for (const c of cs) { if (c.url.startsWith(self.registration.scope) && 'focus' in c) return c.focus(); } return self.clients.openWindow(url); }));
+  e.notification.close();
+  if (e.action === 'luego') return; // «Ahora no»: la duda queda pendiente en Mensajes
+  const url = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href;
+  const hash = new URL(url).hash;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((cs) => {
+    for (const c of cs) { if (c.url.startsWith(self.registration.scope) && 'focus' in c) { if (hash) c.postMessage({ gagor: 'abrir', hash }); return c.focus(); } }
+    return self.clients.openWindow(url);
+  }));
 });

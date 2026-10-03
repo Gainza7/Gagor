@@ -970,6 +970,25 @@ a.g-btn { text-decoration: none; }
 .aviso-cierre p { margin: 0; font-size: 15px; line-height: 22px; }
 /* edx-seg */
 .g-phase--down .g-phase__value { color: var(--accent); }
+/* gagor-chat 1.2 */
+.scroll.chat { display: flex; flex-direction: column-reverse; gap: 10px; }
+.chat__m { max-width: 82%; padding: 10px 12px; border-radius: 16px; background: var(--surface-card); border: 1px solid var(--line); font-size: 15px; line-height: 21px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.chat__m--jugador { align-self: flex-end; background: var(--accent-soft); border-color: transparent; border-bottom-right-radius: 4px; }
+.chat__m--entrenador, .chat__m--ia { align-self: flex-start; border-bottom-left-radius: 4px; }
+.chat__ctx { display: block; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ink-muted); margin-bottom: 2px; }
+.chat__meta { display: block; margin-top: 4px; font-size: 11px; line-height: 14px; color: var(--ink-muted); text-align: right; }
+.phone:has(.chat__in) .scroll { padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px)); }
+.chat__empty { margin: auto 0; text-align: center; color: var(--ink-muted); font-size: 15px; line-height: 22px; padding: 24px 8px; }
+.chat__in { width: 100%; min-height: 48px; max-height: 120px; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface-sunken); color: var(--ink); font: 16px/22px var(--font-sans); resize: none; box-sizing: border-box; }
+.chat__new { display: inline-block; min-width: 20px; padding: 0 6px; margin-left: 6px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: 12px; line-height: 20px; font-weight: 700; }
+.msgs { display: grid; grid-template-columns: minmax(200px, 280px) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 760px) { .msgs { grid-template-columns: minmax(0, 1fr); } }
+.msgs__list { display: grid; gap: 4px; }
+.msgs__it { display: grid; gap: 2px; text-align: left; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-card); color: var(--ink); font: inherit; cursor: pointer; }
+.msgs__it.is-on { border-color: var(--accent); }
+.msgs__it b { display: flex; justify-content: space-between; gap: 8px; }
+.msgs__it span { font-size: 13px; line-height: 18px; color: var(--ink-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.msgs__thread { display: flex; flex-direction: column; gap: 10px; min-height: 240px; max-height: 60vh; overflow-y: auto; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
 </style>
 </head>
 <body>
@@ -2533,7 +2552,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.1.2";
+<script>window.GAGOR_VERSION = "1.2";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -3637,9 +3656,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 (function (global) {
   'use strict';
   var KEY = 'gagor_sync_v1';
-  var COLS = ['clientes', 'ejercicios', 'plantillas', 'programas', 'sesiones', 'externos', 'peso', 'salto', 'bienestar', 'partidos', 'cobros', 'gastos', 'facturas', 'avisos'];
+  var COLS = ['clientes', 'ejercicios', 'plantillas', 'programas', 'sesiones', 'externos', 'peso', 'salto', 'bienestar', 'partidos', 'cobros', 'gastos', 'facturas', 'avisos', 'mensajes'];
   var SINGLES = { emisor: 'config/emisor', fiscal: 'config/fiscal' };
-  var JUGADOR_ESCRIBE = { sesiones: 1, externos: 1, peso: 1, bienestar: 1, preferencias: 1, avisos: 1 };
+  var JUGADOR_ESCRIBE = { sesiones: 1, externos: 1, peso: 1, bienestar: 1, preferencias: 1, avisos: 1, mensajes: 1 };
   var PULL_CADA = 20000, PUSH_ESPERA = 700;
 
   var cfg = global.GAGOR_CONFIG || {};
@@ -3885,6 +3904,22 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var gd = useState('ajustes'); var glosDe = gd[0], setGlosDe = gd[1];
     var ed = useState('lib'); var ejDe = ed[0], setEjDe = ed[1];
     var avS = useState(''); var avMsg = avS[0], setAvMsg = avS[1];
+    /* ------------------------------------------------ chat de dudas (1.2) */
+    var chS = useState(''); var chatTxt = chS[0], setChatTxt = chS[1];
+    var cvS = useState({ volver: 'hoy', ejId: null }); var chatDe = cvS[0], setChatDe = cvS[1];
+    var VISTO = 'gagor_chat_visto_' + cid;
+    var vsS = useState(function () { try { return localStorage.getItem(VISTO) || ''; } catch (e) { return ''; } }); var chatVisto = vsS[0], setChatVisto = vsS[1];
+    var misMsgs = (state.mensajes || []).filter(function (m) { return m.clienteId === cid; }).sort(function (a, b) { return a.ts < b.ts ? -1 : 1; });
+    var respNuevas = misMsgs.filter(function (m) { return m.de !== 'jugador' && m.ts > chatVisto; }).length;
+    React.useEffect(function () {
+      if (view !== 'chat') return undefined;
+      var marca = function () { var x = new Date().toISOString(); try { localStorage.setItem(VISTO, x); } catch (e) {} setChatVisto(x); };
+      marca(); var S = global.GAGOR_SYNC; if (S && S.ahora) S.ahora();
+      var id = setInterval(function () { if (S && S.ahora && !document.hidden) S.ahora().then(marca); }, 6000);
+      return function () { clearInterval(id); marca(); };
+    }, [view]);
+    function abrirChat(ejId) { setChatDe({ volver: view, ejId: ejId || null }); setView('chat'); }
+    function botonChat(extra) { return h(G.Button, Object.assign({ variant: 'ghost', full: true, icon: 'mensaje', onClick: function () { abrirChat(extra && extra.ejId); } }, extra && extra.props), respNuevas ? [t('Ver respuesta'), h('span', { key: 'n', className: 'chat__new' }, respNuevas)] : t('Pregunta una duda')); }
     /* --------------------------------------------------- recordatorios (push) */
     var CFG = global.GAGOR_CONFIG || {};
     var miAviso = (state.avisos || []).filter(function (a) { return a.id === cid; })[0] || null;
@@ -3999,7 +4034,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
                 h(G.StatTile, { label: t('Carga'), value: esta ? esta.toLocaleString('es-ES') : '—', detail: media ? (esta >= media ? '+' : '−') + Math.abs(Math.round((esta / media - 1) * 100)) + t(' % sobre tu media') : t('Sin media aún') }),
                 h(G.StatTile, { label: t('Sesiones'), value: semSes.filter(function (s) { return s.estado === 'hecha'; }).length + '/' + semSes.length, detail: t('Esta semana') }))),
             h(G.Disclosure, { icon: 'equipo', title: t('Entreno de equipo'), meta: t('Duración y RPE') },
-              h(G.Button, { variant: 'secondary', full: true, icon: 'mas', onClick: function () { setView('externo'); } }, t('Apuntar entreno del equipo'))))
+              h(G.Button, { variant: 'secondary', full: true, icon: 'mas', onClick: function () { setView('externo'); } }, t('Apuntar entreno del equipo'))),
+            respNuevas ? botonChat() : null)
         ),
         sesHoy && !otroDia ? h('div', { className: 'bar' },
           h('div', { style: { display: 'grid', gap: '8px' } },
@@ -4031,7 +4067,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
                   state: exDone(ses, fx) ? 'done' : 'pending', current: fi === primero && tot.done > 0 && !exDone(ses, fx), progress: hechas && hechas < rr.length ? hechas + '/' + rr.length : null,
                   onOpen: function () { setIdx(fi); setView('sesion'); } });
               }));
-          })
+          }),
+          botonChat()
         ),
         h('div', { className: 'bar' },
           h('div', { style: { display: 'grid', gap: '8px' } },
@@ -4063,6 +4100,28 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           });
           setT(Object.assign({}, T, { sueno: null, fatiga: null, dolor: null, nota: '', pesoKg: null })); setView('hoy');
         } }, t('Guardar')))
+      );
+    }
+
+    /* --------------------------------------------------------------- CHAT */
+    function Chat() {
+      function enviar() {
+        var txt = chatTxt.trim(); if (!txt) return;
+        var ej = chatDe.ejId ? ST.ejercicio(state, chatDe.ejId) : null;
+        commit(function (st) { st.mensajes = st.mensajes || []; st.mensajes.push({ id: cid + '-' + Date.now().toString(36) + ST.uid().slice(0, 3), clienteId: cid, de: 'jugador', texto: txt.slice(0, 1000), ts: new Date().toISOString(), fecha: hoyIso, sesionId: ses ? ses.id : null, ejId: ej ? ej.id : null, ejNombre: ej ? ej.nombre : null }); });
+        setChatTxt(''); setTimeout(function () { var S = global.GAGOR_SYNC; if (S && S.ahora) S.ahora(); }, 900);
+      }
+      function hora(ts) { var d = new Date(ts); return (ST.iso(d) === hoyIso ? '' : ST.fmtCorta(ST.iso(d)) + ' · ') + d.toTimeString().slice(0, 5); }
+      var lista = misMsgs.slice().reverse();
+      return h('div', { className: 'phone' },
+        h(G.AppHeader, { title: t('Dudas'), subtitle: t('Tu entrenador te contesta aquí'), onBack: function () { setView(chatDe.volver || 'hoy'); } }),
+        h('div', { className: 'scroll chat', 'aria-live': 'polite' }, lista.length ? lista.map(function (m) {
+          var quien = m.de === 'ia' ? t('Respuesta automática · tu entrenador la revisará') : (m.de === 'entrenador' ? t('Tu entrenador') : (m.leido ? t('Visto') : t('Enviado')));
+          return h('div', { key: m.id, className: 'chat__m chat__m--' + m.de }, m.ejNombre ? h('span', { className: 'chat__ctx' }, m.ejNombre) : null, m.texto, h('span', { className: 'chat__meta' }, hora(m.ts) + ' · ' + quien));
+        }) : h('p', { className: 'chat__empty' }, t('¿Algo no te cuadra? Pregunta lo que quieras de la sesión y te contestan aquí.'))),
+        h('div', { className: 'bar bar--stack' },
+          h('textarea', { id: 'chat-txt', className: 'chat__in', rows: 2, value: chatTxt, maxLength: 1000, placeholder: chatDe.ejId ? t('Tu duda sobre ') + (ST.nombreEj(state, chatDe.ejId) || '').toLowerCase() + '…' : t('Escribe tu duda…'), 'aria-label': t('Tu duda'), onChange: function (e) { setChatTxt(e.target.value); } }),
+          h(G.Button, { full: true, icon: 'mensaje', disabled: !chatTxt.trim(), onClick: enviar }, t('Enviar')))
       );
     }
 
@@ -4102,7 +4161,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
             (ex.equivalentes || []).length ? h(G.Disclosure, { icon: 'plantilla', title: t('Cambiar ejercicio'), meta: (ex.equivalentes || []).length + ((ex.equivalentes || []).length === 1 ? t(' opción') : t(' opciones')) },
               h('div', { className: 'g-group__list' }, (ex.equivalentes || []).map(function (id) { var y = ST.ejercicio(state, id); if (!y) return null;
                 return h(G.ExerciseRow, { key: id, index: '↔', name: y.nombre, sets: null, extra: y.material.join(', '), onOpen: function () { cambiarEjercicio(ex, y); } }); }))) : null),
-          h(G.Button, { variant: 'ghost', full: true, icon: 'cronometro', onClick: function () { setGuide({ si: 0, phase: 'work', key: guide.key + 1 }); setView('guiado'); } }, t('Seguir en modo guiado'))
+          h(G.Button, { variant: 'ghost', full: true, icon: 'cronometro', onClick: function () { setGuide({ si: 0, phase: 'work', key: guide.key + 1 }); setView('guiado'); } }, t('Seguir en modo guiado')),
+          botonChat({ ejId: e.ejId })
         ),
         h('div', { className: 'bar bar--stack' }, timerKey > 0 && ssSig ? h('div', { className: 'ssnext' }, h('p', null, t('Sin descanso: pasa a ') + ST.nombreEj(state, ssSig.e.ejId) + '.'), h(G.Button, { full: true, variant: 'secondary', icon: 'adelante', onClick: function () { setTimerKey(0); setIdx(fl.findIndex(function (x) { return x.key === ssSig.key; })); } }, t('Ir a ') + ST.etiquetas(ses.bloques)[ssSig.key]))
             : (timerKey > 0 ? h(G.RestTimer, { key: timerKey, className: 'g-timer--bar', total: e.descanso, seconds: e.descanso, running: true, onEnd: function () { var k = timerKey; setTimeout(function () { setTimerKey(function (v) { return v === k ? 0 : v; }); }, 3000); }, onSkip: function () { setTimerKey(0); } }) : null),
@@ -4157,7 +4217,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var upcoming = fl.slice(idx + 1).map(function (fx) { return { exercise: ST.nombreEj(state, fx.e.ejId) + ' · ' + fx.e.series + ' × ' + ST.repTxt(fx.e), value: fx.e.carga || 0, unit: fx.e.carga ? 'kg' : '', date: descansoTxt(fx.e.descanso) }; });
       return h('div', { className: 'phone' },
         h(G.AppHeader, { title: ST.nombreEj(state, e.ejId), subtitle: t('Ejercicio ') + (idx + 1) + t(' de ') + fl.length + t(' · Serie ') + (guide.si + 1) + t(' de ') + rows.length, onBack: function () { setView('sesion'); }, action: h(G.Button, { variant: 'ghost', size: 'md', icon: 'cerrar', onClick: function () { setView('hoy'); } }, t('Salir')) }),
-        h('div', { className: 'scroll' }, body, upcoming.length ? h(G.Disclosure, { icon: 'adelante', title: t('Lo que viene'), meta: upcoming.length + (upcoming.length === 1 ? t(' ejercicio') : t(' ejercicios')) }, h(G.RecordList, { items: upcoming })) : null)
+        h('div', { className: 'scroll' }, body, upcoming.length ? h(G.Disclosure, { icon: 'adelante', title: t('Lo que viene'), meta: upcoming.length + (upcoming.length === 1 ? t(' ejercicio') : t(' ejercicios')) }, h(G.RecordList, { items: upcoming })) : null, botonChat({ ejId: e.ejId }))
       );
     }
 
@@ -4359,6 +4419,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
             h(G.Button, { key: 'b', variant: 'secondary', full: true, icon: 'salir', onClick: salir }, t('Cerrar sesión'))], 'cuenta')));
     }
 
+    if (view === 'chat') return Chat();
     if (view === 'sesion') return Sesion();
     if (view === 'guiado') return Guiado();
     if (view === 'cierre') return Cierre();
@@ -4416,16 +4477,40 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var cfS = useState(''); var conf = cfS[0], setConf = cfS[1];
     var vkS = useState(null); var claves = vkS[0], setClaves = vkS[1];     // claves de recordatorios recién generadas (no se guardan)          // confirmaciones en dos pasos
     var drag = React.useRef(null);
+    /* ------------------------------------------------ mensajes (1.2) */
+    var mcS = useState(null); var msgCli = mcS[0], setMsgCli = mcS[1];
+    var mtS = useState(''); var msgTxt = mtS[0], setMsgTxt = mtS[1];
+    var maS = useState(''); var msgAv = maS[0], setMsgAv = maS[1];
+    var todosMsgs = (state.mensajes || []).slice().sort(function (a, b) { return a.ts < b.ts ? -1 : 1; });
+    var sinLeer = todosMsgs.filter(function (m) { return m.de === 'jugador' && !m.leido; });
+    React.useEffect(function () {
+      function abrir(hash) { var mm = /^#mensajes-(.+)$/.exec(hash || ''); if (!mm) return; setMsgCli(decodeURIComponent(mm[1])); setView('mensajes'); }
+      abrir(global.location.hash); if (/^#mensajes-/.test(global.location.hash)) { try { history.replaceState(null, '', global.location.pathname); } catch (e) {} }
+      var oir = function (ev) { if (ev.data && ev.data.gagor === 'abrir') abrir(ev.data.hash); };
+      if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', oir);
+      return function () { if (navigator.serviceWorker) navigator.serviceWorker.removeEventListener('message', oir); };
+    }, []);
+    React.useEffect(function () {
+      if (view !== 'mensajes') return undefined; var S = global.GAGOR_SYNC; if (S && S.ahora) S.ahora();
+      var id = setInterval(function () { if (S && S.ahora && !document.hidden) S.ahora(); }, 6000);
+      return function () { clearInterval(id); };
+    }, [view]);
+    var msgSel = msgCli || (todosMsgs.length ? todosMsgs[todosMsgs.length - 1].clienteId : null);
+    var pendCli = msgSel ? sinLeer.filter(function (m) { return m.clienteId === msgSel; }).length : 0;
+    React.useEffect(function () {
+      if (view !== 'mensajes' || !msgSel || !pendCli) return;
+      commit(function (st) { (st.mensajes || []).forEach(function (m) { if (m.clienteId === msgSel && m.de === 'jugador' && !m.leido) { m.leido = true; m.leidoTs = new Date().toISOString(); } }); });
+    }, [view, msgSel, pendCli]);
     React.useEffect(function () { if (global.claude && global.claude.use) { global.claude.use('downloads').then(function (d) { if (d) setDownloads(d); }).catch(function () {}); } }, []);
     var hoyIso = ST.iso(ST.hoy);
     var cliente = state.clientes.filter(function (c) { return c.id === cid; })[0] || state.clientes[0];
 
     function Nav() {
-      var items = [['inicio', 'Inicio', 'hoy'], ['clientes', 'Clientes', 'equipo'], ['planificador', 'Planificador', 'calendario'], ['programas', 'Programas', 'plantilla'], ['biblioteca', 'Biblioteca', 'ejercicios'], ['revision', 'Revisión', 'aviso'], ['partidos', 'Partidos', 'partido'], ['cuentas', 'Cuentas', 'euro'], ['datos', 'Datos', 'exportar']];
+      var items = [['inicio', 'Inicio', 'hoy'], ['mensajes', 'Mensajes', 'mensaje'], ['clientes', 'Clientes', 'equipo'], ['planificador', 'Planificador', 'calendario'], ['programas', 'Programas', 'plantilla'], ['biblioteca', 'Biblioteca', 'ejercicios'], ['revision', 'Revisión', 'aviso'], ['partidos', 'Partidos', 'partido'], ['cuentas', 'Cuentas', 'euro'], ['datos', 'Datos', 'exportar']];
       return h('nav', { className: 'nav' },
         h('div', { className: 'nav__mark' }, h(G.Logo, { variant: 'horizontal', height: 24 })),
         items.map(function (it) { var on = view === it[0] || (view === 'cliente' && it[0] === 'clientes') || (view === 'editor' && ed && it[0] === (ed.tipo === 'sesion' ? 'planificador' : 'programas'));
-          var badge = it[0] === 'revision' && todosAvisos.length ? todosAvisos.length : null;
+          var badge = it[0] === 'revision' && todosAvisos.length ? todosAvisos.length : (it[0] === 'mensajes' && sinLeer.length ? sinLeer.length : null);
           return h('button', { key: it[0], type: 'button', className: 'nav__item' + (on ? ' is-on' : ''), 'aria-current': on ? 'page' : undefined, onClick: function () { setView(it[0]); setBajaConf(false); setConf(''); } }, h(G.Icon, { name: it[2], size: 20 }), h('span', { className: 'nav__txt' }, it[1]), badge ? h('span', { className: 'nav__badge' }, badge) : null); }),
         h('div', { className: 'nav__foot' },
           h(G.SyncBadge, { short: true, fase: sync.fase, error: sync.error, when: sync.ultima ? ST.horaCorta(sync.ultima) : '' }),
@@ -5323,11 +5408,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
               .catch(function () { setAviso('Este navegador no puede generar las claves. Prueba con Chrome.'); });
           }
           var url = (CFG.supabaseUrl || 'https://TU-PROYECTO.supabase.co').replace(/\/$/, '');
-          var sql = claves ? "select cron.schedule('gagor-recordatorios', '0 * * * *', $$\n  select net.http_post(\n    url := '" + url + "/functions/v1/gagor-recordatorios',\n    headers := '{\"Content-Type\": \"application/json\", \"x-gagor-cron\": \"" + claves.secreto + "\"}'::jsonb,\n    body := '{}'::jsonb)\n$$);" : '';
+          var sql = claves ? "select cron.schedule('gagor-recordatorios', '0 * * * *', $$\n  select net.http_post(\n    url := '" + url + "/functions/v1/gagor-recordatorios',\n    headers := '{\"Content-Type\": \"application/json\", \"x-gagor-cron\": \"" + claves.secreto + "\"}'::jsonb,\n    body := '{}'::jsonb)\n$$);\n\n-- avisos de dudas del chat (1.2)\ninsert into gagor_config_servidor (clave, valor) values\n  ('avisos_url', '" + url + "/functions/v1/gagor-recordatorios'),\n  ('avisos_secreto', '" + claves.secreto + "')\non conflict (clave) do update set valor = excluded.valor;" : '';
           function fila(tit, val, id) { return h('div', { key: id, className: 'keyrow' }, h('span', { className: 'keyrow__t' }, tit), h('code', { className: 'keyrow__v' }, val), h(G.Button, { size: 'md', variant: 'secondary', icon: copiado === id ? 'check' : 'copiar', onClick: function () { copiar(val, id); } }, copiado === id ? 'Copiado' : 'Copiar')); }
           return h('div', { key: 'rec', className: 'panel', style: { display: 'grid', gap: '12px', maxWidth: '760px' } },
             h('div', { className: 'rowline' }, h('h2', { className: 'h2' }, 'Recordatorios'), h('span', { className: 'muted small' }, servidor && CFG.vapidPublicKey ? act + (act === 1 ? ' cliente los tiene activados' : ' clientes los tienen activados') : 'Sin activar')),
-            h('p', { style: { margin: 0, lineHeight: '24px' } }, 'Un aviso en el móvil del jugador los días que tiene sesión y aún no la ha hecho, a la hora que él elija. Cada jugador lo activa en sus Ajustes. Nada de mensajes ni chat.'),
+            h('p', { style: { margin: 0, lineHeight: '24px' } }, 'Un aviso en el móvil del jugador los días que tiene sesión y aún no la ha hecho, a la hora que él elija (cada jugador lo activa en sus Ajustes), y a ti cuando un jugador te escribe una duda (lo activas en Mensajes).'),
             !servidor ? h('p', { className: 'muted small', style: { margin: 0 } }, 'Se activan con el servidor conectado (paso 9 de la guía, opcional).')
               : h('div', { className: 'stack stack--8' },
                   CFG.vapidPublicKey && !claves ? h('p', { className: 'small', style: { margin: 0 } }, h('b', null, 'Activados en tu web.'), ' Si cambias de servidor, genera claves nuevas.') : null,
@@ -5353,6 +5438,63 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       ]);
     }
 
+    /* ----------------------------------------------------------- MENSAJES */
+    function Mensajes() {
+      var CFG = global.GAGOR_CONFIG || {}; var servidor = state.demo === false;
+      var miAv = (state.avisos || []).filter(function (a) { return a.id === '_entrenador'; })[0];
+      var nDisp = miAv && miAv.activo ? (miAv.subs || []).length : 0;
+      function b64(b) { var pad = '===='.slice((b.length % 4) || 4); var raw = atob((b + pad).replace(/-/g, '+').replace(/_/g, '/')); var a = new Uint8Array(raw.length); for (var i = 0; i < raw.length; i++) a[i] = raw.charCodeAt(i); return a; }
+      function activar() {
+        if (!('serviceWorker' in navigator) || !('PushManager' in global) || !('Notification' in global)) { setMsgAv('Este navegador no admite avisos. En el móvil, abre GAGOR instalada (desde su icono) en Chrome.'); return; }
+        setMsgAv('Activando…');
+        Notification.requestPermission().then(function (p) { if (p !== 'granted') throw new Error('permiso'); return navigator.serviceWorker.ready; })
+          .then(function (reg) { return reg.pushManager.getSubscription().then(function (sub) { return sub || reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64(CFG.vapidPublicKey) }); }); })
+          .then(function (sub) { var j = sub.toJSON(); commit(function (st) { st.avisos = st.avisos || []; var a = st.avisos.filter(function (x) { return x.id === '_entrenador'; })[0]; if (!a) { a = { id: '_entrenador', activo: true, subs: [] }; st.avisos.push(a); } a.activo = true; a.subs = (a.subs || []).filter(function (x) { return x.endpoint !== j.endpoint; }).concat([{ endpoint: j.endpoint, keys: j.keys }]).slice(-5); }); setMsgAv('Listo: este dispositivo te avisará cuando un jugador escriba.'); })
+          .catch(function (e) { setMsgAv(e && e.message === 'permiso' ? 'Sin permiso no se puede avisar. Dalo en los ajustes de Chrome › Notificaciones.' : 'No se han podido activar. Prueba con conexión.'); });
+      }
+      function desactivar() { commit(function (st) { var a = (st.avisos || []).filter(function (x) { return x.id === '_entrenador'; })[0]; if (a) { a.activo = false; a.subs = []; } }); setMsgAv('Avisos desactivados en todos tus dispositivos.'); }
+      var porCli = {}; todosMsgs.forEach(function (m) { (porCli[m.clienteId] = porCli[m.clienteId] || []).push(m); });
+      var conv = Object.keys(porCli).map(function (id) { var arr = porCli[id]; return { id: id, ult: arr[arr.length - 1], nuevos: arr.filter(function (m) { return m.de === 'jugador' && !m.leido; }).length }; })
+        .sort(function (a, b) { return a.ult.ts < b.ult.ts ? 1 : -1; });
+      var sel = msgCli && porCli[msgCli] ? msgCli : (conv[0] ? conv[0].id : null);
+      var nom = function (id) { var c = state.clientes.filter(function (x) { return x.id === id; })[0]; return c ? c.nombre : 'Jugador'; };
+      function hora(ts) { var d = new Date(ts); return (ST.iso(d) === hoyIso ? 'Hoy' : ST.fmtCorta(ST.iso(d))) + ' · ' + d.toTimeString().slice(0, 5); }
+      function responder() {
+        var txt = msgTxt.trim(); if (!txt || !sel) return;
+        commit(function (st) { st.mensajes = st.mensajes || []; st.mensajes.forEach(function (m) { if (m.clienteId === sel && m.de === 'jugador' && !m.leido) m.leido = true; });
+          st.mensajes.push({ id: 'e-' + Date.now().toString(36) + ST.uid().slice(0, 3), clienteId: sel, de: 'entrenador', texto: txt.slice(0, 2000), ts: new Date().toISOString() }); });
+        setMsgTxt(''); setTimeout(function () { var S = global.GAGOR_SYNC; if (S && S.ahora) S.ahora(); }, 900);
+      }
+      var avisoPanel = h('div', { key: 'av', className: 'panel', style: { display: 'grid', gap: '8px', maxWidth: '760px' } },
+        h('div', { className: 'rowline' }, h('h2', { className: 'h2' }, 'Avisos en tu móvil'), h('span', { className: 'muted small' }, nDisp ? 'Activados en ' + nDisp + (nDisp === 1 ? ' dispositivo' : ' dispositivos') : 'Sin activar')),
+        h('p', { className: 'small', style: { margin: 0 } }, 'Cuando un jugador escriba una duda te llega un aviso con dos botones: Responder (abre esta pantalla) o Ahora no (queda pendiente aquí). Es el único aviso que recibes.'),
+        !servidor ? h('p', { className: 'muted small', style: { margin: 0 } }, 'Funciona con el servidor conectado.')
+          : !CFG.vapidPublicKey ? h('p', { className: 'muted small', style: { margin: 0 } }, 'Primero hay que activar los avisos del servidor: Datos › Recordatorios (paso 9 de la guía).')
+          : h('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } },
+              h(G.Button, { size: 'md', icon: 'aviso', onClick: activar }, nDisp ? 'Avisarme también en este dispositivo' : 'Avisarme en este móvil'),
+              nDisp ? h(G.Button, { size: 'md', variant: 'ghost', icon: 'cerrar', onClick: desactivar }, 'Desactivar') : null),
+        msgAv ? h('p', { className: 'small', role: 'status', style: { margin: 0 } }, msgAv) : null);
+      var hilo = sel ? porCli[sel] : [];
+      return shell([
+        h(G.AppHeader, { key: 'h', title: 'Mensajes', subtitle: sinLeer.length ? sinLeer.length + (sinLeer.length === 1 ? ' duda sin leer' : ' dudas sin leer') : 'Dudas de tus jugadores durante el entreno' }),
+        avisoPanel,
+        conv.length ? h('div', { key: 'm', className: 'msgs' },
+          h('div', { className: 'msgs__list' }, conv.map(function (c) {
+            return h('button', { key: c.id, type: 'button', className: 'msgs__it' + (c.id === sel ? ' is-on' : ''), onClick: function () { setMsgCli(c.id); } },
+              h('b', null, nom(c.id), c.nuevos ? h('span', { className: 'chat__new' }, c.nuevos) : null), h('span', null, (c.ult.de === 'jugador' ? '' : 'Tú: ') + c.ult.texto));
+          })),
+          h('div', { className: 'stack stack--8' },
+            h('h2', { className: 'h2' }, nom(sel)),
+            h('div', { className: 'msgs__thread' }, hilo.map(function (m) {
+              return h('div', { key: m.id, className: 'chat__m chat__m--' + m.de }, m.ejNombre ? h('span', { className: 'chat__ctx' }, m.ejNombre) : null, m.texto,
+                h('span', { className: 'chat__meta' }, hora(m.ts) + (m.de === 'ia' ? ' · Respuesta automática' : (m.de === 'entrenador' ? ' · Tú' : ''))));
+            })),
+            h('textarea', { id: 'msg-txt', className: 'chat__in', rows: 3, value: msgTxt, maxLength: 2000, placeholder: 'Responde a ' + nom(sel) + '…', onChange: function (e) { setMsgTxt(e.target.value); } }),
+            h('div', null, h(G.Button, { size: 'md', icon: 'mensaje', disabled: !msgTxt.trim(), onClick: responder }, 'Enviar respuesta'))))
+          : h('p', { key: 'v', className: 'muted' }, 'Aún no te ha escrito nadie. Los jugadores tienen el botón «Pregunta una duda» en la sesión.')
+      ]);
+    }
+    if (view === 'mensajes') return Mensajes();
     if (view === 'inicio') return Inicio();
     if (view === 'clientes') return Clientes();
     if (view === 'cliente') return Cliente();
