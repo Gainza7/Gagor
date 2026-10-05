@@ -2594,7 +2594,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.5";
+<script>window.GAGOR_VERSION = "1.5.1";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -4214,7 +4214,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var chips = [cur.circ ? t('Circuito · vuelta ') + (r0 + 1) + t(' de ') + nVueltas : null, ssLab ? t('Superserie ') + ssLab : null, (cur.circ ? finVuelta : ssUltimo) ? t('Descanso ') + descansoTxt(e.descanso) : t('Sin descanso'), e.tempo ? t('Tempo ') + e.tempo : null, e.rpe ? t('RPE ') + e.rpe : null].filter(Boolean);
       var tec = (ex.como && ex.como.length) || (ex.evita && ex.evita.length);
       return h('div', { className: 'phone' },
-        h(G.AppHeader, { title: ST.nombreEj(state, e.ejId), subtitle: t(cur.bloque) + t(' · ejercicio ') + (idx + 1) + t(' de ') + fl.length, onBack: function () { setView('resumen'); } }),
+        h(G.AppHeader, { title: ST.nombreEj(state, e.ejId), subtitle: cur.circ ? e.series + ' \u00d7 ' + ST.repTxt(e) + (e.carga ? ' · ' + n(e.carga) + t(' kg') : '') : t(cur.bloque) + t(' · ejercicio ') + (idx + 1) + t(' de ') + fl.length, onBack: function () { setView('resumen'); } }),
         h('div', { className: 'scroll' },
           h('ol', { className: 'steps', 'aria-label': t('Ejercicios de la sesión') }, fl.map(function (fx, i) {
             return h('li', { key: fx.key, className: 'steps__i' + (exDone(ses, fx) ? ' is-done' : '') + (i === idx ? ' is-on' : '') },
@@ -4222,7 +4222,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           })),
           ex.videoUrl ? h(G.ExerciseVideo, { title: ex.nombre, url: ex.videoUrl }) : null,
           h('div', { className: 'target' },
-            h('p', { className: 'target__big' }, e.series + ' \u00d7 ' + ST.repTxt(e), e.carga ? h('span', null, ' · ' + n(e.carga) + t(' kg')) : null),
+            cur.circ ? null : h('p', { className: 'target__big' }, e.series + ' \u00d7 ' + ST.repTxt(e), e.carga ? h('span', null, ' · ' + n(e.carga) + t(' kg')) : null),
             h('ul', { className: 'chips' }, chips.map(function (c, i) { return h('li', { key: i }, c); })),
             ssCon.length ? h('p', { className: 'target__note' }, t('Alterna con ') + ssCon.map(function (f) { return ST.nombreEj(state, f.e.ejId); }).join(t(' y ')) + t(': una serie de cada y luego descansa.')) : null,
             e.nota ? h('p', { className: 'target__note' }, e.nota) : null),
