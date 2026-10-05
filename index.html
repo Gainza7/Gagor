@@ -992,6 +992,12 @@ a.g-btn { text-decoration: none; }
 /* iPhone instalada: nada debajo de la hora ni de la isla */
 .phone > .g-head { padding-top: calc(var(--space-4) + env(safe-area-inset-top, 0px)); }
 .app { padding-top: env(safe-area-inset-top, 0px); box-sizing: border-box; }
+/* 1.3 · unilateral: repeticiones por lado */
+.edx__sub { display: flex; align-items: center; gap: 10px; margin-left: 38px; min-width: 0; }
+.edx__sub .edx__nota { margin-left: 0; flex: 1; }
+.edx__lado { display: inline-flex; align-items: center; gap: 6px; flex: none; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; line-height: 18px; font-weight: 600; color: var(--ink-muted); cursor: pointer; user-select: none; }
+.edx__lado input { margin: 0; accent-color: var(--accent); }
+.edx__lado.is-on { border-color: var(--accent); color: var(--ink); background: var(--accent-soft, var(--surface-sunken)); }
 </style>
 </head>
 <body>
@@ -1470,7 +1476,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     }
 
     var target = [];
-    if (p.targetReps !== undefined) target.push(num(p.targetReps));
+    if (p.targetReps !== undefined) target.push(num(p.targetReps) + (p.repsSuffix || ''));
     if (p.targetLoad !== undefined) target.push(num(p.targetLoad) + ' ' + unit);
     var last = p.last ? t('Últ. ') + num(p.last.reps) + (p.last.load !== undefined && p.last.load !== null ? ' × ' + num(p.last.load) : '') : null;
 
@@ -1488,7 +1494,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       h(
         'div',
         { className: 'g-set__grid' },
-        h('span', { className: 'g-set__label' }, t('Reps')),
+        h('span', { className: 'g-set__label' }, p.repsLabel || t('Reps')),
         h('span', { className: 'g-set__label' }, t('Carga')),
         h('span', { className: 'g-set__spacer' }),
         h(StepField, {
@@ -2555,7 +2561,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.2.1";
+<script>window.GAGOR_VERSION = "1.3";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -3115,6 +3121,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     (bloques || []).forEach(function (b) { b.ejercicios.forEach(function (e) {
       ej++; var s = Number(e.series) || 0; series += s;
       var trabajo = e.seg ? (Number(e.reps) || 1) * Number(e.seg) : ((Number(e.reps) || 0) > 20 ? Number(e.reps) : (Number(e.reps) || 0) * 4);
+      if (e.lado) trabajo *= 2;
       seg += s * trabajo + Math.max(0, s - 1) * (Number(e.descanso) || 0) + 45; // 45 s de cambio de ejercicio
     }); });
     return { ejercicios: ej, series: series, minutos: Math.round(seg / 60 / 5) * 5 || (ej ? 5 : 0) };
@@ -3125,7 +3132,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
   /* Guarda los bloques editados de una sesión sin perder lo que el jugador ya
      haya registrado: cada ejercicio del borrador recuerda su clave original. */
-  function repTxt(e) { return e && e.seg ? ((Number(e.reps) > 1 ? e.reps + ' \u00d7 ' : '') + e.seg + ' s') : (e ? e.reps : ''); }
+  function repTxt(e) { if (!e) return ''; var b = e.seg ? ((Number(e.reps) > 1 ? e.reps + ' \u00d7 ' : '') + e.seg + ' s') : e.reps; return e.lado ? b + ' por lado' : b; }
+  function esUnilateral(st, id) { var x = (st.ejercicios || []).filter(function (q) { return q.id === id; })[0]; return !!(x && /^Unilateral/.test(x.patron || '')); }
   function aplicarEdicion(ses, bloques) {
     var reg = {};
     var limpio = bloques.map(function (b, bi) { return { titulo: b.titulo, ejercicios: b.ejercicios.map(function (e, ei) {
@@ -3641,7 +3649,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
 
   global.GAGOR_STORE = { rango: rango, horaCorta: horaCorta, vacio: vacio, cargar: cargar, guardar: guardar, borrar: borrar, semilla: semilla, iso: iso, addDays: addDays, hoy: hoy, uid: uid,
-    fmtFecha: fmtFecha, fmtFechaMin: fmtFechaMin, fmtCorta: fmtCorta, relativo: relativo, sesionDesde: sesionDesde, ejerciciosPlanos: ejerciciosPlanos, etiquetas: etiquetas, ejerciciosNuevos: ejerciciosNuevos, companeros: companeros, resumenBloques: resumenBloques, sesionEnBlanco: sesionEnBlanco, aplicarEdicion: aplicarEdicion, repTxt: repTxt, borradorBloques: borradorBloques,
+    fmtFecha: fmtFecha, fmtFechaMin: fmtFechaMin, fmtCorta: fmtCorta, relativo: relativo, sesionDesde: sesionDesde, ejerciciosPlanos: ejerciciosPlanos, etiquetas: etiquetas, ejerciciosNuevos: ejerciciosNuevos, companeros: companeros, resumenBloques: resumenBloques, sesionEnBlanco: sesionEnBlanco, aplicarEdicion: aplicarEdicion, repTxt: repTxt, esUnilateral: esUnilateral, borradorBloques: borradorBloques,
     bloquesSemana: bloquesSemana, grupos: grupos, grupoBase: grupoBase, clientesDestino: clientesDestino, calendarioPrograma: calendarioPrograma, asignarPrograma: asignarPrograma, retirarAsignacion: retirarAsignacion, nombreDestino: nombreDestino,
     cargasSemanales: cargasSemanales, recuperacion: recuperacion, records: records, nombreEj: nombreEj, ejercicio: ejercicio,
     ultimaCargaReal: ultimaCargaReal, avisos: avisos, semanaDe: semanaDe, DIAS: DIAS,
@@ -4156,7 +4164,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
             ssCon.length ? h('p', { className: 'target__note' }, t('Alterna con ') + ssCon.map(function (f) { return ST.nombreEj(state, f.e.ejId); }).join(t(' y ')) + t(': una serie de cada y luego descansa.')) : null,
             e.nota ? h('p', { className: 'target__note' }, e.nota) : null),
           h('div', { className: 'frame' }, rows.map(function (r, k) {
-            return h(G.SetLogRow, { key: k, set: k + 1, targetReps: e.reps, targetLoad: e.carga === null ? undefined : e.carga, reps: r.reps, load: r.carga, done: r.done, last: ultimaVez(ses, e.ejId, k),
+            return h(G.SetLogRow, { key: k, set: k + 1, targetReps: e.reps, repsLabel: e.lado ? t('Reps por lado') : undefined, repsSuffix: e.lado ? t(' /lado') : '', targetLoad: e.carga === null ? undefined : e.carga, reps: r.reps, load: r.carga, done: r.done, last: ultimaVez(ses, e.ejId, k),
               onChange: function (val) { setRow(ses, cur.key, e, k, { reps: val.reps, carga: val.load, done: val.done }); } });
           })),
           h('div', null,
@@ -4199,13 +4207,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       }
       var body;
       if (guide.phase === 'work') body = [
-        h(G.PhaseTimer, { key: 'w' + guide.key, phase: 'work', resetKey: guide.key, countdown: e.seg ? (Number(e.reps) || 1) * e.seg : 0, detail: (e.seg ? ST.repTxt(e) : e.reps + t(' reps')) + cargaTxt(e) + (e.tempo ? t(' · tempo ') + e.tempo : ''), onDone: function (secs) { setRow(ses, cur.key, e, guide.si, Object.assign({}, row, { tWork: secs })); setGuide(Object.assign({}, guide, { phase: 'confirm' })); } }),
+        h(G.PhaseTimer, { key: 'w' + guide.key, phase: 'work', resetKey: guide.key, countdown: e.seg ? (Number(e.reps) || 1) * e.seg : 0, detail: (e.seg || e.lado ? ST.repTxt(e) : e.reps + t(' reps')) + cargaTxt(e) + (e.tempo ? t(' · tempo ') + e.tempo : ''), onDone: function (secs) { setRow(ses, cur.key, e, guide.si, Object.assign({}, row, { tWork: secs })); setGuide(Object.assign({}, guide, { phase: 'confirm' })); } }),
         h(G.ExerciseVideo, { key: 'v', title: ex.nombre, url: ex.videoUrl }),
         e.nota ? h('p', { key: 'nt', style: { margin: 0, fontSize: '16px', lineHeight: '24px', color: 'var(--ink-muted)' } }, e.nota) : null];
       else if (guide.phase === 'confirm') body = [
         h('div', { key: 'c', style: { padding: '16px', background: 'var(--surface-card)', border: '1px solid var(--line)', borderRadius: 'var(--radius-md)', display: 'grid', gap: '12px' } },
           h('p', { style: { margin: 0, fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 700 } }, t('¿Qué has hecho?')),
-          h('div', { className: 'frame' }, h(G.SetLogRow, { className: 'g-set--nocheck', set: guide.si + 1, targetReps: e.reps, targetLoad: e.carga === null ? undefined : e.carga, reps: row.reps, load: row.carga, done: true, last: ultimaVez(ses, e.ejId, guide.si),
+          h('div', { className: 'frame' }, h(G.SetLogRow, { className: 'g-set--nocheck', set: guide.si + 1, targetReps: e.reps, repsLabel: e.lado ? t('Reps por lado') : undefined, repsSuffix: e.lado ? t(' /lado') : '', targetLoad: e.carga === null ? undefined : e.carga, reps: row.reps, load: row.carga, done: true, last: ultimaVez(ses, e.ejId, guide.si),
             onChange: function (val) { setRow(ses, cur.key, e, guide.si, Object.assign({}, row, { reps: val.reps, carga: val.load, done: true })); } })),
           h(G.Button, { full: true, icon: 'check', onClick: function () {
             var cur2 = regs(ses, cur.key, e)[guide.si]; setRow(ses, cur.key, e, guide.si, Object.assign({}, cur2, { done: true }));
@@ -4764,10 +4772,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
        convierte al guardar.                                                   */
     function txtNum(v) { return v === null || v === undefined || v === '' ? '' : String(v).replace('.', ','); }
     function numTxt(v) { var x = parseFloat(String(v || '').replace(',', '.')); return isFinite(x) ? x : null; }
-    function aBorrador(e, k) { return { _u: ST.uid(), _k: k, ejId: e.ejId, series: txtNum(e.series), reps: txtNum(e.reps), seg: txtNum(e.seg), carga: txtNum(e.carga), descanso: txtNum(e.descanso), tempo: e.tempo || '', rpe: txtNum(e.rpe), ss: e.ss || '', nota: e.nota || '' }; }
+    function aBorrador(e, k) { return { _u: ST.uid(), _k: k, ejId: e.ejId, series: txtNum(e.series), reps: txtNum(e.reps), lado: !!e.lado, seg: txtNum(e.seg), carga: txtNum(e.carga), descanso: txtNum(e.descanso), tempo: e.tempo || '', rpe: txtNum(e.rpe), ss: e.ss || '', nota: e.nota || '' }; }
     function deBorrador(d, conClave) {
       var e = { ejId: d.ejId, series: Math.round(numTxt(d.series) || 0), reps: Math.round(numTxt(d.reps) || 0), carga: numTxt(d.carga), descanso: Math.round(numTxt(d.descanso) || 0) };
-      if (numTxt(d.seg) > 0) e.seg = Math.round(numTxt(d.seg)); if (d.tempo && d.tempo.trim()) e.tempo = d.tempo.trim(); if (numTxt(d.rpe)) e.rpe = numTxt(d.rpe); if (d.ss) e.ss = d.ss; if (d.nota && d.nota.trim()) e.nota = d.nota.trim();
+      if (numTxt(d.seg) > 0) e.seg = Math.round(numTxt(d.seg)); if (d.lado) e.lado = true; if (d.tempo && d.tempo.trim()) e.tempo = d.tempo.trim(); if (numTxt(d.rpe)) e.rpe = numTxt(d.rpe); if (d.ss) e.ss = d.ss; if (d.nota && d.nota.trim()) e.nota = d.nota.trim();
       if (conClave && d._k) e._k = d._k; return e;
     }
     function bloquesDe(draft, conClave) { return draft.bloques.map(function (b) { return { titulo: (b.titulo || '').trim() || 'Bloque', ejercicios: b.ejercicios.map(function (d) { return deBorrador(d, conClave); }) }; }); }
@@ -4876,7 +4884,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
                 return h('div', { key: e._u, className: 'edx__ex' + (lab ? ' is-ss' : '') },
                   h('div', { className: 'edx__row' },
                     h('span', { className: 'edx__n' + (reg ? ' is-reg' : ''), title: reg ? 'Ya registrado' : undefined }, reg ? h(G.Icon, { name: 'check', size: 14 }) : (lab || flat + ei + 1)),
-                    h('select', { className: 'edx__in edx__sel', value: e.ejId || '', 'aria-label': 'Ejercicio', onChange: function (ev) { campoEj(bi, ei, 'ejId', ev.target.value); } }, opcionesEj(e.ejId, e.ejId ? null : 'Elige ejercicio…')),
+                    h('select', { className: 'edx__in edx__sel', value: e.ejId || '', 'aria-label': 'Ejercicio', onChange: function (ev) { var id = ev.target.value; up(function (x) { var q = x.bloques[bi].ejercicios[ei]; q.ejId = id; q.lado = ST.esUnilateral(state, id); }); } }, opcionesEj(e.ejId, e.ejId ? null : 'Elige ejercicio…')),
                     inp('series', '3'), inp('reps', '8'), inp('seg', '—'), inp('carga', '—'), inp('descanso', '90'), inp('tempo', '—', { inputMode: 'text' }), inp('rpe', '—'),
                     h('label', { className: 'edx__f' }, h('span', { className: 'edx__fl' }, 'Súper'), h('select', { className: 'edx__in edx__ss', value: e.ss || '', 'aria-label': 'Superserie', onChange: function (ev) { campoEj(bi, ei, 'ss', ev.target.value); } }, h('option', { value: '' }, '—'), 'ABCDEF'.split('').map(function (l) { return h('option', { key: l, value: l }, l); }))),
                     h('span', { className: 'edx__acts' },
@@ -4884,9 +4892,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
                       h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Bajar', disabled: bi === d.bloques.length - 1 && ei === b.ejercicios.length - 1, onClick: function () { mover(bi, ei, 1); } }, h(G.Icon, { name: 'abajo', size: 16 })),
                       h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Duplicar', onClick: function () { up(function (x) { var c = JSON.parse(JSON.stringify(x.bloques[bi].ejercicios[ei])); c._u = ST.uid(); c._k = null; x.bloques[bi].ejercicios.splice(ei + 1, 0, c); }); } }, h(G.Icon, { name: 'copiar', size: 16 })),
                       h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Quitar', onClick: function () { up(function (x) { x.bloques[bi].ejercicios.splice(ei, 1); }); } }, h(G.Icon, { name: 'cerrar', size: 16 })))),
-                  h('input', { className: 'edx__nota', value: e.nota, placeholder: 'Nota para el jugador (opcional)', 'aria-label': 'Nota', onChange: function (ev) { campoEj(bi, ei, 'nota', ev.target.value); } }));
+                  h('div', { className: 'edx__sub' },
+                    h('label', { className: 'edx__lado' + (e.lado ? ' is-on' : ''), title: 'Unilateral: las repeticiones son por cada lado (pierna o brazo)' }, h('input', { type: 'checkbox', checked: !!e.lado, onChange: function (ev) { campoEj(bi, ei, 'lado', ev.target.checked); } }), 'Por lado'),
+                    h('input', { className: 'edx__nota', value: e.nota, placeholder: 'Nota para el jugador (opcional)', 'aria-label': 'Nota', onChange: function (ev) { campoEj(bi, ei, 'nota', ev.target.value); } })));
               })) : h('p', { className: 'muted small', style: { margin: '4px 0 0' } }, 'Bloque vacío. Añade el primer ejercicio.'),
-            h('select', { className: 'g-import__select edx__add', value: '', 'aria-label': 'Añadir ejercicio a ' + b.titulo, onChange: function (ev) { var id = ev.target.value; if (!id) return; up(function (x) { x.bloques[bi].ejercicios.push({ _u: ST.uid(), _k: null, ejId: id, series: '3', reps: '8', seg: '', carga: '', descanso: '90', tempo: '', rpe: '', ss: '', nota: '' }); }); } }, opcionesEj('', '+ Añadir ejercicio…')));
+            h('select', { className: 'g-import__select edx__add', value: '', 'aria-label': 'Añadir ejercicio a ' + b.titulo, onChange: function (ev) { var id = ev.target.value; if (!id) return; up(function (x) { x.bloques[bi].ejercicios.push({ _u: ST.uid(), _k: null, ejId: id, series: '3', reps: '8', lado: ST.esUnilateral(state, id), seg: '', carga: '', descanso: '90', tempo: '', rpe: '', ss: '', nota: '' }); }); } }, opcionesEj('', '+ Añadir ejercicio…')));
         })),
         h('div', { key: 'nb' }, h(G.Button, { size: 'md', variant: 'secondary', icon: 'mas', onClick: function () { up(function (x) { x.bloques.push({ _u: ST.uid(), titulo: 'Bloque ' + (x.bloques.length + 1), ejercicios: [] }); }); } }, 'Añadir bloque')),
         d.error ? h('p', { key: 'er', className: 'g-field__error', role: 'alert', style: { margin: 0 } }, d.error) : null,
