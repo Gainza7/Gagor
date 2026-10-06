@@ -1028,6 +1028,25 @@ a.g-btn { text-decoration: none; }
 .vid__btn { display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
 .vid__btn input { display: none; }
 .vid__msg { margin: 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); text-align: center; }
+/* 1.10 · grabar dentro de la app */
+.rec { position: fixed; inset: 0; z-index: 50; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; background: #000; color: #fff; }
+.rec__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px; }
+.rec__top b { font-size: 17px; line-height: 22px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rec__x { border: 0; background: rgba(255,255,255,.14); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; cursor: pointer; flex: none; }
+.rec__view { position: relative; min-height: 0; display: grid; place-items: center; overflow: hidden; }
+.rec__view video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+.rec__time { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); padding: 4px 12px; border-radius: 999px; background: rgba(0,0,0,.55); font: 700 16px/22px var(--font-sans); font-variant-numeric: tabular-nums; }
+.rec__time.is-on::before { content: ''; display: inline-block; width: 9px; height: 9px; margin-right: 8px; border-radius: 50%; background: #e5484d; vertical-align: 1px; }
+.rec__msg { padding: 24px; text-align: center; font-size: 15px; line-height: 22px; color: #ddd; max-width: 320px; }
+.rec__bar { display: flex; align-items: center; justify-content: space-around; gap: 12px; padding: 16px 16px calc(20px + env(safe-area-inset-bottom, 0px)); }
+.rec__shoot { width: 76px; height: 76px; border-radius: 50%; border: 4px solid #fff; background: #e5484d; cursor: pointer; flex: none; }
+.rec__shoot.is-on { background: #fff; }
+.rec__shoot.is-on::after { content: ''; display: block; width: 26px; height: 26px; margin: auto; border-radius: 5px; background: #e5484d; }
+.rec__side { min-width: 88px; border: 0; background: rgba(255,255,255,.14); color: #fff; padding: 10px 14px; border-radius: 999px; font: 600 15px/20px var(--font-sans); cursor: pointer; }
+.rec__side--main { background: var(--accent); color: var(--on-accent); }
+.rec__side:disabled { opacity: .4; }
+.vid__alt { justify-self: center; font-size: 14px; color: var(--ink-muted); text-decoration: underline; cursor: pointer; }
+.vid__alt input { display: none; }
 </style>
 </head>
 <body>
@@ -2612,7 +2631,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.9";
+<script>window.GAGOR_VERSION = "1.10";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -3898,7 +3917,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (!configurado() || !yo) return Promise.reject(new Error('sin servidor'));
       var ext = ((file.name || '').split('.').pop() || 'mp4').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 5) || 'mp4';
       var path = yo.espacio_id + '/' + (cid || yo.cliente_id) + '/' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + '.' + ext;
-      return cliente().storage.from('gagor-videos').upload(path, file, { contentType: file.type || 'video/mp4', upsert: false }).then(function (r) { if (r.error) throw r.error; return path; });
+      return cliente().storage.from('gagor-videos').upload(path, file, { contentType: (file.type || 'video/mp4').split(';')[0], upsert: false }).then(function (r) { if (r.error) throw r.error; return path; });
     },
     urlVideo: function (path) { if (!configurado()) return Promise.reject(new Error('sin servidor')); return cliente().storage.from('gagor-videos').createSignedUrl(path, 3600).then(function (r) { if (r.error) throw r.error; return r.data.signedUrl; }); },
     borrarVideo: function (path) { return cliente().storage.from('gagor-videos').remove([path]).then(function (r) { if (r.error) throw r.error; }); },
@@ -3985,6 +4004,59 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
   global.GAGOR_VideoMsg = VideoMsg;
 
+  /* Grabar un vídeo sin salir de la app (cámara del móvil, máx. 30 s) */
+  var MAX_REC = 30;
+  function puedeGrabar() { return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && global.MediaRecorder); }
+  function Grabadora(p) {
+    var vref = React.useRef(null), sref = React.useRef(null), rref = React.useRef(null), cref = React.useRef([]), tref = React.useRef(null);
+    var fm = React.useState('environment'), cara = fm[0], setCara = fm[1];
+    var es = React.useState('cargando'), fase = es[0], setFase = es[1]; // cargando · lista · grabando · revisar · error
+    var ss = React.useState(0), secs = ss[0], setSecs = ss[1];
+    var bs = React.useState(null), clip = bs[0], setClip = bs[1];
+    var er = React.useState(''), err = er[0], setErr = er[1];
+    function parar() { if (sref.current) { sref.current.getTracks().forEach(function (tr) { tr.stop(); }); sref.current = null; } }
+    React.useEffect(function () {
+      if (fase === 'revisar') return undefined;
+      var vivo = true; setFase('cargando');
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: cara, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }).then(function (st) {
+        if (!vivo) { st.getTracks().forEach(function (tr) { tr.stop(); }); return; }
+        parar(); sref.current = st; if (vref.current) { vref.current.srcObject = st; var pr = vref.current.play(); if (pr && pr.catch) pr.catch(function () {}); } setFase('lista');
+      }, function (e) { if (!vivo) return; setErr(e && e.name === 'NotAllowedError' ? t('Sin permiso para usar la cámara. Dalo en los ajustes del móvil o elige un vídeo de la galería.') : t('No se puede abrir la cámara en este móvil. Elige un vídeo de la galería.')); setFase('error'); });
+      return function () { vivo = false; };
+    }, [cara, clip ? 1 : 0]);
+    React.useEffect(function () { return function () { clearInterval(tref.current); try { if (rref.current && rref.current.state !== 'inactive') rref.current.stop(); } catch (e) {} parar(); if (clip) URL.revokeObjectURL(clip.url); }; }, []);
+    function tipo() { var c = ['video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']; for (var i = 0; i < c.length; i++) { if (global.MediaRecorder.isTypeSupported && global.MediaRecorder.isTypeSupported(c[i])) return c[i]; } return ''; }
+    function empezar() {
+      if (!sref.current) return; cref.current = []; var mt = tipo(); var rec;
+      try { rec = new global.MediaRecorder(sref.current, mt ? { mimeType: mt, videoBitsPerSecond: 2500000 } : { videoBitsPerSecond: 2500000 }); } catch (e) { setErr(t('Este móvil no deja grabar desde la app. Elige un vídeo de la galería.')); setFase('error'); return; }
+      rec.ondataavailable = function (ev) { if (ev.data && ev.data.size) cref.current.push(ev.data); };
+      rec.onstop = function () { var ty = (rec.mimeType || mt || 'video/mp4'); var b = new Blob(cref.current, { type: ty }); parar(); setClip({ blob: b, url: URL.createObjectURL(b), tipo: ty }); setFase('revisar'); };
+      rref.current = rec; rec.start(500); setSecs(0); setFase('grabando');
+      var t0 = Date.now(); tref.current = setInterval(function () { var sg = Math.floor((Date.now() - t0) / 1000); setSecs(sg); if (sg >= MAX_REC) terminar(); }, 250);
+    }
+    function terminar() { clearInterval(tref.current); try { if (rref.current && rref.current.state !== 'inactive') rref.current.stop(); } catch (e) {} }
+    function repetir() { if (clip) URL.revokeObjectURL(clip.url); setClip(null); setSecs(0); setFase('cargando'); }
+    function enviar() { var ext = /mp4/.test(clip.tipo) ? 'mp4' : 'webm'; var fl = new File([clip.blob], 'serie.' + ext, { type: clip.tipo.split(';')[0] }); p.onEnviar(fl); }
+    function cerrar() { terminar(); parar(); p.onCerrar(); }
+    var mm = function (x) { return '0:' + (x < 10 ? '0' : '') + x; };
+    return h('div', { className: 'rec', role: 'dialog', 'aria-label': t('Grabar vídeo') },
+      h('div', { className: 'rec__top' }, h('b', null, p.titulo || t('Grabar vídeo')), h('button', { type: 'button', className: 'rec__x', 'aria-label': t('Cerrar'), onClick: cerrar }, '×')),
+      h('div', { className: 'rec__view' },
+        fase === 'error' ? h('p', { className: 'rec__msg' }, err)
+          : fase === 'revisar' ? h('video', { key: 'r', src: clip.url, controls: true, playsInline: true, autoPlay: true, loop: true })
+          : h('video', { key: 'l', ref: vref, muted: true, playsInline: true, autoPlay: true, style: cara === 'user' ? { transform: 'scaleX(-1)' } : null }),
+        fase === 'grabando' || fase === 'lista' ? h('span', { className: 'rec__time' + (fase === 'grabando' ? ' is-on' : '') }, fase === 'grabando' ? mm(secs) + ' / ' + mm(MAX_REC) : t('Máx. 30 s · graba una serie')) : null,
+        fase === 'cargando' ? h('p', { className: 'rec__msg', style: { position: 'absolute' } }, t('Abriendo la cámara…')) : null),
+      fase === 'revisar' ? h('div', { className: 'rec__bar' },
+          h('button', { type: 'button', className: 'rec__side', onClick: repetir }, t('Repetir')),
+          h('button', { type: 'button', className: 'rec__side rec__side--main', onClick: enviar }, t('Enviar')))
+        : fase === 'error' ? h('div', { className: 'rec__bar' }, h('button', { type: 'button', className: 'rec__side', onClick: cerrar }, t('Cerrar')))
+        : h('div', { className: 'rec__bar' },
+          h('button', { type: 'button', className: 'rec__side', disabled: fase === 'grabando', onClick: function () { setCara(cara === 'environment' ? 'user' : 'environment'); } }, t('Girar')),
+          h('button', { type: 'button', className: 'rec__shoot' + (fase === 'grabando' ? ' is-on' : ''), disabled: fase === 'cargando', 'aria-label': fase === 'grabando' ? t('Parar') : t('Grabar'), onClick: fase === 'grabando' ? terminar : empezar }),
+          h('span', { className: 'rec__side', style: { visibility: 'hidden' }, 'aria-hidden': 'true' }, t('Girar'))));
+  }
+
   function Jugador(props) {
     var state = props.state, commit = props.commit, salir = props.salir, sync = props.sync || {};
     var cid = state.usuario.clienteId;
@@ -4032,11 +4104,16 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         setVidMsg(t('Enviado. Tu entrenador lo verá en Mensajes.')); setTimeout(function () { if (S.ahora) S.ahora(); }, 900);
       }, function () { setVidMsg(t('No se ha podido subir. Prueba con wifi o con un vídeo más corto.')); });
     }
+    var grS = useState(null); var grabando = grS[0], setGrabando = grS[1]; // {ejId}
     function botonVideo(ejId) {
-      return h('div', { style: { display: 'grid', gap: '4px' } },
-        h('label', { className: 'g-btn g-btn--ghost g-btn--lg g-btn--full vid__btn' }, h(G.Icon, { name: 'video', size: 20, className: 'g-btn__icon' }), t('Enviar vídeo a mi entrenador'),
-          h('input', { type: 'file', accept: 'video/*', onChange: function (e) { var fl = e.target.files && e.target.files[0]; e.target.value = ''; if (fl) enviarVideo(fl, ejId); } })),
-        vidMsg ? h('p', { className: 'vid__msg', role: 'status' }, vidMsg) : null);
+      var galeria = function (txt, cls, cap) { return h('label', { className: cls }, cls.indexOf('g-btn') >= 0 ? h(G.Icon, { name: 'video', size: 20, className: 'g-btn__icon' }) : null, txt,
+        h('input', Object.assign({ type: 'file', accept: 'video/*', onChange: function (e) { var fl = e.target.files && e.target.files[0]; e.target.value = ''; if (fl) enviarVideo(fl, ejId); } }, cap ? { capture: 'environment' } : {}))); };
+      return h('div', { style: { display: 'grid', gap: '6px' } },
+        puedeGrabar() ? h(G.Button, { variant: 'ghost', full: true, icon: 'video', onClick: function () { setVidMsg(''); setGrabando({ ejId: ejId }); } }, t('Grabar vídeo para mi entrenador'))
+          : galeria(t('Grabar vídeo para mi entrenador'), 'g-btn g-btn--ghost g-btn--lg g-btn--full vid__btn', true),
+        galeria(t('o elegir uno de la galería'), 'vid__alt', false),
+        vidMsg ? h('p', { className: 'vid__msg', role: 'status' }, vidMsg) : null,
+        grabando ? h(Grabadora, { titulo: grabando.ejId ? ST.nombreEj(state, grabando.ejId) : t('Grabar vídeo'), onCerrar: function () { setGrabando(null); }, onEnviar: function (fl) { var ej = grabando.ejId; setGrabando(null); enviarVideo(fl, ej); } }) : null);
     }
     function abrirChat(ejId) { setChatDe({ volver: view, ejId: ejId || null }); setView('chat'); }
     function botonChat(extra) { return h(G.Button, Object.assign({ variant: 'ghost', full: true, icon: 'mensaje', onClick: function () { abrirChat(extra && extra.ejId); } }, extra && extra.props), respNuevas ? [t('Ver respuesta'), h('span', { key: 'n', className: 'chat__new' }, respNuevas)] : t('Pregunta una duda')); }
