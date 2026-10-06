@@ -1047,6 +1047,46 @@ a.g-btn { text-decoration: none; }
 .rec__side:disabled { opacity: .4; }
 .vid__alt { justify-self: center; font-size: 14px; color: var(--ink-muted); text-decoration: underline; cursor: pointer; }
 .vid__alt input { display: none; }
+/* 1.11 · análisis de sentadilla */
+.pex__intro { margin: 0 0 12px; font-size: 13px; color: var(--ink-muted); }
+.pex__list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin-top: 12px; }
+.pex__chart { margin-bottom: 12px; }
+.pex__rows { border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+.pex__row { display: grid; grid-template-columns: 78px minmax(0, 1fr) auto; column-gap: 12px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--line); background: var(--surface-card); }
+.pex__row:last-child { border-bottom: 0; }
+.pex__date { font-size: 13px; color: var(--ink-muted); white-space: nowrap; line-height: 1.25; }
+.pex__date small { display: block; font-size: 11px; }
+.pex__sets { display: flex; flex-wrap: wrap; gap: 6px; }
+.pex__chip { font-size: 13px; line-height: 18px; padding: 3px 9px; border-radius: 999px; background: var(--surface-sunken); color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pex__chip b { font-family: var(--font-display); }
+.pex__chip.is-rec { background: var(--accent); color: var(--on-accent); }
+.pex__top { text-align: right; font-family: var(--font-display); font-weight: 700; font-size: 16px; white-space: nowrap; }
+.pex__top small { display: block; font-family: var(--font-sans); font-weight: 400; font-size: 11px; color: var(--ink-muted); }
+.pex__top small.is-up { color: var(--accent); }
+.pex__top small.is-down { color: var(--alert); }
+.pex__list, .pex__rows, .pex__row > * { min-width: 0; }
+.pex__list .g-disc__meta { text-align: right; }
+.pex__list .g-disc__toggle { min-width: 0; }
+.pex__list .g-disc__title { min-width: 0; flex: 1 1 auto; }
+.pex__chart { max-width: 560px; }
+@media (max-width: 560px) { .pex__row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; } .pex__sets { grid-column: 1 / -1; grid-row: 2; } .pex__list .g-disc__meta { font-size: 11px; max-width: 48%; white-space: normal; flex: 0 1 auto; } }
+.bio { display: grid; gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-card); color: var(--ink); white-space: normal; }
+.bio__k { margin: 0; font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); }
+.bio__h { margin: 0; font: 700 20px/24px var(--font-display); }
+.bio__p { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-muted); }
+.bio__img { width: 100%; max-height: 340px; object-fit: contain; border-radius: 10px; display: block; background: #000; }
+.bio__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.bio__m { padding: 8px 10px; border-radius: var(--radius-sm); background: var(--surface-sunken); }
+.bio__m b { display: block; font: 700 20px/24px var(--font-display); font-variant-numeric: tabular-nums; }
+.bio__m span { display: block; font-size: 12px; line-height: 16px; color: var(--ink-muted); }
+.bio__lim { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 14px; line-height: 20px; }
+.bio__ok { margin: 0; font-size: 14px; color: var(--accent); font-weight: 600; }
+.bio__warn { margin: 0; font-size: 12px; line-height: 16px; color: var(--alert); }
+.bio__note { margin: 0; font-size: 11px; line-height: 15px; color: var(--ink-muted); }
+.bio__steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; line-height: 22px; }
+.bio__bar { height: 8px; border-radius: 999px; background: var(--surface-sunken); overflow: hidden; }
+.bio__bar span { display: block; height: 100%; background: var(--accent); transition: width .3s; }
+.chat__m .bio { margin: 4px 0; }
 </style>
 </head>
 <body>
@@ -2631,7 +2671,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.10";
+<script>window.GAGOR_VERSION = "1.12";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -3483,6 +3523,27 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     });
     return Object.keys(best).map(function (k) { return best[k]; }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; });
   }
+  function numCarga(v) { if (v === null || v === undefined || v === '') return null; var x = Number(String(v).replace(',', '.')); return isNaN(x) ? null : x; }
+  // todo lo que ha levantado un cliente, agrupado por ejercicio y día (lo más reciente primero)
+  function historialPesos(state, clienteId) {
+    var m = {};
+    state.sesiones.filter(function (s) { return s.clienteId === clienteId; }).forEach(function (s) {
+      ejerciciosPlanos(s).forEach(function (f) {
+        var rr = ((s.registros || {})[f.key] || []).filter(function (r) { return r && r.done; });
+        if (!rr.length) return;
+        var id = f.e.ejId; if (!m[id]) m[id] = { ejId: id, nombre: nombreEj(state, id), filas: [] };
+        var series = rr.map(function (r) { return { reps: r.reps, repsD: f.e.lado ? r.repsD : null, carga: numCarga(r.carga) }; });
+        var cs = series.map(function (x) { return x.carga; }).filter(function (x) { return x !== null; });
+        m[id].filas.push({ fecha: s.fecha, titulo: s.titulo, seg: f.e.seg || null, lado: !!f.e.lado, series: series, max: cs.length ? Math.max.apply(null, cs) : null });
+      });
+    });
+    return Object.keys(m).map(function (k) {
+      var x = m[k]; x.filas.sort(function (a, b) { return a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : 0; });
+      var cs = x.filas.map(function (f) { return f.max; }).filter(function (v) { return v !== null; });
+      x.record = cs.length ? Math.max.apply(null, cs) : null; x.ultimo = cs.length ? cs[0] : null; x.fecha = x.filas[0].fecha;
+      return x;
+    }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : a.nombre.localeCompare(b.nombre); });
+  }
   function nombreEj(state, id) { var e = state.ejercicios.filter(function (x) { return x.id === id; })[0]; return e ? e.nombre : id; }
   function ejercicio(state, id) { return state.ejercicios.filter(function (x) { return x.id === id; })[0]; }
   function ultimaCargaReal(state, clienteId, ejId) {
@@ -3738,7 +3799,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     fmtFecha: fmtFecha, fmtFechaMin: fmtFechaMin, fmtCorta: fmtCorta, relativo: relativo, sesionDesde: sesionDesde, ejerciciosPlanos: ejerciciosPlanos, etiquetas: etiquetas, ejerciciosNuevos: ejerciciosNuevos, companeros: companeros, resumenBloques: resumenBloques, sesionEnBlanco: sesionEnBlanco, aplicarEdicion: aplicarEdicion, repTxt: repTxt, ladoReps: ladoReps, ordenSesion: ordenSesion, esUnilateral: esUnilateral, borradorBloques: borradorBloques,
     bloquesSemana: bloquesSemana, grupos: grupos, grupoBase: grupoBase, clientesDestino: clientesDestino, calendarioPrograma: calendarioPrograma, asignarPrograma: asignarPrograma, retirarAsignacion: retirarAsignacion, nombreDestino: nombreDestino,
     cargasSemanales: cargasSemanales, recuperacion: recuperacion, records: records, nombreEj: nombreEj, ejercicio: ejercicio,
-    ultimaCargaReal: ultimaCargaReal, avisos: avisos, semanaDe: semanaDe, DIAS: DIAS,
+    ultimaCargaReal: ultimaCargaReal, historialPesos: historialPesos, avisos: avisos, semanaDe: semanaDe, DIAS: DIAS,
     mesDe: mesDe, addMonths: addMonths, periodosEsperados: periodosEsperados, estadoCobros: estadoCobros, gastoEnMes: gastoEnMes, resumenMes: resumenMes, seriesMeses: seriesMeses, eur: eur, fmtMes: fmtMes,
     CATEGORIAS_GASTO: CATEGORIAS_GASTO, HACIENDAS: HACIENDAS, desglose: desglose, trimestreDe: trimestreDe, resumenTrimestre: resumenTrimestre, resumenAnual: resumenAnual, calendarioFiscal: calendarioFiscal, libroEmitidasCSV: libroEmitidasCSV, libroRecibidasCSV: libroRecibidasCSV, resumenAnualHTML: resumenAnualHTML, amortizacionAnual: amortizacionAnual,
     numeroFactura: numeroFactura, facturaDe: facturaDe, crearFactura: crearFactura, facturaHTML: facturaHTML, EMISOR_EJEMPLO: EMISOR_EJEMPLO,
@@ -3985,6 +4046,156 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   global.GAGOR_SYNC = SYNC;
 })(window);
 
+/* ======================================================= GAGOR · análisis biomecánico de la sentadilla (vídeo lateral) */
+(function (global) {
+  'use strict';
+  var MP_VER = '0.10.14';
+  var MP_URL = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@' + MP_VER;
+  var MODELO = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task';
+  // umbrales (grados y proporciones); ajustables por el entrenador más adelante
+  var U = { tibiaBaja: 25, troncoAlto: 50, difCadera: 12, difTobillo: -8, profundidad: -0.08, talon: 0.12 };
+  var I = { L: { hombro: 11, cadera: 23, rodilla: 25, tobillo: 27, talon: 29, punta: 31, oreja: 7 }, R: { hombro: 12, cadera: 24, rodilla: 26, tobillo: 28, talon: 30, punta: 32, oreja: 8 } };
+
+  function grados(r) { return r * 180 / Math.PI; }
+  function ang3(a, b, c) { // ángulo en b
+    var v1x = a.x - b.x, v1y = a.y - b.y, v2x = c.x - b.x, v2y = c.y - b.y;
+    var d = Math.sqrt(v1x * v1x + v1y * v1y) * Math.sqrt(v2x * v2x + v2y * v2y); if (!d) return null;
+    return grados(Math.acos(Math.max(-1, Math.min(1, (v1x * v2x + v1y * v2y) / d))));
+  }
+  function inclin(abajo, arriba, dir) { // inclinación de un segmento respecto a la vertical; + hacia donde miran los pies
+    var dx = (arriba.x - abajo.x) * dir, dy = abajo.y - arriba.y; return grados(Math.atan2(dx, dy));
+  }
+  function dist(a, b) { var dx = a.x - b.x, dy = a.y - b.y; return Math.sqrt(dx * dx + dy * dy); }
+  function mediana(arr) { var a = arr.filter(function (x) { return x !== null && isFinite(x); }).slice().sort(function (p, q) { return p - q; }); if (!a.length) return null; var m = Math.floor(a.length / 2); return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2; }
+  function suave(arr) { return arr.map(function (v, i) { var s = 0, n = 0; for (var k = i - 1; k <= i + 1; k++) if (arr[k] !== undefined && arr[k] !== null) { s += arr[k]; n++; } return n ? s / n : v; }); }
+
+  /* frames: [{t, lm:[{x,y,visibility}] (33, en píxeles)}] → resultado */
+  function calcular(frames) {
+    var ok = frames.filter(function (f) { return f.lm && f.lm.length >= 33; });
+    if (ok.length < 8) return { error: 'No se ha encontrado a nadie en el vídeo. Graba de lado, con el cuerpo entero dentro de la imagen.' };
+    var vis = function (side) { var s = 0; ok.forEach(function (f) { ['cadera', 'rodilla', 'tobillo', 'hombro'].forEach(function (k) { s += f.lm[I[side][k]].visibility || 0; }); }); return s / (ok.length * 4); };
+    var vL = vis('L'), vR = vis('R'); var side = vL >= vR ? 'L' : 'R'; var J = I[side]; var visMedia = Math.max(vL, vR);
+    var P = function (f, k) { return f.lm[J[k]]; };
+    var dir = mediana(ok.map(function (f) { return P(f, 'punta').x - P(f, 'talon').x; })) >= 0 ? 1 : -1;
+    var muslo = mediana(ok.map(function (f) { return dist(P(f, 'cadera'), P(f, 'rodilla')); })) || 1;
+    var pierna = mediana(ok.map(function (f) { return dist(P(f, 'rodilla'), P(f, 'tobillo')); })) || 1;
+    var pie = mediana(ok.map(function (f) { return Math.abs(P(f, 'punta').x - P(f, 'talon').x); })) || 0;
+    var hy = suave(ok.map(function (f) { return P(f, 'cadera').y; }));
+    var sorted = hy.slice().sort(function (a, b) { return a - b; }); var arriba = sorted[Math.floor(sorted.length * 0.15)];
+    var umbral = 0.35 * muslo;
+    // repeticiones: tramos por debajo del umbral, nos quedamos con el punto más bajo de cada uno
+    var reps = [], dentro = false, mejor = -1;
+    for (var i = 0; i < hy.length; i++) {
+      var bajo = hy[i] - arriba > umbral;
+      if (bajo) { if (!dentro) { dentro = true; mejor = i; } else if (hy[i] > hy[mejor]) mejor = i; }
+      else if (dentro && hy[i] - arriba < umbral * 0.6) { reps.push(mejor); dentro = false; }
+    }
+    if (dentro) reps.push(mejor);
+    if (!reps.length) return { error: 'No se ve una sentadilla completa. Haz 3 repeticiones bajando todo lo que puedas, de lado a la cámara.' };
+    // talón: referencia de pie en los fotogramas de arriba
+    var arribaIdx = hy.map(function (v, k) { return { v: v, k: k }; }).filter(function (o) { return o.v - arriba < umbral * 0.3; }).map(function (o) { return o.k; });
+    var talon0 = mediana(arribaIdx.map(function (k) { return P(ok[k], 'talon').y - P(ok[k], 'punta').y; }));
+    var mide = function (f) { var c = P(f, 'cadera'), r = P(f, 'rodilla'), tb = P(f, 'tobillo'), h = P(f, 'hombro');
+      return { tibia: inclin(tb, r, dir), tronco: inclin(c, h, dir), rodilla: 180 - ang3(c, r, tb), cadera: 180 - ang3(h, c, r), prof: (c.y - r.y) / muslo }; };
+    // en cada repetición: dorsiflexión = máximo avance de la tibia; tronco y tibia comparados al pasar por paralelo
+    // (en el fondo de una sentadilla profunda el detector suele colocar mal la rodilla)
+    var med = reps.map(function (b) {
+      var a = b, z = b; while (a > 0 && hy[a - 1] - arriba > 0.15 * muslo) a--; while (z < hy.length - 1 && hy[z + 1] - arriba > 0.15 * muslo) z++;
+      var ms = []; for (var q = a; q <= z; q++) ms.push({ k: q, m: mide(ok[q]) });
+      var par = ms.filter(function (o) { return o.k <= b; }).sort(function (x, y) { return Math.abs(x.m.prof) - Math.abs(y.m.prof); })[0] || ms[0];
+      var fondo = mide(ok[b]);
+      return { k: par.k, t: ok[par.k].t, tibia: Math.max.apply(null, ms.map(function (o) { return o.m.tibia; })), tibiaPar: par.m.tibia, tronco: par.m.tronco,
+        rodilla: fondo.rodilla, cadera: fondo.cadera, prof: Math.max.apply(null, ms.map(function (o) { return o.m.prof; })),
+        talon: talon0 === null ? 0 : ((talon0 - (P(ok[b], 'talon').y - P(ok[b], 'punta').y)) / (pie || pierna * 0.4)) };
+    });
+    var R = { lado: side === 'L' ? 'izquierdo' : 'derecho', reps: med.length,
+      tibia: mediana(med.map(function (m) { return m.tibia; })), tronco: mediana(med.map(function (m) { return m.tronco; })),
+      rodilla: mediana(med.map(function (m) { return m.rodilla; })), cadera: mediana(med.map(function (m) { return m.cadera; })),
+      prof: mediana(med.map(function (m) { return m.prof; })), talon: mediana(med.map(function (m) { return m.talon; })), tibiaPar: mediana(med.map(function (m) { return m.tibiaPar; })) };
+    var mejorRep = med.slice().sort(function (a, b) { return Math.abs(a.tibia - R.tibia) - Math.abs(b.tibia - R.tibia); })[0];
+    R.t = mejorRep.t; R.frame = mejorRep.k;
+    var dif = R.tronco - R.tibiaPar; R.dif = dif;
+    R.patron = dif > U.difCadera ? 'cadera' : (dif < U.difTobillo ? 'tobillo' : 'equilibrada');
+    var lim = [];
+    if (R.tibia < U.tibiaBaja) lim.push({ k: 'tobillo', txt: 'La tibia avanza poco (' + Math.round(R.tibia) + '°): posible falta de dorsiflexión de tobillo.' });
+    if (R.talon > U.talon) lim.push({ k: 'talon', txt: 'El talón se despega del suelo al bajar: suele indicar tobillo limitado.' });
+    if (R.prof < U.profundidad) lim.push({ k: 'prof', txt: 'No llega a paralelo: la cadera se queda por encima de la rodilla.' });
+    if (R.tronco > U.troncoAlto) lim.push({ k: 'tronco', txt: 'El tronco se inclina mucho (' + Math.round(R.tronco) + '°).' });
+    if (R.tibia < U.tibiaBaja && R.tronco > 40) lim.push({ k: 'comp', txt: 'Compensa con la cadera lo que no le da el tobillo.' });
+    R.limites = lim;
+    var avisos = [];
+    if (visMedia < 0.6) avisos.push('La cámara no ve bien todas las articulaciones; los ángulos pueden fallar.');
+    if (pie < pierna * 0.15) avisos.push('Parece que no está totalmente de lado a la cámara.');
+    if (med.length < 2) avisos.push('Solo se ha detectado una repetición; con 3 el resultado es más fiable.');
+    R.avisos = avisos; R.calidad = Math.round(visMedia * 100);
+    R.puntos = { lado: side, lm: ok[R.frame].lm.map(function (p) { return { x: p.x, y: p.y }; }) };
+    return R;
+  }
+
+  var cargado = null, tsG = 0; // el detector exige marcas de tiempo siempre crecientes entre análisis
+  function cargar() {
+    if (cargado) return cargado;
+    cargado = import(MP_URL + '/vision_bundle.mjs').then(function (vis) {
+      return vis.FilesetResolver.forVisionTasks(MP_URL + '/wasm').then(function (fs) {
+        var opt = function (del) { return { baseOptions: { modelAssetPath: MODELO, delegate: del }, runningMode: 'VIDEO', numPoses: 1 }; };
+        return vis.PoseLandmarker.createFromOptions(fs, opt('GPU')).catch(function () { return vis.PoseLandmarker.createFromOptions(fs, opt('CPU')); });
+      });
+    });
+    cargado.catch(function () { cargado = null; });
+    return cargado;
+  }
+  function esperar(el, ev) { return new Promise(function (res, rej) { var ok = function () { el.removeEventListener(ev, ok); el.removeEventListener('error', ko); res(); }; var ko = function () { el.removeEventListener(ev, ok); el.removeEventListener('error', ko); rej(new Error('video')); }; el.addEventListener(ev, ok); el.addEventListener('error', ko); }); }
+
+  /* analizar un archivo de vídeo: devuelve {res, foto (dataURL)} */
+  function analizar(file, progreso) {
+    progreso = progreso || function () {};
+    progreso(0, 'Preparando el análisis…');
+    return cargar().then(function (pl) {
+      var url = URL.createObjectURL(file); var v = document.createElement('video');
+      v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
+      return esperar(v, 'loadeddata').then(function () {
+        var W = v.videoWidth, H = v.videoHeight, dur = Math.min(v.duration || 0, 30); if (!W || !dur) throw new Error('video');
+        var cv = document.createElement('canvas'); var esc = Math.min(1, 640 / Math.max(W, H)); cv.width = Math.round(W * esc); cv.height = Math.round(H * esc); var cx = cv.getContext('2d');
+        var paso = 1 / 10, frames = [], t = 0;
+        function uno() {
+          if (t > dur) return Promise.resolve();
+          v.currentTime = Math.min(t, dur - 0.01);
+          return esperar(v, 'seeked').then(function () {
+            cx.drawImage(v, 0, 0, cv.width, cv.height); tsG += 100;
+            var r = pl.detectForVideo(cv, tsG); var lm = r && r.landmarks && r.landmarks[0];
+            frames.push({ t: t, lm: lm ? lm.map(function (p) { return { x: p.x * cv.width, y: p.y * cv.height, visibility: p.visibility === undefined ? 1 : p.visibility }; }) : null });
+            progreso(Math.round(t / dur * 100), 'Analizando el movimiento…'); t += paso; return uno();
+          });
+        }
+        return uno().then(function () {
+          var res = calcular(frames); if (!res.error) res.puntos.w = cv.width; if (res.error) { URL.revokeObjectURL(url); return { res: res }; }
+          v.currentTime = res.t; return esperar(v, 'seeked').then(function () {
+            var foto = dibujar(v, res, 480); URL.revokeObjectURL(url); progreso(100, 'Listo'); return { res: res, foto: foto };
+          });
+        });
+      });
+    }).catch(function (e) { var c = cargado; cargado = null; if (c) c.then(function (pl) { try { pl.close(); } catch (x) {} }, function () {}); throw e; });
+  }
+
+  /* imagen del punto más bajo con las líneas y los ángulos */
+  function dibujar(v, res, ancho) {
+    var W = v.videoWidth, H = v.videoHeight; var esc = ancho / Math.max(W, H); var cv = document.createElement('canvas'); cv.width = Math.round(W * esc); cv.height = Math.round(H * esc);
+    var cx = cv.getContext('2d'); cx.drawImage(v, 0, 0, cv.width, cv.height);
+    var k = cv.width / res.puntos.w; var J = I[res.puntos.lado]; var p = function (n) { var q = res.puntos.lm[J[n]]; return { x: q.x * k, y: q.y * k }; };
+    cx.lineCap = 'round'; cx.lineWidth = Math.max(3, cv.width / 120);
+    var seg = function (a, b, col) { cx.strokeStyle = col; cx.beginPath(); cx.moveTo(a.x, a.y); cx.lineTo(b.x, b.y); cx.stroke(); };
+    seg(p('punta'), p('talon'), '#ffffff'); seg(p('tobillo'), p('rodilla'), '#4faf7b'); seg(p('rodilla'), p('cadera'), '#ffffff'); seg(p('cadera'), p('hombro'), '#e0a63a');
+    ['tobillo', 'rodilla', 'cadera', 'hombro'].forEach(function (n) { var q = p(n); cx.fillStyle = '#fff'; cx.beginPath(); cx.arc(q.x, q.y, cx.lineWidth * 1.3, 0, 7); cx.fill(); });
+    var etiqueta = function (q, txt, col) { cx.font = '700 ' + Math.round(cv.width / 26) + 'px system-ui, sans-serif'; var w = cx.measureText(txt).width + 12; cx.fillStyle = 'rgba(0,0,0,.65)'; cx.fillRect(q.x + 10, q.y - 14, w, Math.round(cv.width / 20)); cx.fillStyle = col; cx.fillText(txt, q.x + 16, q.y + 4); };
+    var mid = function (a, b) { return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
+    etiqueta(mid(p('tobillo'), p('rodilla')), 'Tibia ' + Math.round(res.tibia) + '°', '#4faf7b');
+    etiqueta(mid(p('cadera'), p('hombro')), 'Tronco ' + Math.round(res.tronco) + '°', '#e0a63a');
+    return cv.toDataURL('image/jpeg', 0.7);
+  }
+
+  global.GAGOR_BIOMEC = { calcular: calcular, analizar: analizar, U: U };
+})(window);
+
 /* ======================================================= GAGOR · beta · app del jugador */
 (function (global) {
   'use strict';
@@ -4003,6 +4214,32 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return h('video', { className: 'chat__vid', src: url, controls: true, playsInline: true, preload: 'metadata' });
   }
   global.GAGOR_VideoMsg = VideoMsg;
+
+  function AnalisisCard(p) {
+    var a = p.a || {}; var us = React.useState(p.fotoUrl || null), url = us[0], setUrl = us[1];
+    React.useEffect(function () { if (p.fotoUrl || !p.fotoPath) return; var S = global.GAGOR_SYNC; if (S && S.urlVideo) S.urlVideo(p.fotoPath).then(setUrl, function () {}); }, [p.fotoPath]);
+    var r = function (x) { return x === null || x === undefined ? '—' : Math.round(x) + '°'; };
+    var TIT = { cadera: [t('Mueve más de cadera'), t('El tronco se inclina más de lo que avanza la tibia: la cadera hace más trabajo que el tobillo.')],
+      tobillo: [t('Mueve más de tobillo y rodilla'), t('La tibia avanza más de lo que se inclina el tronco: tobillo y rodilla llevan el movimiento.')],
+      equilibrada: [t('Movimiento equilibrado'), t('Tronco y tibia van casi paralelos: cadera y tobillo se reparten el trabajo.')] };
+    var tt = TIT[a.patron] || TIT.equilibrada;
+    var prof = a.prof === undefined || a.prof === null ? '—' : (a.prof > 0.05 ? t('Bajo paralelo') : (a.prof >= -0.08 ? t('En paralelo') : t('Por encima')));
+    return h('div', { className: 'bio' },
+      h('p', { className: 'bio__k' }, t('Análisis de sentadilla') + ' · ' + t('lado ') + (a.lado || '') + ' · ' + (a.reps || 0) + (a.reps === 1 ? t(' repetición') : t(' repeticiones'))),
+      h('p', { className: 'bio__h' }, tt[0]), h('p', { className: 'bio__p' }, tt[1]),
+      url ? h('img', { className: 'bio__img', src: url, alt: t('Punto más bajo de la sentadilla con los ángulos marcados') }) : null,
+      h('div', { className: 'bio__grid' },
+        h('div', { className: 'bio__m' }, h('b', null, r(a.tibia)), h('span', null, t('Avance de la tibia (tobillo) · ref. 30–45°'))),
+        h('div', { className: 'bio__m' }, h('b', null, r(a.tronco)), h('span', null, t('Inclinación del tronco'))),
+        h('div', { className: 'bio__m' }, h('b', null, r(a.rodilla)), h('span', null, t('Flexión de rodilla'))),
+        h('div', { className: 'bio__m' }, h('b', null, r(a.cadera)), h('span', null, t('Flexión de cadera'))),
+        h('div', { className: 'bio__m' }, h('b', null, prof), h('span', null, t('Profundidad'))),
+        h('div', { className: 'bio__m' }, h('b', null, a.talon > 0.12 ? t('Se levanta') : t('Apoyado')), h('span', null, t('Talón')))),
+      a.limites && a.limites.length ? h('ul', { className: 'bio__lim' }, a.limites.map(function (l, i) { return h('li', { key: i }, t(l)); })) : h('p', { className: 'bio__ok' }, t('Sin limitaciones claras en este vídeo.')),
+      (a.avisos || []).map(function (w, i) { return h('p', { key: 'w' + i, className: 'bio__warn' }, '▲ ' + t(w)); }),
+      h('p', { className: 'bio__note' }, t('Medición orientativa en 2D (±5–10°) a partir del vídeo. No es un diagnóstico: tu entrenador la revisa.')));
+  }
+  global.GAGOR_AnalisisCard = AnalisisCard;
 
   /* Grabar un vídeo sin salir de la app (cámara del móvil, máx. 30 s) */
   var MAX_REC = 30;
@@ -4105,6 +4342,51 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       }, function () { setVidMsg(t('No se ha podido subir. Prueba con wifi o con un vídeo más corto.')); });
     }
     var grS = useState(null); var grabando = grS[0], setGrabando = grS[1]; // {ejId}
+    var bioS = useState({ fase: 'inicio' }); var bio = bioS[0], setBio = bioS[1];
+    function analizarVideo(file) {
+      if (!global.GAGOR_BIOMEC) return;
+      if (file.size > 50 * 1024 * 1024) { setBio({ fase: 'error', txt: t('El vídeo es demasiado largo. Graba 3 sentadillas (menos de 30 segundos).') }); return; }
+      setBio({ fase: 'analizando', pct: 0, txt: t('Preparando el análisis…'), file: file });
+      global.GAGOR_BIOMEC.analizar(file, function (pct, txt) { setBio(function (b) { return Object.assign({}, b, { pct: pct, txt: t(txt) }); }); })
+        .then(function (o) { if (o.res.error) setBio({ fase: 'error', txt: t(o.res.error) }); else { var r = o.res; delete r.puntos; setBio({ fase: 'listo', file: file, res: r, foto: o.foto }); } },
+          function () { setBio({ fase: 'error', txt: t('No se ha podido hacer el análisis. Necesitas conexión a internet la primera vez; prueba de nuevo.') }); });
+    }
+    function enviarAnalisis() {
+      var S = global.GAGOR_SYNC; var b = bio;
+      if (!S || !S.videoListo || !S.videoListo()) { setBio(Object.assign({}, b, { msg: t('Funciona cuando tu entrenador conecta la app a su servidor.') })); return; }
+      setBio(Object.assign({}, b, { msg: t('Enviando… no cierres la app.') }));
+      var bin = atob(b.foto.split(',')[1]); var arr = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      var foto = new File([arr], 'analisis.jpg', { type: 'image/jpeg' });
+      Promise.all([S.subirVideo(b.file, cid), S.subirVideo(foto, cid)]).then(function (pp) {
+        var r = b.res; var a = { tibia: r.tibia, tronco: r.tronco, rodilla: r.rodilla, cadera: r.cadera, prof: r.prof, talon: r.talon, patron: r.patron, reps: r.reps, lado: r.lado, calidad: r.calidad, limites: r.limites.map(function (l) { return l.txt; }), avisos: r.avisos };
+        commit(function (st) { st.mensajes = st.mensajes || []; st.mensajes.push({ id: cid + '-' + Date.now().toString(36) + ST.uid().slice(0, 3), clienteId: cid, de: 'jugador', tipo: 'analisis', texto: t('Análisis de sentadilla'), ts: new Date().toISOString(), fecha: hoyIso, video: { path: pp[0], bytes: b.file.size, tipo: b.file.type || '' }, foto: { path: pp[1] }, analisis: a }); });
+        setBio(Object.assign({}, b, { enviado: true, msg: t('Enviado. Tu entrenador lo verá en Mensajes.') })); setTimeout(function () { if (S.ahora) S.ahora(); }, 900);
+      }, function () { setBio(Object.assign({}, b, { msg: t('No se ha podido enviar. Prueba con wifi.') })); });
+    }
+    function Analisis() {
+      var b = bio; var galeria = h('label', { className: 'vid__alt' }, t('o elegir un vídeo de la galería'), h('input', { type: 'file', accept: 'video/*', onChange: function (e) { var fl = e.target.files && e.target.files[0]; e.target.value = ''; if (fl) analizarVideo(fl); } }));
+      return h('div', { className: 'phone' },
+        h(G.AppHeader, { title: t('Análisis de sentadilla'), subtitle: t('Vídeo de lateral · cadera y tobillo'), onBack: function () { setBio({ fase: 'inicio' }); setView('progreso'); } }),
+        h('div', { className: 'scroll' },
+          b.fase === 'inicio' || b.fase === 'error' ? h('div', { className: 'stack' },
+            b.fase === 'error' ? h('p', { className: 'bio__warn', style: { fontSize: '15px', lineHeight: '22px' } }, b.txt) : null,
+            h('p', { className: 'bio__p', style: { fontSize: '15px', lineHeight: '22px' } }, t('Graba 3 sentadillas y la app mide cómo te mueves: si tiras más de cadera o de tobillo, la profundidad y posibles limitaciones.')),
+            h('ol', { className: 'bio__steps' },
+              h('li', null, t('Móvil apoyado y quieto, a la altura de la cadera, a 2–3 metros.')),
+              h('li', null, t('Ponte totalmente de lado: que se te vea el cuerpo entero, de los pies a la cabeza.')),
+              h('li', null, t('Ropa ajustada y descalzo o con zapatillas planas, para que se vean tobillo, rodilla y cadera.')),
+              h('li', null, t('Haz 3 sentadillas sin peso, bajando todo lo que puedas con los talones en el suelo.'))),
+            puedeGrabar() ? h(G.Button, { full: true, icon: 'video', onClick: function () { setBio({ fase: 'inicio', grabar: true }); } }, t('Grabar sentadilla'))
+              : h('label', { className: 'g-btn g-btn--primary g-btn--lg g-btn--full vid__btn' }, t('Grabar sentadilla'), h('input', { type: 'file', accept: 'video/*', capture: 'environment', onChange: function (e) { var fl = e.target.files && e.target.files[0]; e.target.value = ''; if (fl) analizarVideo(fl); } })),
+            galeria) : null,
+          b.fase === 'analizando' ? h('div', { className: 'stack' }, h('p', { className: 'bio__h' }, b.txt), h('div', { className: 'bio__bar' }, h('span', { style: { width: (b.pct || 0) + '%' } })), h('p', { className: 'bio__p' }, t('Se hace en tu móvil; puede tardar medio minuto. No cierres la app.'))) : null,
+          b.fase === 'listo' ? h('div', { className: 'stack' }, h(AnalisisCard, { a: Object.assign({}, b.res, { limites: b.res.limites.map(function (l) { return l.txt; }) }), fotoUrl: b.foto }),
+            b.msg ? h('p', { className: 'vid__msg', role: 'status' }, b.msg) : null) : null),
+        b.fase === 'listo' ? h('div', { className: 'bar bar--stack' },
+          b.enviado ? null : h(G.Button, { full: true, icon: 'mensaje', onClick: enviarAnalisis }, t('Enviar a mi entrenador')),
+          h(G.Button, { full: true, variant: 'secondary', icon: 'video', onClick: function () { setBio({ fase: 'inicio' }); } }, t('Repetir'))) : null,
+        b.grabar ? h(Grabadora, { titulo: t('Sentadilla de lado'), onCerrar: function () { setBio({ fase: 'inicio' }); }, onEnviar: function (fl) { analizarVideo(fl); } }) : null);
+    }
     function botonVideo(ejId) {
       var galeria = function (txt, cls, cap) { return h('label', { className: cls }, cls.indexOf('g-btn') >= 0 ? h(G.Icon, { name: 'video', size: 20, className: 'g-btn__icon' }) : null, txt,
         h('input', Object.assign({ type: 'file', accept: 'video/*', onChange: function (e) { var fl = e.target.files && e.target.files[0]; e.target.value = ''; if (fl) enviarVideo(fl, ejId); } }, cap ? { capture: 'environment' } : {}))); };
@@ -4339,7 +4621,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         h(G.AppHeader, { title: t('Mensajes'), subtitle: t('Dudas y comentarios con tu entrenador'), onBack: function () { setView(chatDe.volver || 'hoy'); } }),
         h('div', { className: 'scroll chat', 'aria-live': 'polite' }, lista.length ? lista.map(function (m) {
           var quien = m.de === 'ia' ? t('Respuesta automática · tu entrenador la revisará') : (m.de === 'entrenador' ? t('Tu entrenador') : (m.leido ? t('Visto') : t('Enviado')));
-          return h('div', { key: m.id, className: 'chat__m chat__m--' + m.de + (m.tipo === 'comentario' ? ' chat__m--com' : '') }, m.tipo === 'comentario' ? h('span', { className: 'chat__ctx' }, t('Tu comentario de la sesión') + ' · ' + t(m.titulo || '')) : (m.ejNombre ? h('span', { className: 'chat__ctx' }, m.ejNombre) : null), m.re ? h('span', { className: 'chat__re' }, t('Sobre tu comentario: ') + '«' + m.re.texto + '»') : null, m.video ? h(VideoMsg, { video: m.video }) : null, m.video ? null : m.texto, h('span', { className: 'chat__meta' }, hora(m.ts) + (m.tipo === 'comentario' ? '' : ' · ' + quien)));
+          return h('div', { key: m.id, className: 'chat__m chat__m--' + m.de + (m.tipo === 'comentario' ? ' chat__m--com' : '') }, m.tipo === 'comentario' ? h('span', { className: 'chat__ctx' }, t('Tu comentario de la sesión') + ' · ' + t(m.titulo || '')) : (m.ejNombre ? h('span', { className: 'chat__ctx' }, m.ejNombre) : null), m.re ? h('span', { className: 'chat__re' }, t('Sobre tu comentario: ') + '«' + m.re.texto + '»') : null, m.analisis ? h(AnalisisCard, { a: m.analisis, fotoPath: m.foto && m.foto.path }) : null, m.video ? h(VideoMsg, { video: m.video }) : null, m.video ? null : m.texto, h('span', { className: 'chat__meta' }, hora(m.ts) + (m.tipo === 'comentario' ? '' : ' · ' + quien)));
         }) : h('p', { className: 'chat__empty' }, t('¿Algo no te cuadra? Pregunta lo que quieras de la sesión y te contestan aquí.'))),
         h('div', { className: 'bar bar--stack' },
           h('textarea', { id: 'chat-txt', className: 'chat__in', rows: 2, value: chatTxt, maxLength: 1000, placeholder: chatDe.ejId ? t('Tu duda sobre ') + (ST.nombreEj(state, chatDe.ejId) || '').toLowerCase() + '…' : t('Escribe tu duda…'), 'aria-label': t('Tu duda'), onChange: function (e) { setChatTxt(e.target.value); } }),
@@ -4542,6 +4824,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       return h('div', { className: 'phone' },
         h(G.AppHeader, { title: t('Progreso'), subtitle: t('Últimas 7 semanas'), action: h(G.Button, { variant: 'ghost', size: 'md', icon: 'glosario', onClick: function () { setGlosDe('progreso'); setView('glosario'); } }, t('Glosario')) }),
         h('div', { className: 'scroll' },
+          h(G.Button, { full: true, variant: 'secondary', icon: 'video', onClick: function () { setBio({ fase: 'inicio' }); setView('analisis'); } }, t('Análisis de sentadilla')),
           h('div', { className: 'row2 l1' },
             h(G.StatTile, { icon: 'seguimiento', label: t('Recuperación'), value: rec.palabra, detail: rec.detalle }),
             h(G.StatTile, { label: t('Sesiones'), value: ult4.filter(function (s) { return s.estado === 'hecha'; }).length + '/' + ult4.length, detail: t('Últimas 4 semanas') })),
@@ -4658,6 +4941,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     }
 
     if (view === 'chat') return Chat();
+    if (view === 'analisis') return Analisis();
     if (view === 'sesion') return Sesion();
     if (view === 'guiado') return Guiado();
     if (view === 'cierre') return Cierre();
@@ -4682,6 +4966,41 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   'use strict';
   var h = React.createElement, G = global.GAGOR, ST = global.GAGOR_STORE, useState = React.useState;
   function n(v) { return v === null || v === undefined ? '—' : String(v).replace('.', ','); }
+
+  function PesosCliente(props) {
+    var state = props.state, c = props.cliente;
+    var qs = useState(''); var q = qs[0], setQ = qs[1];
+    var datos = ST.historialPesos(state, c.id);
+    function norm(x) { return String(x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+    var lista = q ? datos.filter(function (x) { return norm(x.nombre).indexOf(norm(q)) >= 0; }) : datos;
+    var anio = (new Date()).getFullYear();
+    function fecha(f) { var d = new Date(f + 'T12:00:00'); var dias = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb']; return [ST.fmtCorta(f) + (d.getFullYear() !== anio ? ' ' + String(d.getFullYear()).slice(2) : ''), dias[d.getDay()]]; }
+    function reps(x, fila) { var r = (x.reps === null || x.reps === undefined ? '—' : x.reps) + (fila.lado && x.repsD !== null && x.repsD !== undefined ? '/' + x.repsD : ''); return fila.seg ? r + ' × ' + fila.seg + ' s' : r; }
+    return h('div', { className: 'panel' },
+      h('h2', { style: { margin: '0 0 4px', fontFamily: 'var(--font-display)', fontSize: '20px' } }, 'Pesos por ejercicio'),
+      h('p', { className: 'pex__intro' }, datos.length ? 'Cada fila es un día que lo ha hecho: sus series como kilos × repeticiones (10/10 = por lado). En color, su récord.' : 'Aquí aparecerán los kilos y repeticiones de cada ejercicio en cuanto ' + c.nombre.split(' ')[0] + ' registre sus series.'),
+      datos.length > 5 ? h(G.TextField, { label: 'Buscar ejercicio', value: q, placeholder: 'Sentadilla, press…', onChange: setQ }) : null,
+      h('div', { className: 'pex__list' }, lista.length ? lista.map(function (x) {
+        var dias = x.filas.length + (x.filas.length === 1 ? ' día' : ' días');
+        var meta = x.record !== null ? 'Últ. ' + n(x.ultimo) + ' kg · Récord ' + n(x.record) + ' kg · ' + dias : dias + ' · sin carga';
+        var graf = x.filas.filter(function (f) { return f.max !== null; }).slice().reverse();
+        return h(G.Disclosure, { key: x.ejId, title: x.nombre, meta: meta },
+          graf.length >= 2 ? h('div', { className: 'pex__chart' }, h(G.ProgressChart, { title: 'Kilos máximos por día', unit: 'kg', height: 140, data: graf.map(function (f) { return { label: ST.fmtCorta(f.fecha), value: f.max }; }) })) : null,
+          h('div', { className: 'pex__rows' }, x.filas.map(function (f, i) {
+            var prev = null; for (var j = i + 1; j < x.filas.length; j++) { if (x.filas[j].max !== null) { prev = x.filas[j].max; break; } }
+            var dif = f.max !== null && prev !== null ? Math.round((f.max - prev) * 100) / 100 : null;
+            var fe = fecha(f.fecha);
+            return h('div', { key: f.fecha + '-' + i, className: 'pex__row' },
+              h('span', { className: 'pex__date' }, fe[0], h('small', null, fe[1])),
+              h('span', { className: 'pex__sets' }, f.series.map(function (sx, k) {
+                return h('span', { key: k, className: 'pex__chip' + (sx.carga !== null && sx.carga === x.record ? ' is-rec' : '') },
+                  sx.carga !== null ? [h('b', { key: 'c' }, n(sx.carga)), ' kg × ' + reps(sx, f)] : reps(sx, f) + ' reps');
+              })),
+              h('span', { className: 'pex__top' }, f.max !== null ? n(f.max) + ' kg' : '',
+                dif ? h('small', { className: dif > 0 ? 'is-up' : 'is-down' }, (dif > 0 ? '▲ +' : '▼ −') + n(Math.abs(dif))) : (f.max !== null && prev !== null ? h('small', null, '= igual') : null)));
+          })));
+      }) : (datos.length ? h('p', { className: 'muted small' }, 'Ningún ejercicio coincide.') : null)));
+  }
 
   function Entrenador(props) {
     var state = props.state, commit = props.commit, salir = props.salir, sync = props.sync || {};
@@ -4965,7 +5284,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
                     b.nota ? h('span', { style: { color: 'var(--ink-muted)', flex: 1 } }, '«' + b.nota + '»') : null);
                 }))) : null];
             })()),
-            h('div', { className: 'panel' }, h('h2', { style: { margin: '0 0 12px', fontFamily: 'var(--font-display)', fontSize: '20px' } }, 'Récords'), recs.length ? h(G.RecordList, { items: recs.slice(0, 8) }) : h('p', { style: { color: 'var(--ink-muted)' } }, 'Todavía sin registros.'))))
+            h('div', { className: 'panel' }, h('h2', { style: { margin: '0 0 12px', fontFamily: 'var(--font-display)', fontSize: '20px' } }, 'Récords'), recs.length ? h(G.RecordList, { items: recs.slice(0, 8) }) : h('p', { style: { color: 'var(--ink-muted)' } }, 'Todavía sin registros.')))),
+        h('div', { key: 'pex', style: { marginTop: '16px', minWidth: 0 } }, h(PesosCliente, { key: c.id, state: state, cliente: c }))
       ]);
     }
 
@@ -5802,6 +6122,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
               return h('div', { key: m.id, className: 'chat__m chat__m--' + m.de + (m.tipo === 'comentario' ? ' chat__m--com' : '') },
                 m.tipo === 'comentario' ? h('span', { className: 'chat__ctx' }, 'Comentario de la sesión · ' + m.titulo + (m.rpe ? ' · RPE ' + m.rpe : '')) : (m.ejNombre ? h('span', { className: 'chat__ctx' }, m.ejNombre) : null),
                 m.re ? h('span', { className: 'chat__re' }, 'Sobre su comentario: «' + m.re.texto + '»') : null,
+                m.analisis ? h(global.GAGOR_AnalisisCard, { a: m.analisis, fotoPath: m.foto && m.foto.path }) : null,
                 m.video ? h(global.GAGOR_VideoMsg, { video: m.video }) : null,
                 m.video ? null : m.texto,
                 m.video && !m.video.borrado ? h('button', { type: 'button', className: 'chat__act', onClick: function () {
