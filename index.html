@@ -1022,6 +1022,12 @@ a.g-btn { text-decoration: none; }
 .vivo__dot { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); vertical-align: 1px; animation: vivo 1.6s ease-in-out infinite; }
 @keyframes vivo { 50% { opacity: .35; } }
 @media (prefers-reduced-motion: reduce) { .vivo__dot { animation: none; } }
+/* 1.9 · vídeos del jugador */
+.chat__vid { display: block; width: 100%; max-width: 280px; max-height: 360px; margin: 4px 0; border-radius: 10px; background: #000; }
+.chat__vid--off { background: none; font-size: 13px; color: var(--ink-muted); font-style: italic; }
+.vid__btn { display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+.vid__btn input { display: none; }
+.vid__msg { margin: 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); text-align: center; }
 </style>
 </head>
 <body>
@@ -2606,7 +2612,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.8";
+<script>window.GAGOR_VERSION = "1.9";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -3887,6 +3893,15 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       empuje = setTimeout(sincronizar, PUSH_ESPERA);
     },
     ahora: sincronizar,
+    videoListo: function () { return !!(configurado() && yo); },
+    subirVideo: function (file, cid) {
+      if (!configurado() || !yo) return Promise.reject(new Error('sin servidor'));
+      var ext = ((file.name || '').split('.').pop() || 'mp4').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 5) || 'mp4';
+      var path = yo.espacio_id + '/' + (cid || yo.cliente_id) + '/' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + '.' + ext;
+      return cliente().storage.from('gagor-videos').upload(path, file, { contentType: file.type || 'video/mp4', upsert: false }).then(function (r) { if (r.error) throw r.error; return path; });
+    },
+    urlVideo: function (path) { if (!configurado()) return Promise.reject(new Error('sin servidor')); return cliente().storage.from('gagor-videos').createSignedUrl(path, 3600).then(function (r) { if (r.error) throw r.error; return r.data.signedUrl; }); },
+    borrarVideo: function (path) { return cliente().storage.from('gagor-videos').remove([path]).then(function (r) { if (r.error) throw r.error; }); },
     // estado nuevo que no hay que subir (llega del servidor o es la carga inicial)
     fijarEstado: function (state) { ultimoEstado = state; },
     // al abrir: ¿había una sesión guardada?
@@ -3959,6 +3974,17 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function n(v) { return v === null || v === undefined ? '' : G.num(typeof v === 'string' && /^-?\d+(\.\d+)?$/.test(v) ? Number(v) : v); }
   function descansoTxt(s) { return s >= 60 ? Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60) : s + ' s'; }
 
+  function VideoMsg(p) {
+    var us = React.useState(null), url = us[0], setUrl = us[1]; var es = React.useState(false), err = es[0], setErr = es[1];
+    var v = p.video || {};
+    React.useEffect(function () { if (!v.path || v.borrado) return; var S = global.GAGOR_SYNC; if (!S || !S.urlVideo) { setErr(true); return; } S.urlVideo(v.path).then(setUrl, function () { setErr(true); }); }, [v.path, v.borrado]);
+    if (v.borrado) return h('span', { className: 'chat__vid chat__vid--off' }, t('Vídeo borrado'));
+    if (err) return h('span', { className: 'chat__vid chat__vid--off' }, t('No se puede cargar el vídeo'));
+    if (!url) return h('span', { className: 'chat__vid chat__vid--off' }, t('Cargando vídeo…'));
+    return h('video', { className: 'chat__vid', src: url, controls: true, playsInline: true, preload: 'metadata' });
+  }
+  global.GAGOR_VideoMsg = VideoMsg;
+
   function Jugador(props) {
     var state = props.state, commit = props.commit, salir = props.salir, sync = props.sync || {};
     var cid = state.usuario.clienteId;
@@ -3993,6 +4019,25 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var id = setInterval(function () { if (S && S.ahora && !document.hidden) S.ahora().then(marca); }, 6000);
       return function () { clearInterval(id); marca(); };
     }, [view]);
+    var vuS = useState(''); var vidMsg = vuS[0], setVidMsg = vuS[1];
+    function enviarVideo(file, ejId) {
+      var S = global.GAGOR_SYNC;
+      if (!S || !S.videoListo || !S.videoListo()) { setVidMsg(t('Funciona cuando tu entrenador conecta la app a su servidor.')); return; }
+      if (!/^video\//.test(file.type || 'video/')) { setVidMsg(t('Eso no es un vídeo.')); return; }
+      if (file.size > 50 * 1024 * 1024) { setVidMsg(t('El vídeo es demasiado largo. Graba solo una serie (menos de 30 segundos).')); return; }
+      var ej = ejId ? ST.ejercicio(state, ejId) : null;
+      setVidMsg(t('Subiendo vídeo… no cierres la app.'));
+      S.subirVideo(file, cid).then(function (path) {
+        commit(function (st) { st.mensajes = st.mensajes || []; st.mensajes.push({ id: cid + '-' + Date.now().toString(36) + ST.uid().slice(0, 3), clienteId: cid, de: 'jugador', texto: t('Vídeo') + (ej ? ' · ' + ej.nombre : ''), ts: new Date().toISOString(), fecha: hoyIso, sesionId: ses ? ses.id : null, ejId: ej ? ej.id : null, ejNombre: ej ? ej.nombre : null, video: { path: path, bytes: file.size, tipo: file.type || '' } }); });
+        setVidMsg(t('Enviado. Tu entrenador lo verá en Mensajes.')); setTimeout(function () { if (S.ahora) S.ahora(); }, 900);
+      }, function () { setVidMsg(t('No se ha podido subir. Prueba con wifi o con un vídeo más corto.')); });
+    }
+    function botonVideo(ejId) {
+      return h('div', { style: { display: 'grid', gap: '4px' } },
+        h('label', { className: 'g-btn g-btn--ghost g-btn--lg g-btn--full vid__btn' }, h(G.Icon, { name: 'video', size: 20, className: 'g-btn__icon' }), t('Enviar vídeo a mi entrenador'),
+          h('input', { type: 'file', accept: 'video/*', onChange: function (e) { var fl = e.target.files && e.target.files[0]; e.target.value = ''; if (fl) enviarVideo(fl, ejId); } })),
+        vidMsg ? h('p', { className: 'vid__msg', role: 'status' }, vidMsg) : null);
+    }
     function abrirChat(ejId) { setChatDe({ volver: view, ejId: ejId || null }); setView('chat'); }
     function botonChat(extra) { return h(G.Button, Object.assign({ variant: 'ghost', full: true, icon: 'mensaje', onClick: function () { abrirChat(extra && extra.ejId); } }, extra && extra.props), respNuevas ? [t('Ver respuesta'), h('span', { key: 'n', className: 'chat__new' }, respNuevas)] : t('Pregunta una duda')); }
     /* --------------------------------------------------- recordatorios (push) */
@@ -4217,11 +4262,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         h(G.AppHeader, { title: t('Mensajes'), subtitle: t('Dudas y comentarios con tu entrenador'), onBack: function () { setView(chatDe.volver || 'hoy'); } }),
         h('div', { className: 'scroll chat', 'aria-live': 'polite' }, lista.length ? lista.map(function (m) {
           var quien = m.de === 'ia' ? t('Respuesta automática · tu entrenador la revisará') : (m.de === 'entrenador' ? t('Tu entrenador') : (m.leido ? t('Visto') : t('Enviado')));
-          return h('div', { key: m.id, className: 'chat__m chat__m--' + m.de + (m.tipo === 'comentario' ? ' chat__m--com' : '') }, m.tipo === 'comentario' ? h('span', { className: 'chat__ctx' }, t('Tu comentario de la sesión') + ' · ' + t(m.titulo || '')) : (m.ejNombre ? h('span', { className: 'chat__ctx' }, m.ejNombre) : null), m.re ? h('span', { className: 'chat__re' }, t('Sobre tu comentario: ') + '«' + m.re.texto + '»') : null, m.texto, h('span', { className: 'chat__meta' }, hora(m.ts) + (m.tipo === 'comentario' ? '' : ' · ' + quien)));
+          return h('div', { key: m.id, className: 'chat__m chat__m--' + m.de + (m.tipo === 'comentario' ? ' chat__m--com' : '') }, m.tipo === 'comentario' ? h('span', { className: 'chat__ctx' }, t('Tu comentario de la sesión') + ' · ' + t(m.titulo || '')) : (m.ejNombre ? h('span', { className: 'chat__ctx' }, m.ejNombre) : null), m.re ? h('span', { className: 'chat__re' }, t('Sobre tu comentario: ') + '«' + m.re.texto + '»') : null, m.video ? h(VideoMsg, { video: m.video }) : null, m.video ? null : m.texto, h('span', { className: 'chat__meta' }, hora(m.ts) + (m.tipo === 'comentario' ? '' : ' · ' + quien)));
         }) : h('p', { className: 'chat__empty' }, t('¿Algo no te cuadra? Pregunta lo que quieras de la sesión y te contestan aquí.'))),
         h('div', { className: 'bar bar--stack' },
           h('textarea', { id: 'chat-txt', className: 'chat__in', rows: 2, value: chatTxt, maxLength: 1000, placeholder: chatDe.ejId ? t('Tu duda sobre ') + (ST.nombreEj(state, chatDe.ejId) || '').toLowerCase() + '…' : t('Escribe tu duda…'), 'aria-label': t('Tu duda'), onChange: function (e) { setChatTxt(e.target.value); } }),
-          h(G.Button, { full: true, icon: 'mensaje', disabled: !chatTxt.trim(), onClick: enviar }, t('Enviar')))
+          h(G.Button, { full: true, icon: 'mensaje', disabled: !chatTxt.trim(), onClick: enviar }, t('Enviar')), botonVideo(chatDe.ejId))
       );
     }
 
@@ -4270,7 +4315,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
               h('div', { className: 'g-group__list' }, (ex.equivalentes || []).map(function (id) { var y = ST.ejercicio(state, id); if (!y) return null;
                 return h(G.ExerciseRow, { key: id, index: '↔', name: y.nombre, sets: null, extra: y.material.join(', '), onOpen: function () { cambiarEjercicio(ex, y); } }); }))) : null),
           h(G.Button, { variant: 'ghost', full: true, icon: 'cronometro', onClick: function () { setGuide({ si: 0, phase: 'work', key: guide.key + 1 }); setView('guiado'); } }, t('Seguir en modo guiado')),
-          botonChat({ ejId: e.ejId })
+          botonChat({ ejId: e.ejId }),
+          botonVideo(e.ejId)
         ),
         h('div', { className: 'bar bar--stack' }, cur.circ ? (timerKey > 0 && finVuelta && sigC ? h(G.RestTimer, { key: timerKey, className: 'g-timer--bar', label: t('Descanso de la vuelta'), total: e.descanso, seconds: e.descanso, running: true, onEnd: function () { var k = timerKey; setTimeout(function () { setTimerKey(function (v) { return v === k ? 0 : v; }); }, 3000); }, onSkip: function () { setTimerKey(0); } }) : null) : timerKey > 0 && ssSig ? h('div', { className: 'ssnext' }, h('p', null, t('Sin descanso: pasa a ') + ST.nombreEj(state, ssSig.e.ejId) + '.'), h(G.Button, { full: true, variant: 'secondary', icon: 'adelante', onClick: function () { setTimerKey(0); setIdx(fl.findIndex(function (x) { return x.key === ssSig.key; })); } }, t('Ir a ') + ST.etiquetas(ses.bloques)[ssSig.key]))
             : (timerKey > 0 ? h(G.RestTimer, { key: timerKey, className: 'g-timer--bar', total: e.descanso, seconds: e.descanso, running: true, onEnd: function () { var k = timerKey; setTimeout(function () { setTimerKey(function (v) { return v === k ? 0 : v; }); }, 3000); }, onSkip: function () { setTimerKey(0); } }) : null),
@@ -5661,7 +5707,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           : h('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } },
               h(G.Button, { size: 'md', icon: 'aviso', onClick: activar }, nDisp ? 'Avisarme también en este dispositivo' : 'Avisarme en este móvil'),
               nDisp ? h(G.Button, { size: 'md', variant: 'ghost', icon: 'cerrar', onClick: desactivar }, 'Desactivar') : null),
-        msgAv ? h('p', { className: 'small', role: 'status', style: { margin: 0 } }, msgAv) : null);
+        msgAv ? h('p', { className: 'small', role: 'status', style: { margin: 0 } }, msgAv) : null,
+        (function () { var vs = (state.mensajes || []).filter(function (m) { return m.video && !m.video.borrado; }); if (!vs.length) return null; var mb = vs.reduce(function (a, m) { return a + (m.video.bytes || 0); }, 0) / 1048576;
+          return h('p', { className: 'small', style: { margin: 0, color: mb > 800 ? 'var(--alert)' : 'var(--ink-muted)' } }, 'Vídeos guardados: ' + vs.length + ' · ' + Math.round(mb) + ' MB de 1.024 MB' + (mb > 800 ? ' · borra los que ya hayas revisado' : '') + '.'); })());
       var hilo = sel ? porCli[sel] : [];
       return shell([
         h(G.AppHeader, { key: 'h', title: 'Mensajes', subtitle: sinLeer.length ? sinLeer.length + ' sin leer' : 'Dudas durante el entreno y comentarios de las sesiones' }),
@@ -5677,7 +5725,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
               return h('div', { key: m.id, className: 'chat__m chat__m--' + m.de + (m.tipo === 'comentario' ? ' chat__m--com' : '') },
                 m.tipo === 'comentario' ? h('span', { className: 'chat__ctx' }, 'Comentario de la sesión · ' + m.titulo + (m.rpe ? ' · RPE ' + m.rpe : '')) : (m.ejNombre ? h('span', { className: 'chat__ctx' }, m.ejNombre) : null),
                 m.re ? h('span', { className: 'chat__re' }, 'Sobre su comentario: «' + m.re.texto + '»') : null,
-                m.texto,
+                m.video ? h(global.GAGOR_VideoMsg, { video: m.video }) : null,
+                m.video ? null : m.texto,
+                m.video && !m.video.borrado ? h('button', { type: 'button', className: 'chat__act', onClick: function () {
+                  if (conf !== 'bv-' + m.id) { setConf('bv-' + m.id); return; }
+                  setConf(''); var S = global.GAGOR_SYNC;
+                  (S && S.borrarVideo ? S.borrarVideo(m.video.path) : Promise.resolve()).then(function () { commit(function (st) { var x = (st.mensajes || []).filter(function (q) { return q.id === m.id; })[0]; if (x && x.video) x.video.borrado = true; }); }, function () { setMsgAv('No se ha podido borrar el vídeo. Prueba con conexión.'); });
+                } }, conf === 'bv-' + m.id ? 'Pulsa otra vez para borrarlo' : 'Borrar vídeo (' + Math.max(1, Math.round((m.video.bytes || 0) / 1048576)) + ' MB)') : null,
                 h('span', { className: 'chat__meta' }, hora(m.ts) + (m.de === 'ia' ? ' · Respuesta automática' : (m.de === 'entrenador' ? ' · Tú' : ''))),
                 m.tipo === 'comentario' ? h('button', { type: 'button', className: 'chat__act', onClick: function () { setReplyTo({ clienteId: m.clienteId, sesionId: m.sesionId, titulo: m.titulo, texto: String(m.texto).slice(0, 140) }); var ta = document.getElementById('msg-txt'); if (ta) ta.focus(); } }, 'Responder a este comentario') : null);
             })),
