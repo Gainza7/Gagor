@@ -1018,6 +1018,10 @@ a.g-btn { text-decoration: none; }
 .imp__tag.is-upd { background: var(--alert-soft); }
 .imp__tag.is-ok { background: transparent; color: var(--ink-muted); }
 .imp__tag.is-bad { background: transparent; color: var(--alert); }
+/* gagor-vivo · entrenando ahora */
+.vivo__dot { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); vertical-align: 1px; animation: vivo 1.6s ease-in-out infinite; }
+@keyframes vivo { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .vivo__dot { animation: none; } }
 </style>
 </head>
 <body>
@@ -2602,7 +2606,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.7";
+<script>window.GAGOR_VERSION = "1.8";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -4021,6 +4025,27 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var ses = sesId ? state.sesiones.filter(function (s) { return s.id === sesId; })[0] : sesHoy;
     var partidoAyer = state.externos.filter(function (e) { return e.clienteId === cid && e.origen === 'sensor' && e.fecha >= ST.iso(ST.addDays(ST.hoy, -2)); }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; })[0];
 
+    var enSesion = !!ses && ses.estado !== 'hecha' && ses.fecha === hoyIso && ['sesion', 'guiado', 'resumen'].indexOf(view) >= 0;
+    React.useEffect(function () {
+      if (sync.fase === 'local') return undefined; // demo: no hay nadie mirando
+      function poner(v) { commit(function (st) { st.avisos = st.avisos || []; var a = st.avisos.filter(function (x) { return x.id === cid; })[0]; if (!a) { if (!v) return; a = { id: cid, clienteId: cid, activo: false, hora: '09:00', subs: [] }; st.avisos.push(a); } a.vivo = v; }); }
+      if (!enSesion) { var mio = (state.avisos || []).filter(function (x) { return x.id === cid; })[0]; if (mio && mio.vivo) poner(null); return undefined; }
+      var sid = ses.id, i0 = idx, v0 = view;
+      function latido() {
+        if (document.hidden) return;
+        commit(function (st) {
+          var q = st.sesiones.filter(function (x) { return x.id === sid; })[0]; if (!q) return;
+          var fl2 = ST.ejerciciosPlanos(q); var fx = fl2[Math.min(i0, fl2.length - 1)]; var rr = fx ? (q.registros[fx.key] || []) : []; var hechas = 0, tot = 0;
+          fl2.forEach(function (z) { var r2 = q.registros[z.key] || []; tot += Number(z.e.series) || 0; r2.forEach(function (r) { if (r.done) hechas++; }); });
+          st.avisos = st.avisos || []; var a = st.avisos.filter(function (x) { return x.id === cid; })[0];
+          if (!a) { a = { id: cid, clienteId: cid, activo: false, hora: '09:00', subs: [] }; st.avisos.push(a); }
+          a.vivo = { ts: new Date().toISOString(), sesionId: sid, titulo: q.titulo, ejId: v0 === 'resumen' ? null : (fx ? fx.e.ejId : null), serie: Math.min(rr.filter(function (r) { return r.done; }).length + 1, Number(fx && fx.e.series) || 1), series: fx ? Number(fx.e.series) || 0 : 0, hechas: hechas, total: tot };
+        });
+      }
+      latido(); var id = setInterval(latido, 30000);
+      var vis = function () { if (!document.hidden) latido(); }; document.addEventListener('visibilitychange', vis);
+      return function () { clearInterval(id); document.removeEventListener('visibilitychange', vis); };
+    }, [enSesion, ses ? ses.id : null, idx, view]);
     function flat(s) { return ST.ejerciciosPlanos(s); }
     function corto(tt) { var w = (tt || '').replace(/^Fuerza\s+/i, '').replace(/^Potencia y descarga$/i, 'Potencia').split(' ')[0]; return w.charAt(0).toUpperCase() + w.slice(1); }
     function marcas() {
@@ -4505,7 +4530,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           card(h(G.Segmented, { icon: 'idioma', label: t('Idioma'), value: idioma, onChange: function (v) { setPref('idioma', v); }, options: I18N.IDIOMAS }), 'idioma'),
           card([
             h('p', { key: 't', style: { margin: 0, fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 700 } }, t('Cuenta')),
-            h('p', { key: 'd', style: { margin: 0, fontSize: '16px', lineHeight: '24px', color: 'var(--ink-muted)' } }, cliente.nombre + ' · ' + cliente.grupo + '. ' + t('Salir de la cuenta en este dispositivo.')),
+            h('p', { key: 'd', style: { margin: 0, fontSize: '16px', lineHeight: '24px', color: 'var(--ink-muted)' } }, cliente.nombre + ' · ' + cliente.grupo + '. ' + t('Salir de la cuenta en este dispositivo.') + ' ' + t('Mientras haces una sesión, tu entrenador ve en qué ejercicio vas.')),
             h(G.Button, { key: 'b', variant: 'secondary', full: true, icon: 'salir', onClick: salir }, t('Cerrar sesión'))], 'cuenta')));
     }
 
@@ -4567,6 +4592,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var cfS = useState(''); var conf = cfS[0], setConf = cfS[1];
     var vkS = useState(null); var claves = vkS[0], setClaves = vkS[1];     // claves de recordatorios recién generadas (no se guardan)          // confirmaciones en dos pasos
     var drag = React.useRef(null);
+    var tkS = useState(0); var setTic = tkS[1]; React.useEffect(function () { var id = setInterval(function () { setTic(function (x) { return x + 1; }); }, 30000); return function () { clearInterval(id); }; }, []);
     var imS = useState(''); var impTxt = imS[0], setImpTxt = imS[1]; // importar vídeos de YouTube a la biblioteca
     var ivS = useState(false); var impVer = ivS[0], setImpVer = ivS[1];
     /* ------------------------------------------------ mensajes (1.2) */
@@ -4680,6 +4706,20 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           h(G.StatTile, { icon: 'calendario', label: 'Próximo modelo', value: prox ? prox.modelo : '—', detail: prox ? prox.nombre + ' · ' + (dias === 0 ? 'hoy' : (dias < 0 ? 'fuera de plazo' : 'en ' + dias + ' días')) : 'Sin plazos cerca' })),
         h('div', { key: 'c', className: 'cols' },
           h('div', { className: 'stack' },
+            (function () {
+              var ahora = Date.now();
+              var vivos = (state.avisos || []).filter(function (a) { return a.vivo && a.vivo.ts && ahora - new Date(a.vivo.ts).getTime() < 3 * 60000 && state.clientes.some(function (c) { return c.id === a.id; }); })
+                .sort(function (a, b) { return a.vivo.ts < b.vivo.ts ? 1 : -1; });
+              if (!vivos.length) return null;
+              return h(G.ListGroup, { title: 'Entrenando ahora', meta: vivos.length + (vivos.length === 1 ? ' jugador' : ' jugadores') }, vivos.map(function (a) {
+                var c = cli(a.id) || {}; var v = a.vivo; var seg = Math.max(0, Math.round((ahora - new Date(v.ts).getTime()) / 1000));
+                return h('button', { key: a.id, type: 'button', className: 'wrow', onClick: function () { abrir(a.id); } },
+                  h('span', { className: 'wrow__av' }, (c.nombre || '?').charAt(0)),
+                  h('span', { className: 'wrow__main' }, h('b', null, h('span', { className: 'vivo__dot', 'aria-hidden': 'true' }), c.nombre || '—'), h('span', null, v.titulo + (v.ejId ? ' · ' + ST.nombreEj(state, v.ejId) + ', serie ' + v.serie + ' de ' + v.series : ' · viendo la sesión'))),
+                  h('span', { className: 'wrow__state is-ok' }, v.hechas + '/' + v.total + ' series'),
+                  h('span', { className: 'wrow__when' }, seg < 60 ? 'ahora' : 'hace ' + Math.round(seg / 60) + ' min'));
+              }));
+            })(),
             h(G.ListGroup, { title: 'Hoy', meta: hoySes.length + (hoySes.length === 1 ? ' sesión' : ' sesiones') },
               hoySes.length ? hoySes.map(function (s) { var c = cli(s.clienteId) || {}; var fl = ST.ejerciciosPlanos(s); var d = 0, a = 0; fl.forEach(function (fx) { var rr = s.registros[fx.key] || []; a += fx.e.series; rr.forEach(function (r) { if (r.done) d++; }); });
                 return h('button', { key: s.id, type: 'button', className: 'wrow', onClick: function () { abrir(s.clienteId); } },
