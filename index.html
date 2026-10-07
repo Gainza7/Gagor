@@ -2811,7 +2811,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.19";
+<script>window.GAGOR_VERSION = "1.20";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -4880,7 +4880,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           h(G.Button, { variant: 'ghost', size: 'md', icon: 'calendario', onClick: function () { setMesSel(hoyIso.slice(0, 7)); setDiaSel(hoyIso); setView('calendario'); } }, t('Calendario')),
           h(G.Button, { variant: 'ghost', size: 'md', icon: 'usuario', onClick: function () { setView('ajustes'); } }, cliente.nombre.split(' ')[0])) }),
         h('div', { className: 'scroll' },
-          global.GAGOR_ANIMO_COLOR ? (function () { var av = ST.animoDe(state, cid)[hoyIso];
+          false ? (function () { var av = ST.animoDe(state, cid)[hoyIso];
             var col = (new Date(hoyIso + 'T12:00:00').getDay() + 6) % 7;
             var ed0 = ST.estadoDe(state, cid)[hoyIso]; var md0 = ed0 ? String(Math.round((ed0.estado + ed0.sueno + ed0.estres) / 3 * 10) / 10).replace('.', ',') : (av ? String(Math.round(av / 2)) : null);
             return h('div', { className: 'anh' }, h('button', { type: 'button', className: 'anh__sq' + (av ? '' : ' is-vacio') + (md0 && md0.length > 1 ? ' is-dec' : ''), style: { background: global.GAGOR_ANIMO_COLOR(av), left: ((col + .5) / 7 * 100) + '%' }, title: av ? global.GAGOR_ANIMO_PALABRA(av) : t('Cómo llegas hoy'), 'aria-label': av ? t('Cómo llegas hoy') + ': ' + av + '/10' : t('Responder'), onClick: av ? undefined : props.abrirAnimo }, md0 || '?')); })() : null,
