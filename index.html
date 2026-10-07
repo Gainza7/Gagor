@@ -1152,9 +1152,9 @@ a.g-btn { text-decoration: none; }
 .ani__ext { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-muted); }
 .ani__acc { display: grid; gap: 4px; width: 100%; justify-items: center; }
 .ani__acc .g-btn[disabled] { opacity: .45; }
-.rcv { position: relative; isolation: isolate; border-radius: var(--radius-lg, 20px); }
-.rcv::before { content: ''; position: absolute; inset: 10% 8%; border-radius: 50%; background: var(--rc); filter: blur(26px); opacity: .55; z-index: -1; pointer-events: none; }
-.rcv > .g-stat { height: 100%; background: radial-gradient(120% 100% at 100% 0%, color-mix(in srgb, var(--rc) 38%, transparent), transparent 65%), linear-gradient(0deg, color-mix(in srgb, var(--rc) 14%, transparent), transparent 70%), var(--surface-card); border-color: color-mix(in srgb, var(--rc) 45%, var(--line)); }
+.rcv { background: var(--surface-card); position: relative; isolation: isolate; overflow: hidden; border-radius: var(--radius-md); min-width: 0; }
+.rcv::before { content: ''; position: absolute; right: -20%; top: -30%; width: 90%; height: 110%; border-radius: 50%; background: var(--rc); filter: blur(30px); opacity: .45; z-index: 1; pointer-events: none; }
+.rcv > .g-stat { position: relative; z-index: 2; height: 100%; box-sizing: border-box; background: linear-gradient(0deg, color-mix(in srgb, var(--rc) 12%, transparent), transparent 70%), color-mix(in srgb, var(--surface-card) 70%, transparent); border-color: color-mix(in srgb, var(--rc) 45%, var(--line)); }
 .rcv.is-vacio { cursor: pointer; }
 .rcv.is-vacio::before { display: none; }
 .anh__sq.is-dec { width: 34px; font-size: 13px; }
@@ -2811,7 +2811,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.18";
+<script>window.GAGOR_VERSION = "1.19";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -4892,7 +4892,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
               var av = ST.animoDe(state, cid)[hoyIso], ed = ST.estadoDe(state, cid)[hoyIso];
               var tile;
               if (ed) { var md = (ed.estado + ed.sueno + ed.estres) / 3;
-                tile = h(G.StatTile, { icon: 'seguimiento', label: t('Recuperación'), value: String(Math.round(md * 10) / 10).replace('.', ','), unit: '/5', detail: (global.GAGOR_ANIMO_PALABRA ? global.GAGOR_ANIMO_PALABRA(av) : '') + ' · ' + t('Sueño') + ' ' + ed.sueno + ' · ' + t('Estrés') + ' ' + ed.estres }); }
+                tile = h(G.StatTile, { icon: 'seguimiento', label: t('Recuperación'), value: String(Math.round(md * 10) / 10).replace('.', ','), unit: '/5', detail: global.GAGOR_ANIMO_PALABRA ? global.GAGOR_ANIMO_PALABRA(av) : '' }); }
               else if (av) tile = h(G.StatTile, { icon: 'seguimiento', label: t('Recuperación'), value: global.GAGOR_ANIMO_PALABRA ? global.GAGOR_ANIMO_PALABRA(av) : rec.palabra, detail: rec.detalle });
               else tile = h(G.StatTile, { icon: 'seguimiento', label: t('Recuperación'), value: '—', detail: t('Toca para responder') });
               return h('div', { className: 'rcv' + (av ? '' : ' is-vacio'), style: { '--rc': av && global.GAGOR_ANIMO_COLOR ? global.GAGOR_ANIMO_COLOR(av) : 'transparent' }, role: av ? null : 'button', tabIndex: av ? null : 0, onClick: av ? undefined : props.abrirAnimo }, tile);
