@@ -1105,6 +1105,43 @@ a.g-btn { text-decoration: none; }
 @keyframes orbSombra { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.85); opacity: .7; } }
 @keyframes orbOnda { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(1.9); } }
 @media (prefers-reduced-motion: reduce) { .ani *, .ani { animation: none !important; } }
+.hero { position: relative; overflow: hidden; border-radius: 22px; min-height: 248px; background: #121412; color: #f4f6f3; border: 1px solid rgba(255,255,255,.08); box-shadow: 0 18px 36px -22px rgba(0,0,0,.6); }
+.hero__foto { position: absolute; top: 0; right: 0; bottom: 0; width: 64%; background-color: #1d2a22; background-image: linear-gradient(135deg, #24382b, #0f1511); background-size: cover; background-position: center; }
+.hero__velo { position: absolute; inset: 0; background: linear-gradient(90deg, #121412 0%, rgba(18,20,18,.94) 36%, rgba(18,20,18,.55) 62%, rgba(18,20,18,.1) 100%), linear-gradient(0deg, rgba(18,20,18,.55), transparent 45%); }
+.hero__txt { position: relative; z-index: 1; padding: 20px 18px 18px; display: grid; gap: 6px; justify-items: start; max-width: 100%; }
+.hero__eti { margin: 0; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: #5fd894; }
+.hero.is-hecha .hero__eti { color: #9fe3bd; }
+.hero__tit { margin: 0; font-family: var(--font-display); font-size: 34px; line-height: 38px; font-weight: 800; letter-spacing: -.01em; color: #fff; max-width: 70%; }
+.hero__desc { margin: 2px 0 6px; font-size: 15px; line-height: 21px; color: rgba(244,246,243,.78); max-width: 62%; }
+.hero__datos { display: flex; gap: 0; margin: 4px 0 12px; }
+.hero__dato { display: flex; gap: 8px; align-items: center; padding-right: 16px; margin-right: 16px; border-right: 1px solid rgba(255,255,255,.14); color: #5fd894; }
+.hero__dato:last-child { border-right: 0; }
+.hero__dato b { display: block; font-family: var(--font-display); font-size: 19px; line-height: 22px; color: #fff; }
+.hero__dato span { font-size: 12px; color: rgba(244,246,243,.65); }
+.hero__btn { display: flex; align-items: center; gap: 10px; min-width: 64%; height: 52px; padding: 0 20px; border: 0; border-radius: 999px; background: #4fd68a; color: #0b1a11; font: inherit; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 8px 20px -10px rgba(79,214,138,.8); }
+.hero__btn .hero__flecha { margin-left: auto; font-size: 20px; }
+.hero__btn:active { transform: scale(.98); }
+.hero__sec { margin-top: 4px; border: 0; background: none; color: rgba(244,246,243,.75); font: inherit; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; padding: 4px 2px; cursor: pointer; }
+@media (max-width: 380px) { .hero__tit { font-size: 30px; line-height: 34px; } .hero__btn { min-width: 0; width: 100%; } }
+.sem { border: 1px solid var(--line); border-radius: 20px; background: var(--surface-card); padding: 16px 18px; }
+.sem__cab { display: flex; align-items: center; gap: 12px; }
+.sem__mas summary { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); cursor: pointer; list-style: none; color: var(--ink-muted); font-size: 14px; }
+.sem__mas summary::-webkit-details-marker { display: none; }
+.sem__cab b { font-family: var(--font-display); font-size: 19px; }
+.sem__ico { display: inline-flex; align-items: flex-end; gap: 3px; height: 20px; }
+.sem__ico i { display: block; width: 5px; border-radius: 2px; background: var(--accent); }
+.sem__ico i:nth-child(1) { height: 8px; } .sem__ico i:nth-child(2) { height: 14px; } .sem__ico i:nth-child(3) { height: 20px; }
+.sem__meta { margin-left: auto; color: var(--ink-muted); font-size: 14px; }
+.sem__chev { color: var(--ink-muted); font-size: 22px; line-height: 1; transition: transform .2s; }
+.sem__mas[open] .sem__chev { transform: rotate(90deg); }
+.sem__barra { height: 10px; border-radius: 6px; background: var(--surface-sunken); margin: 14px 0; overflow: hidden; }
+.sem__barra i { display: block; height: 100%; border-radius: 6px; background: var(--accent); }
+.sem__datos { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); padding-top: 14px; }
+.sem__datos > div { display: flex; gap: 6px; align-items: flex-start; color: var(--accent); padding: 0 6px; min-width: 0; border-left: 1px solid var(--line); }
+.sem__datos > div:first-child { border-left: 0; padding-left: 0; }
+.sem__datos b { display: block; font-family: var(--font-display); font-size: 17px; line-height: 22px; color: var(--ink); white-space: nowrap; }
+.sem__datos span { font-size: 12px; color: var(--ink-muted); }
+.sem__det { margin-top: 14px; }
 .pes { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-md, 16px); background: var(--surface-card); }
 .pes.is-toca { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
 .pes__txt p { margin: 0; }
@@ -2756,7 +2793,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.15";
+<script>window.GAGOR_VERSION = "1.16";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -4736,6 +4773,63 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
     /* ---------------------------------------------------------------- HOY */
     function card(children, key) { return h('div', { key: key, style: { padding: '16px', background: 'var(--surface-card)', border: '1px solid var(--line)', borderRadius: 'var(--radius-md)', display: 'grid', gap: '12px' } }, children); }
+    /* 1.16 · portada de Hoy con foto según el tipo de entrenamiento */
+    var FOTOS = {
+      tobillo: '1787089574835-366ffd17b429', inferior: '1770664612843-b44e26070024', superior: '1758521959675-5874879f3977',
+      core: '1544717684-1243da23b545', potencia: '1758875568074-0e7e4389b7d5', movilidad: '1593431763017-c689a61b729a',
+      carrera: '1597892657493-6847b9640bac', fuerza: '1741478551868-a17b1644228d', descanso: '1754839004013-0276d56bc0e7'
+    };
+    var DESC = {
+      tobillo: 'Fortalece, mejora la movilidad y vuelve a la carga.', inferior: 'Piernas fuertes: base de todo lo demás.',
+      superior: 'Empuje y tracción para un tren superior sólido.', core: 'Tronco estable para transmitir fuerza.',
+      potencia: 'Rápido y explosivo: calidad antes que cantidad.', movilidad: 'Rango de movimiento y control articular.',
+      carrera: 'Motor y piernas para aguantar el ritmo.', fuerza: 'Fuerza de base, técnica y progresión.',
+      descanso: 'Recuperar también es entrenar. Si has entrenado con el equipo, apúntalo.'
+    };
+    function sinTilde(x) { return String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+    function tipoSesion(s) {
+      if (!s) return 'descanso';
+      var txt = sinTilde(s.titulo) + ' ' + (s.bloques || []).map(function (b) { return sinTilde(b.titulo) + ' ' + (b.ejercicios || []).map(function (e) { var x = ST.ejercicio(state, e.ejId) || {}; return sinTilde(x.nombre) + ' ' + sinTilde(x.patron) + ' ' + sinTilde(x.grupo); }).join(' '); }).join(' ');
+      var tit = sinTilde(s.titulo);
+      var R = [['tobillo', /tobillo|pie|gemel|soleo/], ['carrera', /carrera|correr|aerob|cardio|sprint|velocidad|resistencia/], ['potencia', /potencia|salto|pliom|explos/],
+        ['movilidad', /movilidad|estiram|recuper|regener|yoga|descarga/], ['core', /core|abdom|tronco|plancha/], ['superior', /superior|torso|empuje|traccion|pecho|espalda|hombro|brazo|press banca|dominad|remo/],
+        ['inferior', /inferior|pierna|sentadilla|cuadri|isquio|gluteo|zancada|peso muerto|hip thrust/]];
+      for (var i = 0; i < R.length; i++) if (R[i][1].test(tit)) return R[i][0];
+      var best = 'fuerza', bn = 0;
+      R.forEach(function (r) { var m = txt.match(new RegExp(r[1].source, 'g')); if (m && m.length > bn) { bn = m.length; best = r[0]; } });
+      return best;
+    }
+    function fotoUrl(tipo) { return 'https://images.unsplash.com/photo-' + (FOTOS[tipo] || FOTOS.fuerza) + '?w=900&q=70&auto=format&fit=crop'; }
+    function Portada(o) {
+      return h('div', { className: 'hero hero--' + o.tipo + (o.hecha ? ' is-hecha' : '') },
+        h('div', { className: 'hero__foto', style: { backgroundImage: 'url("' + fotoUrl(o.tipo) + '")' } }),
+        h('div', { className: 'hero__velo' }),
+        h('div', { className: 'hero__txt' },
+          h('p', { className: 'hero__eti' }, o.etiqueta),
+          h('h2', { className: 'hero__tit' }, o.titulo),
+          h('p', { className: 'hero__desc' }, o.desc),
+          o.datos ? h('div', { className: 'hero__datos' }, o.datos.map(function (d, i) { return h('div', { key: i, className: 'hero__dato' }, h(G.Icon, { name: d.icon, size: 22 }), h('div', null, h('b', null, d.v), h('span', null, d.l))); })) : null,
+          h('button', { type: 'button', className: 'hero__btn', onClick: o.onClick }, h(G.Icon, { name: o.icon || 'reproducir', size: 20 }), h('span', null, o.boton), h('span', { className: 'hero__flecha', 'aria-hidden': 'true' }, '→')),
+          o.secundario ? h('button', { type: 'button', className: 'hero__sec', onClick: o.secundario.onClick }, o.secundario.label) : null));
+    }
+    function minTxt(m) { m = Math.round(m || 0); if (m < 60) return m + ' min'; var hh = m / 60; return (hh >= 10 ? Math.round(hh) : String(Math.round(hh * 10) / 10).replace('.', ',')) + ' h'; }
+    function TuSemana(semSes, detalle) {
+      var hechasSem = semSes.filter(function (s) { return s.estado === 'hecha'; }).length;
+      var todas = misSesiones.filter(function (s) { return s.estado === 'hecha'; });
+      var minutos = todas.reduce(function (a, s) { return a + (Number(s.duracion) || 45); }, 0);
+      var semanas = {}; todas.forEach(function (s) { semanas[ST.semanaDe(s.fecha)] = 1; });
+      var racha = 0, k = ST.semanaDe(hoyIso); if (!semanas[k]) k = ST.semanaDe(ST.iso(ST.addDays(new Date(k + 'T12:00:00'), -7)));
+      while (semanas[k]) { racha++; k = ST.semanaDe(ST.iso(ST.addDays(new Date(k + 'T12:00:00'), -7))); }
+      var pct = semSes.length ? Math.round(hechasSem / semSes.length * 100) : 0;
+      return h('div', { className: 'sem' },
+        h('div', { className: 'sem__cab' }, h('span', { className: 'sem__ico', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')), h('b', null, t('Tu semana')), h('span', { className: 'sem__meta' }, hechasSem + '/' + semSes.length + t(' sesiones'))),
+        h('div', { className: 'sem__barra' }, h('i', { style: { width: pct + '%' } })),
+        h('div', { className: 'sem__datos' },
+          h('div', null, h(G.Icon, { name: 'check', size: 18 }), h('div', null, h('b', null, todas.length), h('span', null, t('sesiones')))),
+          h('div', null, h(G.Icon, { name: 'cronometro', size: 18 }), h('div', null, h('b', null, minTxt(minutos)), h('span', null, t('tiempo total')))),
+          h('div', null, h(G.Icon, { name: 'seguimiento', size: 18 }), h('div', null, h('b', null, racha), h('span', null, racha === 1 ? t('semana seguida') : t('semanas seguidas'))))),
+        h('details', { className: 'sem__mas' }, h('summary', null, h('span', null, t('Carga de la semana')), h('span', { className: 'sem__chev', 'aria-hidden': 'true' }, '›')), h('div', { className: 'sem__det' }, detalle)));
+    }
     function Hoy() {
       var rec = ST.recuperacion(state, cid);
       var sem = ST.cargasSemanales(state, cid, 5); var esta = sem[4].value; var prev = sem.slice(0, 4).filter(function (x) { return x.value > 0; });
@@ -4763,11 +4857,17 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
             h('p', { key: 't', style: { margin: 0, fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 700 } }, t('Seguimiento de hoy')),
             h('p', { key: 'd', style: { margin: 0, fontSize: '16px', lineHeight: '24px', color: 'var(--ink-muted)' } }, (pend.diario ? t(pend.nivel === 'completo' ? 'Sueño, cansancio y dolor muscular' : 'Una pregunta: cómo llegas hoy') : '') + (pend.diario && pend.semanal ? ' · ' : '') + (pend.semanal ? t('Peso de la semana') : '') + t('. Menos de un minuto.')),
             h(G.Button, { key: 'b', variant: 'secondary', full: true, icon: 'seguimiento', onClick: function () { setView('checkin'); } }, t('Responder'))], 'chk'),
-          otroDia || sesHoy ? null : h(G.EmptyState, { title: t('Hoy toca descansar'), detail: t('No hay sesión asignada. Si has entrenado con el equipo, apúntalo.'), actionLabel: t('Apuntar entreno del equipo'), onAction: function () { setView('externo'); } }),
+          otroDia ? null : (sesHoy ? (function () { var tp = tipoSesion(sesHoy); var hecha = sesHoy.estado === 'hecha';
+              return Portada({ tipo: tp, hecha: hecha, etiqueta: hecha ? t('Entrenamiento hecho') : t('Entrenamiento'), titulo: corto(sesHoy.titulo), desc: t(DESC[tp]),
+                datos: [{ icon: 'ejercicios', v: nEj, l: nEj === 1 ? t('ejercicio') : t('ejercicios') }, tot.done && !hecha ? { icon: 'check', v: tot.done + '/' + tot.all, l: t('series') } : { icon: 'cronometro', v: (sesHoy.duracion || 45) + ' min', l: t('aprox.') }],
+                boton: hecha ? t('Ver resumen') : (tot.done ? t('Seguir entrenando') : t('Empezar entrenamiento')), icon: hecha ? 'informe' : 'reproducir',
+                onClick: function () { setSesId(sesHoy.id); if (hecha) { setView('cierre'); } else { setView('resumen'); } },
+                secundario: hecha ? null : { label: t('Modo entrenamiento guiado'), onClick: function () { startGuided(sesHoy); } } }); })()
+            : Portada({ tipo: 'descanso', etiqueta: t('Descanso'), titulo: t('Hoy toca descansar'), desc: t(DESC.descanso), boton: t('Apuntar entreno del equipo'), icon: 'mas', onClick: function () { setView('externo'); } })),
           otroDia ? null : h('div', null,
             partidoAyer ? h(G.Disclosure, { icon: 'partido', title: t('Último partido'), meta: ST.relativo(partidoAyer.fecha) + (partidoAyer.rpe === null ? t(' · RPE pendiente') : t(' · RPE ') + partidoAyer.rpe) },
               h(G.TeamSessionCard, { title: partidoAyer.titulo, meta: ST.relativo(partidoAyer.fecha), minutes: partidoAyer.minutos, loadWord: t(partidoAyer.cargaPalabra), detail: partidoAyer.detalle, rpe: partidoAyer.rpe, onRpe: function () { setView('rpePartido'); } })) : null,
-            h(G.Disclosure, { icon: 'semana', title: t('Tu semana'), meta: semSes.filter(function (s) { return s.estado === 'hecha'; }).length + '/' + semSes.length + t(' sesiones') },
+            TuSemana(semSes,
               h('div', { className: 'row2' },
                 h(G.StatTile, { label: t('Carga'), value: esta ? esta.toLocaleString('es-ES') : '—', detail: media ? (esta >= media ? '+' : '−') + Math.abs(Math.round((esta / media - 1) * 100)) + t(' % sobre tu media') : t('Sin media aún') }),
                 h(G.StatTile, { label: t('Sesiones'), value: semSes.filter(function (s) { return s.estado === 'hecha'; }).length + '/' + semSes.length, detail: t('Esta semana') }))),
@@ -4775,7 +4875,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
               h(G.Button, { variant: 'secondary', full: true, icon: 'mas', onClick: function () { setView('externo'); } }, t('Apuntar entreno del equipo'))),
             respNuevas ? botonChat() : null)
         ),
-        sesHoy && !otroDia ? h('div', { className: 'bar' },
+        false ? h('div', { className: 'bar' },
           h('div', { style: { display: 'grid', gap: '8px' } },
             h(G.Button, { full: true, icon: sesHoy.estado === 'hecha' ? 'informe' : 'reproducir', onClick: function () { setSesId(sesHoy.id); if (sesHoy.estado === 'hecha') { setView('cierre'); } else { setView('resumen'); } } },
               sesHoy.estado === 'hecha' ? t('Ver resumen') : (tot.done ? t('Seguir entrenando') : t('Empezar entrenamiento'))),
