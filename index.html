@@ -1048,6 +1048,63 @@ a.g-btn { text-decoration: none; }
 .vid__alt { justify-self: center; font-size: 14px; color: var(--ink-muted); text-decoration: underline; cursor: pointer; }
 .vid__alt input { display: none; }
 /* 1.11 · análisis de sentadilla */
+.ani { position: fixed; inset: 0; z-index: 9000; display: flex; align-items: flex-end; justify-content: center; background: rgba(10, 12, 10, .55); animation: aniFondo .25s ease-out; }
+.ani__sheet { position: relative; width: 100%; max-width: 520px; background: var(--surface-card); color: var(--ink); border-radius: 24px 24px 0 0; padding: 0 16px calc(18px + env(safe-area-inset-bottom)); box-shadow: 0 -10px 40px rgba(0,0,0,.25); overflow: hidden; animation: aniSube .42s cubic-bezier(.2,.9,.3,1.15); }
+.ani__mun { position: relative; height: 230px; margin: 0 -16px; }
+.ani__bocadillo { position: relative; margin: 14px 0 0; background: var(--surface-sunken); border-radius: 18px; padding: 12px 16px; text-align: center; animation: aniPop .35s cubic-bezier(.2,.9,.3,1.3); }
+.ani__bocadillo::before { content: ''; position: absolute; left: 50%; top: -9px; margin-left: -10px; border: 10px solid transparent; border-bottom-color: var(--surface-sunken); border-top: 0; }
+.ani__bocadillo p { margin: 0; font-size: 16px; line-height: 22px; font-weight: 600; }
+.ani__nota { display: inline-block; margin-top: 8px; padding: 2px 10px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-family: var(--font-display); font-weight: 700; font-size: 14px; }
+.ani__nums { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 16px; }
+.ani__n { height: 50px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-family: var(--font-display); font-weight: 700; font-size: 20px; cursor: pointer; transition: transform .1s; }
+.ani__n:active { transform: scale(.92); }
+.ani__n--bajo { background: color-mix(in srgb, var(--alert) 14%, var(--surface)); }
+.ani__n--bien { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
+.ani__n--top { background: color-mix(in srgb, var(--accent) 30%, var(--surface)); }
+.ani__pie { margin-top: 12px; display: flex; justify-content: center; }
+.ani__pie .g-btn { margin-top: 4px; }
+.ani__luego { border: 0; background: none; color: var(--ink-muted); font-size: 14px; padding: 8px 12px; cursor: pointer; }
+@keyframes aniFondo { from { opacity: 0; } }
+@keyframes aniSube { from { transform: translateY(100%); } }
+@keyframes aniPop { from { transform: scale(.7); opacity: 0; } }
+/* ---- escena: gimnasio funcional desenfocado */
+.esc { position: absolute; inset: 0; overflow: hidden; }
+.esc .gym { position: absolute; inset: -8px; width: calc(100% + 16px); height: calc(100% + 16px); filter: blur(2.2px) saturate(.9); transform: scale(1.04); animation: escPan 14s ease-in-out infinite alternate; }
+.esc__luz { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 70% at 50% 45%, rgba(255,255,255,.28), transparent 70%), linear-gradient(to bottom, rgba(0,0,0,0) 55%, rgba(0,0,0,.25) 100%); }
+.esc--bajo .esc__luz { background: radial-gradient(ellipse 60% 70% at 50% 45%, rgba(220,235,255,.18), transparent 70%), linear-gradient(to bottom, rgba(40,60,90,.25), rgba(10,20,40,.35)); }
+.esc::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 26px; background: linear-gradient(to bottom, transparent, var(--surface-card)); }
+@keyframes escPan { from { transform: scale(1.04) translateX(-6px); } to { transform: scale(1.04) translateX(6px); } }
+/* ---- esfera GAGOR 3D */
+.orb { --mk: #4faf7b; --glow: rgba(79, 175, 123, .55); --core: rgba(79, 175, 123, .45);
+  position: absolute; left: 50%; top: 18px; width: 200px; height: 200px; margin-left: -100px; animation: orbEntra .8s cubic-bezier(.2,.8,.3,1.1); }
+.orb--top { --mk: #5fd894; --glow: rgba(95, 216, 148, .8); --core: rgba(95, 216, 148, .7); }
+.orb--bajo { --mk: #7fa7c9; --glow: rgba(127, 167, 201, .45); --core: rgba(127, 167, 201, .35); }
+.orb__flota { position: absolute; left: 50%; top: 22px; width: 112px; height: 112px; margin-left: -56px; animation: orbFlota 4s ease-in-out infinite; }
+.orb__cuerpo { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; z-index: 2;
+  background: radial-gradient(circle at 36% 30%, #8b9194 0%, #3a3e41 22%, #17191a 58%, #050606 100%);
+  box-shadow: 0 20px 32px -12px rgba(0,0,0,.6), 0 0 30px var(--glow), inset 0 -12px 20px rgba(0,0,0,.5); transition: box-shadow .6s; }
+.orb__nucleo { position: absolute; left: 20%; top: 22%; width: 60%; height: 60%; border-radius: 50%; background: radial-gradient(circle, var(--core), transparent 70%); filter: blur(6px); animation: orbLatido 3s ease-in-out infinite; }
+.orb__marca { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; filter: drop-shadow(0 0 6px var(--glow)); transform: perspective(200px) rotateY(-14deg) rotateX(6deg); animation: orbGiro 9s ease-in-out infinite; }
+.orb__rim { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 74% 86%, rgba(200,255,225,.45) 0%, rgba(200,255,225,.1) 18%, transparent 40%); mix-blend-mode: screen; }
+.orb--bajo .orb__rim { background: radial-gradient(circle at 74% 86%, rgba(200,225,255,.35) 0%, transparent 40%); }
+.orb__ventana { position: absolute; left: 17%; top: 8%; width: 66%; height: 34%; border-radius: 50% 50% 46% 46% / 60% 60% 40% 40%; background: linear-gradient(to bottom, rgba(255,255,255,.32), rgba(255,255,255,0) 85%); }
+.orb__brillo { position: absolute; left: 24%; top: 14%; width: 20px; height: 11px; border-radius: 50%; background: radial-gradient(ellipse, rgba(255,255,255,.95) 0%, rgba(255,255,255,.5) 45%, transparent 72%); transform: rotate(-30deg); }
+.orb__orbita { position: absolute; left: 50%; top: 50%; width: 190px; height: 76px; margin: -38px 0 0 -95px; transform: rotate(-10deg); pointer-events: none; }
+.orb__orbita--atras { z-index: 1; opacity: .6; } .orb__orbita--delante { z-index: 3; }
+.orb__suelo { position: absolute; left: 50%; top: 170px; width: 120px; height: 18px; margin-left: -60px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,0,0,.6), rgba(0,0,0,.15) 45%, transparent 70%); animation: orbSombra 4s ease-in-out infinite; }
+.orb__suelo::after { content: ''; position: absolute; left: 28%; right: 28%; top: -5px; height: 14px; border-radius: 50%; background: radial-gradient(ellipse, var(--glow), transparent 70%); opacity: .6; }
+.orb__onda { position: absolute; left: 50%; top: 78px; width: 112px; height: 112px; margin: -56px 0 0 -56px; border-radius: 50%; border: 1.5px solid var(--mk); opacity: 0; pointer-events: none; }
+.orb--top .orb__onda { animation: orbOnda 1.8s ease-out .2s 3; } .orb--top .orb__onda--2 { animation-delay: .8s; }
+.orb--bajo .orb__flota { animation: orbFlotaB 5s ease-in-out infinite; }
+.orb--bajo .orb__nucleo { animation-duration: 5s; }
+@keyframes orbEntra { from { transform: translateY(24px) scale(.7); opacity: 0; } }
+@keyframes orbFlota { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes orbFlotaB { 0%, 100% { transform: translateY(6px); } 50% { transform: translateY(3px); } }
+@keyframes orbLatido { 0%, 100% { opacity: .55; transform: scale(.9); } 50% { opacity: 1; transform: scale(1.08); } }
+@keyframes orbGiro { 0%, 100% { transform: perspective(200px) rotateY(-16deg) rotateX(6deg); } 50% { transform: perspective(200px) rotateY(16deg) rotateX(4deg); } }
+@keyframes orbSombra { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.85); opacity: .7; } }
+@keyframes orbOnda { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(1.9); } }
+@media (prefers-reduced-motion: reduce) { .ani *, .ani { animation: none !important; } }
 .pex__intro { margin: 0 0 12px; font-size: 13px; color: var(--ink-muted); }
 .pex__list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin-top: 12px; }
 .pex__chart { margin-bottom: 12px; }
@@ -2671,7 +2728,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.12";
+<script>window.GAGOR_VERSION = "1.13";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -3438,7 +3495,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       { id: 'Jugador 11', min: 36.6, plmin: 1.7, saltos: 33, aterr: 10, imp: 62, asim: 2.2, bal: '48 / 52' } ] };
     clientes[0].fiscal = { nombre: 'Mikel D.', nif: '00000001R', direccion: 'Pamplona' };
     var st = { version: 1, demo: true, creado: new Date().toISOString(), usuario: null, clientes: clientes, ejercicios: EJ, plantillas: PLANTILLAS, programas: [JSON.parse(JSON.stringify(PROGRAMA_EJEMPLO))],
-      sesiones: sesiones, externos: externos, peso: peso, salto: salto, bienestar: bienestar, partidos: [partido], cobros: cobros, gastos: gastos, emisor: EMISOR_EJEMPLO(), facturas: [], avisos: [], fiscal: FISCAL_DEFECTO() };
+      sesiones: sesiones, externos: externos, peso: peso, salto: salto, bienestar: bienestar, partidos: [partido], cobros: cobros, gastos: gastos, emisor: EMISOR_EJEMPLO(), facturas: [], avisos: animoDemo(clientes), fiscal: FISCAL_DEFECTO() };
     // facturadas todas las cuotas salvo las dos últimas (para que haya algo que facturar)
     var ordenados = cobros.slice().sort(function (a, b) { return a.fecha < b.fecha ? -1 : (a.fecha > b.fecha ? 1 : (a.id < b.id ? -1 : 1)); });
     ordenados.slice(0, Math.max(0, ordenados.length - 2)).forEach(function (k) { st.facturas.push(crearFactura(st, k)); });
@@ -3522,6 +3579,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       });
     });
     return Object.keys(best).map(function (k) { return best[k]; }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; });
+  }
+  function animoDe(state, cid) { var a = (state.avisos || []).filter(function (x) { return x.id === cid; })[0]; return (a && a.animo) || {}; }
+  function animoDemo(cs) {
+    return cs.map(function (c, i) { var m = {}; for (var k = 1; k <= 12; k++) m[iso(addDays(hoy, -k))] = 5 + ((i * 7 + k * 3) % 5);
+      if (i === 0) m[iso(hoy)] = 3; else if (c.id !== 'c2') m[iso(hoy)] = 6 + (i % 4);
+      return { id: c.id, clienteId: c.id, activo: false, hora: '09:00', subs: [], animo: m }; });
   }
   function numCarga(v) { if (v === null || v === undefined || v === '') return null; var x = Number(String(v).replace(',', '.')); return isNaN(x) ? null : x; }
   // todo lo que ha levantado un cliente, agrupado por ejercicio y día (lo más reciente primero)
@@ -3629,6 +3692,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var noHechas = state.sesiones.filter(function (s) { return s.clienteId === c.id && s.estado === 'pendiente' && s.fecha < iso(hoy) && s.fecha >= iso(addDays(hoy, -10)); });
       var bien = (state.bienestar || []).filter(function (b) { return b.clienteId === c.id && b.fecha >= iso(addDays(hoy, -2)); }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; });
       if (bien.length >= 2 && bien.slice(0, 2).every(function (b) { return b.fatiga >= 4 || b.dolor >= 4; })) out.push({ kind: 'rpe', label: 'Seguimiento', clienteId: c.id, title: c.nombre + ' · fatiga o dolor alto dos días seguidos', detail: bien.slice(0, 2).map(function (b) { return fmtCorta(b.fecha) + ' C' + b.fatiga + (b.dolor === null || b.dolor === undefined ? '' : ' D' + b.dolor) + (b.nota ? ' · «' + b.nota + '»' : ''); }).join(' · ') });
+      var an = animoDe(state, c.id)[iso(hoy)];
+      if (an && an <= 3) out.push({ kind: 'rpe', label: 'Ánimo', clienteId: c.id, title: c.nombre + ' · hoy se pone un ' + an + '/10', detail: 'Respuesta a la pregunta del día' });
       if (noHechas.length >= 2) out.push({ kind: 'sesion', clienteId: c.id, title: c.nombre + ' · ' + noHechas.length + ' sesiones sin hacer', detail: noHechas.map(function (s) { return fmtCorta(s.fecha); }).join(', ') });
     });
     estadoCobros(state).filter(function (e) { return e.estado === 'vencido'; }).forEach(function (e) {
@@ -3799,7 +3864,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     fmtFecha: fmtFecha, fmtFechaMin: fmtFechaMin, fmtCorta: fmtCorta, relativo: relativo, sesionDesde: sesionDesde, ejerciciosPlanos: ejerciciosPlanos, etiquetas: etiquetas, ejerciciosNuevos: ejerciciosNuevos, companeros: companeros, resumenBloques: resumenBloques, sesionEnBlanco: sesionEnBlanco, aplicarEdicion: aplicarEdicion, repTxt: repTxt, ladoReps: ladoReps, ordenSesion: ordenSesion, esUnilateral: esUnilateral, borradorBloques: borradorBloques,
     bloquesSemana: bloquesSemana, grupos: grupos, grupoBase: grupoBase, clientesDestino: clientesDestino, calendarioPrograma: calendarioPrograma, asignarPrograma: asignarPrograma, retirarAsignacion: retirarAsignacion, nombreDestino: nombreDestino,
     cargasSemanales: cargasSemanales, recuperacion: recuperacion, records: records, nombreEj: nombreEj, ejercicio: ejercicio,
-    ultimaCargaReal: ultimaCargaReal, historialPesos: historialPesos, avisos: avisos, semanaDe: semanaDe, DIAS: DIAS,
+    ultimaCargaReal: ultimaCargaReal, historialPesos: historialPesos, animoDe: animoDe, avisos: avisos, semanaDe: semanaDe, DIAS: DIAS,
     mesDe: mesDe, addMonths: addMonths, periodosEsperados: periodosEsperados, estadoCobros: estadoCobros, gastoEnMes: gastoEnMes, resumenMes: resumenMes, seriesMeses: seriesMeses, eur: eur, fmtMes: fmtMes,
     CATEGORIAS_GASTO: CATEGORIAS_GASTO, HACIENDAS: HACIENDAS, desglose: desglose, trimestreDe: trimestreDe, resumenTrimestre: resumenTrimestre, resumenAnual: resumenAnual, calendarioFiscal: calendarioFiscal, libroEmitidasCSV: libroEmitidasCSV, libroRecibidasCSV: libroRecibidasCSV, resumenAnualHTML: resumenAnualHTML, amortizacionAnual: amortizacionAnual,
     numeroFactura: numeroFactura, facturaDe: facturaDe, crearFactura: crearFactura, facturaHTML: facturaHTML, EMISOR_EJEMPLO: EMISOR_EJEMPLO,
@@ -4194,6 +4259,108 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
 
   global.GAGOR_BIOMEC = { calcular: calcular, analizar: analizar, U: U };
+})(window);
+
+/* ===================================================== GAGOR · muñeco del entrenador (1.13) */
+(function (global) {
+  'use strict';
+    // 1.13 · «Gago»: orbe 3D animado sobre un gimnasio funcional (HTML + CSS + SVG). expr: hola · top · ok · bajo
+  var GYM = '<svg class="gym" viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
+    '<defs>' +
+      '<linearGradient id="gyW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9d3c8"/><stop offset="1" stop-color="#c4bcb0"/></linearGradient>' +
+      '<linearGradient id="gyV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eaf3f2"/><stop offset=".55" stop-color="#cfe2dc"/><stop offset="1" stop-color="#9fbfa9"/></linearGradient>' +
+      '<linearGradient id="gyF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3632"/><stop offset="1" stop-color="#1d1b19"/></linearGradient>' +
+      '<linearGradient id="gyT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f7d55"/><stop offset="1" stop-color="#245a3a"/></linearGradient>' +
+      '<linearGradient id="gyM" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c79a6a"/><stop offset="1" stop-color="#a87a4e"/></linearGradient>' +
+      '<radialGradient id="gyL" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff3d6" stop-opacity=".95"/><stop offset="1" stop-color="#fff3d6" stop-opacity="0"/></radialGradient>' +
+    '</defs>' +
+    // pared, techo y ventanales
+    '<rect width="400" height="240" fill="url(#gyW)"/>' +
+    '<rect width="400" height="30" fill="#7d5f43"/>' + [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19].map(function (i) { return '<path d="M' + (i * 20 + 10) + ' 0 V30" stroke="#5f4630" stroke-width="2"/>'; }).join('') +
+    '<path d="M0 30 L400 30" stroke="#3a2c20" stroke-width="2"/>' +
+    '<g>' + [40, 140, 240].map(function (x) { return '<rect x="' + x + '" y="46" width="88" height="98" fill="url(#gyV)"/><path d="M' + (x + 44) + ' 46 V144 M' + x + ' 95 H' + (x + 88) + '" stroke="#24221f" stroke-width="1.6"/><rect x="' + x + '" y="46" width="88" height="98" fill="none" stroke="#24221f" stroke-width="3"/>'; }).join('') +
+      '<path d="M44 140 Q70 120 90 132 Q110 118 128 128 L128 144 L44 144 Z M244 136 Q268 118 296 130 Q312 122 328 132 L328 144 L244 144 Z" fill="#7fa68a" opacity=".55"/></g>' +
+    // lámparas colgantes
+    [70, 200, 330].map(function (x) { return '<path d="M' + x + ' 30 V52" stroke="#1a1816" stroke-width="1"/><path d="M' + (x - 9) + ' 60 Q' + x + ' 48 ' + (x + 9) + ' 60 Z" fill="#1d1b19"/><circle cx="' + x + '" cy="64" r="20" fill="url(#gyL)"/>'; }).join('') +
+    // suelo de caucho y pista de césped con líneas
+    '<path d="M0 150 H400 V240 H0 Z" fill="url(#gyF)"/>' +
+    '<path d="M150 150 L250 150 L330 240 L70 240 Z" fill="url(#gyT)"/>' +
+    '<path d="M163 150 L104 240 M237 150 L296 240" stroke="#e8efe9" stroke-width="2" opacity=".85"/>' +
+    '<path d="M155 162 H245 M138 182 H262 M115 208 H285" stroke="#e8efe9" stroke-width="1.2" opacity=".45"/>' +
+    '<path d="M0 150 H400" stroke="#4a4540" stroke-width="2"/>' +
+    // rack / jaula a la izquierda
+    '<g stroke="#151413" stroke-width="5" stroke-linecap="square"><path d="M14 58 V178 M54 64 V170 M14 62 H54 M14 92 H54"/></g>' +
+    '<g fill="#151413"><rect x="6" y="176" width="16" height="4"/><rect x="46" y="168" width="16" height="4"/></g>' +
+    '<path d="M4 118 H66" stroke="#9a9a9a" stroke-width="3"/><circle cx="6" cy="118" r="11" fill="#1d1b19"/><circle cx="64" cy="118" r="11" fill="#1d1b19"/>' +
+    // cajones de madera y kettlebells a la derecha
+    '<g><path d="M330 150 L376 150 L376 190 L330 190 Z" fill="url(#gyM)"/><path d="M376 150 L392 142 L392 182 L376 190 Z" fill="#8c6440"/><path d="M330 150 L346 142 L392 142 L376 150 Z" fill="#d8b285"/>' +
+      '<path d="M342 158 H364 V166 H342 Z" fill="#7a5636" opacity=".5"/></g>' +
+    [86, 104, 122].map(function (x, i) { return '<g transform="translate(' + x + ' ' + (196 - i * 2) + ')"><path d="M-6 -12 Q0 -22 6 -12" fill="none" stroke="#141312" stroke-width="3.2"/><circle cx="0" cy="0" r="10" fill="#141312"/><ellipse cx="-3" cy="-3" rx="3" ry="2" fill="#fff" opacity=".18"/></g>'; }).join('') +
+    // balón medicinal y planta
+    '<circle cx="300" cy="200" r="11" fill="#2a2a2a"/><path d="M289 200 H311" stroke="#4faf7b" stroke-width="1.6"/>' +
+    '<g transform="translate(384 150)"><path d="M-10 0 H10 L7 18 H-7 Z" fill="#e7e1d6"/><path d="M0 0 Q-14 -24 -4 -44 M0 0 Q6 -30 16 -38 M0 0 Q-2 -20 -18 -28" fill="none" stroke="#3f6b4b" stroke-width="5" stroke-linecap="round"/></g>' +
+  '</svg>';
+  function muneco(expr) {
+    expr = expr || 'hola';
+    var anillo = function (mitad) {
+      return '<svg class="orb__orbita orb__orbita--' + mitad + '" viewBox="0 0 200 80"><path d="' + (mitad === 'atras' ? 'M8 40 A92 24 0 0 1 192 40' : 'M8 40 A92 24 0 0 0 192 40') + '" fill="none" stroke="url(#orbR' + mitad + ')" stroke-width="1.2"/>' +
+        (mitad === 'delante' ? '<circle r="2.2" fill="#dfffee"><animateMotion dur="6s" repeatCount="indefinite" path="M8 40 A92 24 0 0 0 192 40 A92 24 0 0 0 8 40"/></circle>' : '') +
+        '<defs><linearGradient id="orbR' + mitad + '" x1="0" x2="1"><stop offset="0" stop-color="#cfe9db" stop-opacity="0"/><stop offset=".5" stop-color="#e9fff3" stop-opacity=".9"/><stop offset="1" stop-color="#cfe9db" stop-opacity="0"/></linearGradient></defs></svg>';
+    };
+    var marca = '<svg class="orb__marca" viewBox="0 0 96 96"><defs><linearGradient id="orbMk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eafff3"/><stop offset="1" style="stop-color:var(--mk)"/></linearGradient></defs>' +
+      '<rect x="0" y="72" width="96" height="22" rx="5" fill="url(#orbMk)"/><rect x="32" y="37" width="64" height="22" rx="5" fill="url(#orbMk)"/><rect x="64" y="2" width="32" height="22" rx="5" fill="#f4f7f5"/></svg>';
+    return '<div class="esc esc--' + expr + '">' + GYM + '<div class="esc__luz"></div>' +
+      '<div class="orb orb--' + expr + '" role="img" aria-label="GAGOR">' +
+        '<div class="orb__suelo"></div><div class="orb__onda"></div><div class="orb__onda orb__onda--2"></div>' +
+        '<div class="orb__flota">' + anillo('atras') +
+          '<div class="orb__cuerpo"><div class="orb__nucleo"></div>' + marca + '<div class="orb__rim"></div><div class="orb__ventana"></div><div class="orb__brillo"></div></div>' +
+          anillo('delante') +
+        '</div>' +
+      '</div></div>';
+  }
+  global.GAGOR_MUNECO = muneco;
+})(window);
+
+/* ===================================================== GAGOR · pregunta del día (1.13) */
+(function (global) {
+  'use strict';
+  var h = React.createElement, useState = React.useState;
+  var PREGUNTAS = [
+    'Buenos días, {n}. ¿Cómo te encuentras hoy? Valóralo del 1 al 10.',
+    '{n}, antes de empezar: ¿cómo llegas hoy, del 1 al 10?',
+    'Hola, {n}. ¿Qué nota le das a tu estado de hoy, del 1 al 10?',
+    '{n}, control diario: ¿cómo estás hoy del 1 al 10?'
+  ];
+  var RESP = {
+    bajo: ['Gracias por decírmelo. Hoy priorizamos la recuperación. Si necesitas algo, escríbeme.', 'Entendido. Lo tengo en cuenta para ajustar tu carga.'],
+    ok: ['Entendido. Escucha al cuerpo y ve sumando.', 'Anotado. Sesión controlada y buena técnica.'],
+    bien: ['Buen punto de partida. A aprovechar la sesión.', 'Bien. Hoy se puede trabajar con intensidad.'],
+    top: ['Excelente. Día para dar lo mejor.', 'Muy bien. Aprovecha este estado en la sesión.']
+  };
+  function diaN(iso) { var d = new Date(iso + 'T12:00:00'); return Math.floor(d.getTime() / 86400000); }
+  function grupo(v) { return v <= 3 ? 'bajo' : v <= 6 ? 'ok' : v <= 8 ? 'bien' : 'top'; }
+  function Animo(p) {
+    var st = useState(null); var nota = st[0], setNota = st[1];
+    var nombre = (p.nombre || '').split(' ')[0] || 'Hola';
+    var d = diaN(p.hoy);
+    var expr = nota === null ? 'hola' : (nota <= 3 ? 'bajo' : nota <= 6 ? 'ok' : 'top');
+    var texto = nota === null ? PREGUNTAS[d % PREGUNTAS.length].replace('{n}', nombre) : (function () { var l = RESP[grupo(nota)]; return l[(d + nota) % l.length]; })();
+    function elegir(v) { setNota(v); p.onElegir(v); }
+    return h('div', { className: 'ani', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Pregunta del día' },
+      h('div', { className: 'ani__sheet' },
+        h('div', { className: 'ani__mun', key: expr, dangerouslySetInnerHTML: { __html: global.GAGOR_MUNECO(expr) } }),
+        h('div', { className: 'ani__bocadillo', key: 'b' + (nota === null ? '' : nota) }, h('p', null, texto), nota !== null ? h('span', { className: 'ani__nota' }, nota + '/10') : null),
+        nota === null
+          ? h('div', { className: 'ani__nums' }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) {
+              return h('button', { key: v, type: 'button', className: 'ani__n ani__n--' + grupo(v), onClick: function () { elegir(v); } }, v);
+            }))
+          : null,
+        h('div', { className: 'ani__pie' },
+          nota === null
+            ? h('button', { type: 'button', className: 'ani__luego', onClick: p.onCerrar }, 'Ahora no')
+            : h('button', { type: 'button', className: 'g-btn g-btn--primary g-btn--lg g-btn--full', onClick: p.onCerrar }, 'Continuar'))));
+  }
+  global.GAGOR_Animo = Animo;
 })(window);
 
 /* ======================================================= GAGOR · beta · app del jugador */
@@ -4958,7 +5125,30 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (view === 'glosario') return Glosario();
     return Hoy();
   }
-  global.GAGOR_APP = global.GAGOR_APP || {}; global.GAGOR_APP.Jugador = Jugador;
+  // 1.13 · la primera vez de cada día, el muñeco pregunta cómo está (1–10)
+  function JugadorConAnimo(props) {
+    var state = props.state; var cid = state.usuario && state.usuario.clienteId; var hoyIso = ST.iso(ST.hoy);
+    var KEY = 'gagor_animo_' + cid;
+    var sh = useState(function () {
+      if (!cid || !global.GAGOR_Animo || !global.GAGOR_MUNECO) return false;
+      try { if (localStorage.getItem(KEY) === hoyIso) return false; } catch (e) {}
+      var a = (state.avisos || []).filter(function (x) { return x.id === cid; })[0];
+      return !(a && a.animo && a.animo[hoyIso]);
+    }); var ver = sh[0], setVer = sh[1];
+    React.useEffect(function () { if (ver) { try { localStorage.setItem(KEY, hoyIso); } catch (e) {} } }, [ver]);
+    var c = (state.clientes || []).filter(function (x) { return x.id === cid; })[0];
+    function elegir(v) {
+      props.commit(function (st) {
+        st.avisos = st.avisos || []; var a = st.avisos.filter(function (x) { return x.id === cid; })[0];
+        if (!a) { a = { id: cid, clienteId: cid, activo: false, hora: '09:00', subs: [] }; st.avisos.push(a); }
+        var m = Object.assign({}, a.animo || {}); m[hoyIso] = v; var lim = ST.iso(ST.addDays(ST.hoy, -120));
+        Object.keys(m).forEach(function (k) { if (k < lim) delete m[k]; }); a.animo = m;
+      });
+    }
+    return h(React.Fragment, null, h(Jugador, props),
+      ver ? h(global.GAGOR_Animo, { nombre: c ? c.nombre : '', hoy: hoyIso, onElegir: elegir, onCerrar: function () { setVer(false); } }) : null);
+  }
+  global.GAGOR_APP = global.GAGOR_APP || {}; global.GAGOR_APP.Jugador = JugadorConAnimo;
 })(window);
 
 /* ======================================================= GAGOR · beta · web del entrenador */
@@ -5231,6 +5421,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         h('div', { key: 'h', className: 'head' }, h(G.AppHeader, { title: c.nombre, subtitle: c.grupo + ' · código ' + c.codigo, onBack: function () { setView('clientes'); }, action: h(G.Button, { size: 'md', icon: 'calendario', onClick: function () { setView('planificador'); } }, 'Programar semana') })),
         h('div', { key: 's', className: 'tilesauto' },
           h(G.StatTile, { label: 'Recuperación', value: rec.palabra, detail: rec.detalle }),
+          (function () { var m = ST.animoDe(state, c.id); var hv = m[hoyIso]; var desde = ST.iso(ST.addDays(ST.hoy, -6)); var ks = Object.keys(m).filter(function (k) { return k >= desde && k <= hoyIso; });
+            var med = ks.length ? Math.round(ks.reduce(function (a, k) { return a + m[k]; }, 0) / ks.length * 10) / 10 : null;
+            return h(G.StatTile, { label: 'Ánimo hoy', value: hv ? hv + '/10' : '—', detail: med !== null ? 'Media 7 días: ' + n(med) : 'Sin respuestas aún' }); })(),
           h(G.StatTile, { label: 'Sesiones · 4 sem.', value: ad.done + '/' + ad.planned }),
           h(G.StatTile, { label: 'RPE medio', value: hechas.length ? n(Math.round(hechas.reduce(function (a, s) { return a + (s.rpe || 0); }, 0) / hechas.length * 10) / 10) : '—' }),
           h(G.StatTile, { label: 'Último registro', value: hechas[0] ? ST.relativo(hechas[0].fecha) : '—', detail: hechas[0] ? hechas[0].titulo : '' }),
