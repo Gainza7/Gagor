@@ -1142,6 +1142,24 @@ a.g-btn { text-decoration: none; }
 .sem__datos b { display: block; font-family: var(--font-display); font-size: 17px; line-height: 22px; color: var(--ink); white-space: nowrap; }
 .sem__datos span { font-size: 12px; color: var(--ink-muted); }
 .sem__det { margin-top: 14px; }
+.ani__qs { display: grid; gap: 14px; margin-top: 14px; }
+.ani__q { display: grid; gap: 6px; }
+.ani__qt { margin: 0; font-weight: 700; font-size: 15px; }
+.ani__n5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.ani__n--5 { height: 44px !important; font-size: 18px !important; transition: transform .12s, opacity .15s, box-shadow .15s; }
+.ani__n.is-off { opacity: .35; }
+.ani__n.is-sel { transform: scale(1.08); box-shadow: 0 0 0 3px var(--surface-card), 0 0 0 5px var(--ink) !important; }
+.ani__ext { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-muted); }
+.ani__acc { display: grid; gap: 4px; width: 100%; justify-items: center; }
+.ani__acc .g-btn[disabled] { opacity: .45; }
+.rcv { position: relative; isolation: isolate; border-radius: var(--radius-lg, 20px); }
+.rcv::before { content: ''; position: absolute; inset: 10% 8%; border-radius: 50%; background: var(--rc); filter: blur(26px); opacity: .55; z-index: -1; pointer-events: none; }
+.rcv > .g-stat { height: 100%; background: radial-gradient(120% 100% at 100% 0%, color-mix(in srgb, var(--rc) 38%, transparent), transparent 65%), linear-gradient(0deg, color-mix(in srgb, var(--rc) 14%, transparent), transparent 70%), var(--surface-card); border-color: color-mix(in srgb, var(--rc) 45%, var(--line)); }
+.rcv.is-vacio { cursor: pointer; }
+.rcv.is-vacio::before { display: none; }
+.anh__sq.is-dec { width: 34px; font-size: 13px; }
+.ani__sheet { max-height: 100vh; max-height: 100dvh; overflow-y: auto; }
+@media (max-height: 760px) { .ani__mun { height: 176px; } .ani__mun .orb { transform: scale(.78); transform-origin: 50% 0; } .ani__qs { gap: 10px; } }
 .pes { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-md, 16px); background: var(--surface-card); }
 .pes.is-toca { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
 .pes__txt p { margin: 0; }
@@ -2793,7 +2811,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.16";
+<script>window.GAGOR_VERSION = "1.18";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -3645,6 +3663,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     });
     return Object.keys(best).map(function (k) { return best[k]; }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; });
   }
+  function estadoDe(state, cid) { var a = (state.avisos || []).filter(function (x) { return x.id === cid; })[0]; return (a && a.estado) || {}; }
   function animoDe(state, cid) { var a = (state.avisos || []).filter(function (x) { return x.id === cid; })[0]; return (a && a.animo) || {}; }
   function animoDemo(cs) {
     return cs.map(function (c, i) { var m = {}; for (var k = 1; k <= 12; k++) m[iso(addDays(hoy, -k))] = 5 + ((i * 7 + k * 3) % 5);
@@ -3758,7 +3777,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var bien = (state.bienestar || []).filter(function (b) { return b.clienteId === c.id && b.fecha >= iso(addDays(hoy, -2)); }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; });
       if (bien.length >= 2 && bien.slice(0, 2).every(function (b) { return b.fatiga >= 4 || b.dolor >= 4; })) out.push({ kind: 'rpe', label: 'Seguimiento', clienteId: c.id, title: c.nombre + ' · fatiga o dolor alto dos días seguidos', detail: bien.slice(0, 2).map(function (b) { return fmtCorta(b.fecha) + ' C' + b.fatiga + (b.dolor === null || b.dolor === undefined ? '' : ' D' + b.dolor) + (b.nota ? ' · «' + b.nota + '»' : ''); }).join(' · ') });
       var an = animoDe(state, c.id)[iso(hoy)];
-      if (an && an <= 3) out.push({ kind: 'rpe', label: 'Ánimo', clienteId: c.id, title: c.nombre + ' · hoy se pone un ' + an + '/10', detail: 'Respuesta a la pregunta del día' });
+      var ed = estadoDe(state, c.id)[iso(hoy)];
+      if (an && an <= 4) out.push({ kind: 'rpe', label: 'Recuperación', clienteId: c.id, title: c.nombre + (ed ? ' · recuperación ' + String(Math.round((ed.estado + ed.sueno + ed.estres) / 3 * 10) / 10).replace('.', ',') + '/5' : ' · hoy se pone un ' + an + '/10'), detail: ed ? 'Estado ' + ed.estado + ' · sueño ' + ed.sueno + ' · estrés ' + ed.estres + ' (1 malo, 5 bueno)' : 'Respuesta a la pregunta del día' });
       if (noHechas.length >= 2) out.push({ kind: 'sesion', clienteId: c.id, title: c.nombre + ' · ' + noHechas.length + ' sesiones sin hacer', detail: noHechas.map(function (s) { return fmtCorta(s.fecha); }).join(', ') });
     });
     estadoCobros(state).filter(function (e) { return e.estado === 'vencido'; }).forEach(function (e) {
@@ -3929,7 +3949,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     fmtFecha: fmtFecha, fmtFechaMin: fmtFechaMin, fmtCorta: fmtCorta, relativo: relativo, sesionDesde: sesionDesde, ejerciciosPlanos: ejerciciosPlanos, etiquetas: etiquetas, ejerciciosNuevos: ejerciciosNuevos, companeros: companeros, resumenBloques: resumenBloques, sesionEnBlanco: sesionEnBlanco, aplicarEdicion: aplicarEdicion, repTxt: repTxt, ladoReps: ladoReps, ordenSesion: ordenSesion, esUnilateral: esUnilateral, borradorBloques: borradorBloques,
     bloquesSemana: bloquesSemana, grupos: grupos, grupoBase: grupoBase, clientesDestino: clientesDestino, calendarioPrograma: calendarioPrograma, asignarPrograma: asignarPrograma, retirarAsignacion: retirarAsignacion, nombreDestino: nombreDestino,
     cargasSemanales: cargasSemanales, recuperacion: recuperacion, records: records, nombreEj: nombreEj, ejercicio: ejercicio,
-    ultimaCargaReal: ultimaCargaReal, historialPesos: historialPesos, animoDe: animoDe, avisos: avisos, semanaDe: semanaDe, DIAS: DIAS,
+    ultimaCargaReal: ultimaCargaReal, historialPesos: historialPesos, animoDe: animoDe, estadoDe: estadoDe, avisos: avisos, semanaDe: semanaDe, DIAS: DIAS,
     mesDe: mesDe, addMonths: addMonths, periodosEsperados: periodosEsperados, estadoCobros: estadoCobros, gastoEnMes: gastoEnMes, resumenMes: resumenMes, seriesMeses: seriesMeses, eur: eur, fmtMes: fmtMes,
     CATEGORIAS_GASTO: CATEGORIAS_GASTO, HACIENDAS: HACIENDAS, desglose: desglose, trimestreDe: trimestreDe, resumenTrimestre: resumenTrimestre, resumenAnual: resumenAnual, calendarioFiscal: calendarioFiscal, libroEmitidasCSV: libroEmitidasCSV, libroRecibidasCSV: libroRecibidasCSV, resumenAnualHTML: resumenAnualHTML, amortizacionAnual: amortizacionAnual,
     numeroFactura: numeroFactura, facturaDe: facturaDe, crearFactura: crearFactura, facturaHTML: facturaHTML, EMISOR_EJEMPLO: EMISOR_EJEMPLO,
@@ -4404,25 +4424,42 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
   function diaN(iso) { var d = new Date(iso + 'T12:00:00'); return Math.floor(d.getTime() / 86400000); }
   function grupo(v) { return v <= 3 ? 'bajo' : v <= 6 ? 'ok' : v <= 8 ? 'bien' : 'top'; }
+  var SALUDOS = ['Buenos días, {n}. Tres preguntas rápidas antes de empezar.', '{n}, antes de entrenar: ¿cómo llegas hoy?', 'Hola, {n}. Control diario: tres preguntas, diez segundos.'];
+  var PREGS = [
+    { k: 'estado', t: '¿Cómo estás hoy?', a: 'Muy cansado', b: 'Muy fresco' },
+    { k: 'sueno', t: '¿Qué tal has dormido?', a: 'Muy mal', b: 'Muy bien' },
+    { k: 'estres', t: 'Estrés mental', a: 'Mucho estrés', b: 'Tranquilo' }
+  ];
+  function col5(v) { return global.GAGOR_ANIMO_COLOR ? global.GAGOR_ANIMO_COLOR(1 + (v - 1) * 9 / 4) : null; }
   function Animo(p) {
-    var st = useState(null); var nota = st[0], setNota = st[1];
+    var rs = useState({}); var r = rs[0], setR = rs[1];
+    var gs = useState(null); var nota = gs[0], setNota = gs[1];
     var nombre = (p.nombre || '').split(' ')[0] || 'Hola';
     var d = diaN(p.hoy);
-    var expr = nota === null ? 'hola' : (nota <= 3 ? 'bajo' : nota <= 6 ? 'ok' : 'top');
-    var texto = nota === null ? PREGUNTAS[d % PREGUNTAS.length].replace('{n}', nombre) : (function () { var l = RESP[grupo(nota)]; return l[(d + nota) % l.length]; })();
-    function elegir(v) { setNota(v); p.onElegir(v); }
-    return h('div', { className: 'ani', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Pregunta del día' },
+    var listo = PREGS.every(function (q) { return r[q.k]; });
+    var media = listo ? (r.estado + r.sueno + r.estres) / 3 : null;
+    var expr = nota === null ? 'hola' : (nota <= 4 ? 'bajo' : nota <= 6 ? 'ok' : 'top');
+    var texto = nota === null ? SALUDOS[d % SALUDOS.length].replace('{n}', nombre) : (function () { var l = RESP[grupo(nota)]; return l[(d + nota) % l.length]; })();
+    function guardar() { if (!listo) return; var n10 = Math.max(1, Math.min(10, Math.round(media * 2))); setNota(n10); p.onElegir(n10, { estado: r.estado, sueno: r.sueno, estres: r.estres }); }
+    return h('div', { className: 'ani', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Preguntas del día' },
       h('div', { className: 'ani__sheet' },
         h('div', { className: 'ani__mun', key: expr, dangerouslySetInnerHTML: { __html: global.GAGOR_MUNECO(expr) } }),
-        h('div', { className: 'ani__bocadillo', key: 'b' + (nota === null ? '' : nota) }, h('p', null, texto), nota !== null ? h('span', { className: 'ani__nota', style: { background: global.GAGOR_ANIMO_COLOR ? global.GAGOR_ANIMO_COLOR(nota) : null, color: '#fff' } }, nota + '/10') : null),
-        nota === null
-          ? h('div', { className: 'ani__nums' }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) {
-              return h('button', { key: v, type: 'button', className: 'ani__n ani__n--' + grupo(v), style: { background: global.GAGOR_ANIMO_COLOR ? global.GAGOR_ANIMO_COLOR(v) : null }, onClick: function () { elegir(v); } }, v);
-            }))
-          : null,
+        h('div', { className: 'ani__bocadillo', key: 'b' + (nota === null ? '' : nota) }, h('p', null, texto),
+          nota !== null ? h('span', { className: 'ani__nota', style: { background: global.GAGOR_ANIMO_COLOR ? global.GAGOR_ANIMO_COLOR(nota) : null, color: '#fff' } }, String(Math.round(media * 10) / 10).replace('.', ',') + ' / 5') : null),
+        nota === null ? h('div', { className: 'ani__qs' }, PREGS.map(function (q) {
+          return h('div', { key: q.k, className: 'ani__q' + (r[q.k] ? ' is-hecha' : '') },
+            h('p', { className: 'ani__qt' }, q.t),
+            h('div', { className: 'ani__n5' }, [1, 2, 3, 4, 5].map(function (v) {
+              return h('button', { key: v, type: 'button', className: 'ani__n ani__n--5' + (r[q.k] === v ? ' is-sel' : r[q.k] ? ' is-off' : ''), style: { background: col5(v) }, 'aria-pressed': r[q.k] === v ? 'true' : 'false', 'aria-label': q.t + ' ' + v,
+                onClick: function () { var x = Object.assign({}, r); x[q.k] = v; setR(x); } }, v);
+            })),
+            h('div', { className: 'ani__ext' }, h('span', null, q.a), h('span', null, q.b)));
+        })) : null,
         h('div', { className: 'ani__pie' },
           nota === null
-            ? h('button', { type: 'button', className: 'ani__luego', onClick: p.onCerrar }, 'Ahora no')
+            ? h('div', { className: 'ani__acc' },
+                h('button', { type: 'button', className: 'g-btn g-btn--primary g-btn--lg g-btn--full', disabled: !listo, onClick: guardar }, listo ? 'Guardar' : 'Responde las tres'),
+                h('button', { type: 'button', className: 'ani__luego', onClick: p.onCerrar }, 'Ahora no'))
             : h('button', { type: 'button', className: 'g-btn g-btn--primary g-btn--lg g-btn--full', onClick: p.onCerrar }, 'Continuar'))));
   }
   global.GAGOR_Animo = Animo;
@@ -4784,7 +4821,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       superior: 'Empuje y tracción para un tren superior sólido.', core: 'Tronco estable para transmitir fuerza.',
       potencia: 'Rápido y explosivo: calidad antes que cantidad.', movilidad: 'Rango de movimiento y control articular.',
       carrera: 'Motor y piernas para aguantar el ritmo.', fuerza: 'Fuerza de base, técnica y progresión.',
-      descanso: 'Recuperar también es entrenar. Si has entrenado con el equipo, apúntalo.'
+      descanso: 'Recuperar también es entrenar. Mañana, a por ello.'
     };
     function sinTilde(x) { return String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
     function tipoSesion(s) {
@@ -4845,12 +4882,21 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         h('div', { className: 'scroll' },
           global.GAGOR_ANIMO_COLOR ? (function () { var av = ST.animoDe(state, cid)[hoyIso];
             var col = (new Date(hoyIso + 'T12:00:00').getDay() + 6) % 7;
-            return h('div', { className: 'anh' }, h('button', { type: 'button', className: 'anh__sq' + (av ? '' : ' is-vacio'), style: { background: global.GAGOR_ANIMO_COLOR(av), left: ((col + .5) / 7 * 100) + '%' }, title: av ? global.GAGOR_ANIMO_PALABRA(av) : t('Cómo llegas hoy'), 'aria-label': av ? t('Cómo llegas hoy') + ': ' + av + '/10' : t('Responder'), onClick: av ? undefined : props.abrirAnimo }, av || '?')); })() : null,
+            var ed0 = ST.estadoDe(state, cid)[hoyIso]; var md0 = ed0 ? String(Math.round((ed0.estado + ed0.sueno + ed0.estres) / 3 * 10) / 10).replace('.', ',') : (av ? String(Math.round(av / 2)) : null);
+            return h('div', { className: 'anh' }, h('button', { type: 'button', className: 'anh__sq' + (av ? '' : ' is-vacio') + (md0 && md0.length > 1 ? ' is-dec' : ''), style: { background: global.GAGOR_ANIMO_COLOR(av), left: ((col + .5) / 7 * 100) + '%' }, title: av ? global.GAGOR_ANIMO_PALABRA(av) : t('Cómo llegas hoy'), 'aria-label': av ? t('Cómo llegas hoy') + ': ' + av + '/10' : t('Responder'), onClick: av ? undefined : props.abrirAnimo }, md0 || '?')); })() : null,
           h(G.WeekStrip, { value: diaSel || hoyIso, today: hoyIso, marks: marcas().marks, onChange: function (d) { setDiaSel(d === hoyIso ? null : d); } }),
           otroDia ? h(SesionDia, { fecha: diaSel, sesion: misSesiones.filter(function (s) { return s.fecha === diaSel; })[0] }) : null,
           otroDia ? h(G.Button, { variant: 'ghost', full: true, onClick: function () { setDiaSel(null); } }, t('Volver a hoy')) : null,
           otroDia ? null : h('div', { className: 'row2 l1' },
-            h(G.StatTile, { icon: 'seguimiento', label: t('Recuperación'), value: rec.palabra, detail: (ST.animoDe(state, cid)[hoyIso] && global.GAGOR_ANIMO_PALABRA ? global.GAGOR_ANIMO_PALABRA(ST.animoDe(state, cid)[hoyIso]) + ' · ' : '') + rec.detalle }),
+            (function () {
+              var av = ST.animoDe(state, cid)[hoyIso], ed = ST.estadoDe(state, cid)[hoyIso];
+              var tile;
+              if (ed) { var md = (ed.estado + ed.sueno + ed.estres) / 3;
+                tile = h(G.StatTile, { icon: 'seguimiento', label: t('Recuperación'), value: String(Math.round(md * 10) / 10).replace('.', ','), unit: '/5', detail: (global.GAGOR_ANIMO_PALABRA ? global.GAGOR_ANIMO_PALABRA(av) : '') + ' · ' + t('Sueño') + ' ' + ed.sueno + ' · ' + t('Estrés') + ' ' + ed.estres }); }
+              else if (av) tile = h(G.StatTile, { icon: 'seguimiento', label: t('Recuperación'), value: global.GAGOR_ANIMO_PALABRA ? global.GAGOR_ANIMO_PALABRA(av) : rec.palabra, detail: rec.detalle });
+              else tile = h(G.StatTile, { icon: 'seguimiento', label: t('Recuperación'), value: '—', detail: t('Toca para responder') });
+              return h('div', { className: 'rcv' + (av ? '' : ' is-vacio'), style: { '--rc': av && global.GAGOR_ANIMO_COLOR ? global.GAGOR_ANIMO_COLOR(av) : 'transparent' }, role: av ? null : 'button', tabIndex: av ? null : 0, onClick: av ? undefined : props.abrirAnimo }, tile);
+            })(),
             sesHoy ? h(G.StatTile, { icon: 'ejercicios', label: t('Sesión de hoy'), value: sesHoy.estado === 'hecha' ? t('Hecha') : (tot.done ? tot.done + '/' + tot.all : nEj), unit: sesHoy.estado === 'hecha' ? '' : (tot.done ? t('series') : (nEj === 1 ? t('ejercicio') : t('ejercicios'))), detail: t(corto(sesHoy.titulo)) + ' · ~' + (sesHoy.duracion || 45) + t(' min') })
                    : h(G.StatTile, { icon: 'ejercicios', label: t('Sesión de hoy'), value: '—', detail: t('Descanso') })),
           otroDia || true ? null : card([
@@ -4863,7 +4909,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
                 boton: hecha ? t('Ver resumen') : (tot.done ? t('Seguir entrenando') : t('Empezar entrenamiento')), icon: hecha ? 'informe' : 'reproducir',
                 onClick: function () { setSesId(sesHoy.id); if (hecha) { setView('cierre'); } else { setView('resumen'); } },
                 secundario: hecha ? null : { label: t('Modo entrenamiento guiado'), onClick: function () { startGuided(sesHoy); } } }); })()
-            : Portada({ tipo: 'descanso', etiqueta: t('Descanso'), titulo: t('Hoy toca descansar'), desc: t(DESC.descanso), boton: t('Apuntar entreno del equipo'), icon: 'mas', onClick: function () { setView('externo'); } })),
+            : Portada({ tipo: 'descanso', etiqueta: t('Descanso'), titulo: t('Hoy toca descansar'), desc: t(DESC.descanso), boton: t('Ver mi semana'), icon: 'calendario', onClick: function () { setMesSel(hoyIso.slice(0, 7)); setDiaSel(hoyIso); setView('calendario'); } })),
           otroDia ? null : h('div', null,
             partidoAyer ? h(G.Disclosure, { icon: 'partido', title: t('Último partido'), meta: ST.relativo(partidoAyer.fecha) + (partidoAyer.rpe === null ? t(' · RPE pendiente') : t(' · RPE ') + partidoAyer.rpe) },
               h(G.TeamSessionCard, { title: partidoAyer.titulo, meta: ST.relativo(partidoAyer.fecha), minutes: partidoAyer.minutos, loadWord: t(partidoAyer.cargaPalabra), detail: partidoAyer.detalle, rpe: partidoAyer.rpe, onRpe: function () { setView('rpePartido'); } })) : null,
@@ -4871,8 +4917,6 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
               h('div', { className: 'row2' },
                 h(G.StatTile, { label: t('Carga'), value: esta ? esta.toLocaleString('es-ES') : '—', detail: media ? (esta >= media ? '+' : '−') + Math.abs(Math.round((esta / media - 1) * 100)) + t(' % sobre tu media') : t('Sin media aún') }),
                 h(G.StatTile, { label: t('Sesiones'), value: semSes.filter(function (s) { return s.estado === 'hecha'; }).length + '/' + semSes.length, detail: t('Esta semana') }))),
-            h(G.Disclosure, { icon: 'equipo', title: t('Entreno de equipo'), meta: t('Duración y RPE') },
-              h(G.Button, { variant: 'secondary', full: true, icon: 'mas', onClick: function () { setView('externo'); } }, t('Apuntar entreno del equipo'))),
             respNuevas ? botonChat() : null)
         ),
         false ? h('div', { className: 'bar' },
@@ -5325,12 +5369,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     }); var ver = sh[0], setVer = sh[1];
     React.useEffect(function () { if (ver) { try { localStorage.setItem(KEY, hoyIso); } catch (e) {} } }, [ver]);
     var c = (state.clientes || []).filter(function (x) { return x.id === cid; })[0];
-    function elegir(v) {
+    function elegir(v, det) {
       props.commit(function (st) {
         st.avisos = st.avisos || []; var a = st.avisos.filter(function (x) { return x.id === cid; })[0];
         if (!a) { a = { id: cid, clienteId: cid, activo: false, hora: '09:00', subs: [] }; st.avisos.push(a); }
         var m = Object.assign({}, a.animo || {}); m[hoyIso] = v; var lim = ST.iso(ST.addDays(ST.hoy, -120));
         Object.keys(m).forEach(function (k) { if (k < lim) delete m[k]; }); a.animo = m;
+        if (det) { var e2 = Object.assign({}, a.estado || {}); e2[hoyIso] = det; Object.keys(e2).forEach(function (k) { if (k < lim) delete e2[k]; }); a.estado = e2; }
       });
     }
     return h(React.Fragment, null, h(Jugador, Object.assign({}, props, { abrirAnimo: function () { setVer(true); } })),
