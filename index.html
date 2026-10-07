@@ -1105,6 +1105,24 @@ a.g-btn { text-decoration: none; }
 @keyframes orbSombra { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.85); opacity: .7; } }
 @keyframes orbOnda { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(1.9); } }
 @media (prefers-reduced-motion: reduce) { .ani *, .ani { animation: none !important; } }
+.anc { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius-md, 16px); background: var(--surface-card); }
+.anc--plano { padding: 0; border: 0; background: none; }
+.anc__main { display: flex; align-items: center; gap: 14px; }
+.anc__sq { flex: none; width: 64px; height: 64px; border-radius: 16px; display: grid; place-items: center; color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 30px; box-shadow: inset 0 -6px 12px rgba(0,0,0,.18), 0 6px 14px -6px rgba(0,0,0,.35); }
+.anc__sq.is-vacio, .anc__mini.is-vacio { color: var(--ink-muted); box-shadow: none; border: 1px dashed var(--line-strong, var(--line)); }
+.anc__txt { flex: 1; min-width: 0; }
+.anc__txt p { margin: 0; }
+.anc__lbl { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); font-weight: 700; }
+.anc__pal { font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 26px; }
+.anc__med { font-size: 13px; color: var(--ink-muted); }
+.anc__dias { display: grid; gap: 4px; }
+.anc__d { display: grid; justify-items: center; gap: 3px; }
+.anc__mini { width: 100%; max-width: 34px; aspect-ratio: 1; border-radius: 8px; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.anc__dl { font-size: 11px; color: var(--ink-muted); }
+.anc__d.is-hoy .anc__dl { color: var(--ink); font-weight: 700; }
+.anc__escala { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--ink-muted); }
+.anc__escala i { flex: 1; height: 6px; border-radius: 3px; background: linear-gradient(90deg, hsl(2 68% 41%), hsl(40 64% 44%), hsl(80 61% 41%), hsl(140 54% 41%)); }
+.ani__n { border: 0 !important; color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,.25); box-shadow: inset 0 -4px 8px rgba(0,0,0,.15); }
 .pex__intro { margin: 0 0 12px; font-size: 13px; color: var(--ink-muted); }
 .pex__list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin-top: 12px; }
 .pex__chart { margin-bottom: 12px; }
@@ -2728,7 +2746,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.13";
+<script>window.GAGOR_VERSION = "1.14";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -4349,10 +4367,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return h('div', { className: 'ani', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Pregunta del día' },
       h('div', { className: 'ani__sheet' },
         h('div', { className: 'ani__mun', key: expr, dangerouslySetInnerHTML: { __html: global.GAGOR_MUNECO(expr) } }),
-        h('div', { className: 'ani__bocadillo', key: 'b' + (nota === null ? '' : nota) }, h('p', null, texto), nota !== null ? h('span', { className: 'ani__nota' }, nota + '/10') : null),
+        h('div', { className: 'ani__bocadillo', key: 'b' + (nota === null ? '' : nota) }, h('p', null, texto), nota !== null ? h('span', { className: 'ani__nota', style: { background: global.GAGOR_ANIMO_COLOR ? global.GAGOR_ANIMO_COLOR(nota) : null, color: '#fff' } }, nota + '/10') : null),
         nota === null
           ? h('div', { className: 'ani__nums' }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) {
-              return h('button', { key: v, type: 'button', className: 'ani__n ani__n--' + grupo(v), onClick: function () { elegir(v); } }, v);
+              return h('button', { key: v, type: 'button', className: 'ani__n ani__n--' + grupo(v), style: { background: global.GAGOR_ANIMO_COLOR ? global.GAGOR_ANIMO_COLOR(v) : null }, onClick: function () { elegir(v); } }, v);
             }))
           : null,
         h('div', { className: 'ani__pie' },
@@ -4361,6 +4379,42 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
             : h('button', { type: 'button', className: 'g-btn g-btn--primary g-btn--lg g-btn--full', onClick: p.onCerrar }, 'Continuar'))));
   }
   global.GAGOR_Animo = Animo;
+})(window);
+
+/* ===================================================== GAGOR · estado del día en color (1.14) */
+(function (global) {
+  'use strict';
+  var h = React.createElement;
+  // 1 muy cansado (rojo) → 10 muy fresco (verde)
+  function color(v) {
+    if (!v) return 'var(--surface-sunken)';
+    var t = Math.max(0, Math.min(1, (v - 1) / 9));
+    var hue = Math.round(2 + t * 138), sat = Math.round(68 - t * 14), lig = Math.round(44 - Math.abs(t - .5) * 6);
+    return 'hsl(' + hue + ' ' + sat + '% ' + lig + '%)';
+  }
+  function palabra(v) { return !v ? 'Sin responder' : v <= 2 ? 'Muy cansado' : v <= 4 ? 'Cansado' : v <= 6 ? 'Normal' : v <= 8 ? 'Bien' : 'Muy fresco'; }
+  function isoMenos(iso, n) { var d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() - n); var m = d.getMonth() + 1, dd = d.getDate(); return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (dd < 10 ? '0' : '') + dd; }
+  function AnimoCard(p) {
+    var m = p.mapa || {}, v = m[p.hoy], dias = p.dias || 7, L = ['D', 'L', 'M', 'X', 'J', 'V', 'S'], fila = [];
+    for (var i = dias - 1; i >= 0; i--) { var f = isoMenos(p.hoy, i); fila.push({ f: f, v: m[f], l: L[new Date(f + 'T12:00:00').getDay()] }); }
+    var con = fila.filter(function (x) { return x.v; });
+    var media = con.length ? Math.round(con.reduce(function (a, x) { return a + x.v; }, 0) / con.length * 10) / 10 : null;
+    return h('div', { className: 'anc' + (p.plano ? ' anc--plano' : '') },
+      h('div', { className: 'anc__main' },
+        h('div', { className: 'anc__sq' + (v ? '' : ' is-vacio'), style: { background: color(v) } }, v || '—'),
+        h('div', { className: 'anc__txt' },
+          h('p', { className: 'anc__lbl' }, p.titulo || 'Cómo llegas hoy'),
+          h('p', { className: 'anc__pal' }, palabra(v)),
+          media !== null ? h('p', { className: 'anc__med' }, 'Media ' + dias + ' días: ' + String(media).replace('.', ',')) : null),
+        !v && p.onResponder ? h('button', { type: 'button', className: 'g-btn g-btn--secondary g-btn--md', onClick: p.onResponder }, 'Responder') : null),
+      h('div', { className: 'anc__dias', style: { gridTemplateColumns: 'repeat(' + dias + ', 1fr)' } }, fila.map(function (x) {
+        return h('div', { key: x.f, className: 'anc__d' + (x.f === p.hoy ? ' is-hoy' : '') },
+          h('span', { className: 'anc__mini' + (x.v ? '' : ' is-vacio'), style: { background: color(x.v) }, title: x.f }, x.v || ''),
+          h('span', { className: 'anc__dl' }, x.l));
+      })),
+      h('div', { className: 'anc__escala' }, h('span', null, '1 muy cansado'), h('i', null), h('span', null, '10 muy fresco')));
+  }
+  global.GAGOR_ANIMO_COLOR = color; global.GAGOR_ANIMO_PALABRA = palabra; global.GAGOR_AnimoCard = AnimoCard;
 })(window);
 
 /* ======================================================= GAGOR · beta · app del jugador */
@@ -4692,6 +4746,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
             h(G.StatTile, { icon: 'seguimiento', label: t('Recuperación'), value: rec.palabra, detail: rec.detalle }),
             sesHoy ? h(G.StatTile, { icon: 'ejercicios', label: t('Sesión de hoy'), value: sesHoy.estado === 'hecha' ? t('Hecha') : (tot.done ? tot.done + '/' + tot.all : nEj), unit: sesHoy.estado === 'hecha' ? '' : (tot.done ? t('series') : (nEj === 1 ? t('ejercicio') : t('ejercicios'))), detail: t(corto(sesHoy.titulo)) + ' · ~' + (sesHoy.duracion || 45) + t(' min') })
                    : h(G.StatTile, { icon: 'ejercicios', label: t('Sesión de hoy'), value: '—', detail: t('Descanso') })),
+          otroDia || !global.GAGOR_AnimoCard ? null : h(global.GAGOR_AnimoCard, { mapa: ST.animoDe(state, cid), hoy: hoyIso, dias: 7, onResponder: props.abrirAnimo }),
           otroDia || !(pend.diario || pend.semanal) ? null : card([
             h('p', { key: 't', style: { margin: 0, fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 700 } }, t('Seguimiento de hoy')),
             h('p', { key: 'd', style: { margin: 0, fontSize: '16px', lineHeight: '24px', color: 'var(--ink-muted)' } }, (pend.diario ? t(pend.nivel === 'completo' ? 'Sueño, cansancio y dolor muscular' : 'Una pregunta: cómo llegas hoy') : '') + (pend.diario && pend.semanal ? ' · ' : '') + (pend.semanal ? t('Peso de la semana') : '') + t('. Menos de un minuto.')),
@@ -4995,6 +5050,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           h('div', { className: 'row2 l1' },
             h(G.StatTile, { icon: 'seguimiento', label: t('Recuperación'), value: rec.palabra, detail: rec.detalle }),
             h(G.StatTile, { label: t('Sesiones'), value: ult4.filter(function (s) { return s.estado === 'hecha'; }).length + '/' + ult4.length, detail: t('Últimas 4 semanas') })),
+          global.GAGOR_AnimoCard ? h(global.GAGOR_AnimoCard, { titulo: t('Tu estado'), mapa: ST.animoDe(state, cid), hoy: hoyIso, dias: 14, onResponder: props.abrirAnimo }) : null,
           carga.filter(function (c) { return c.value > 0; }).length >= 3 ? h(G.ProgressChart, { title: t('Carga semanal real'), unit: 'ua', data: carga, caption: t('Duración × RPE por semana · la semana en curso aún no está completa') })
             : h(G.EmptyState, { title: t('Aún no hay suficientes registros'), detail: t('La gráfica aparece a partir de tres semanas con sesiones.') }),
           h('div', null,
@@ -5145,7 +5201,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         Object.keys(m).forEach(function (k) { if (k < lim) delete m[k]; }); a.animo = m;
       });
     }
-    return h(React.Fragment, null, h(Jugador, props),
+    return h(React.Fragment, null, h(Jugador, Object.assign({}, props, { abrirAnimo: function () { setVer(true); } })),
       ver ? h(global.GAGOR_Animo, { nombre: c ? c.nombre : '', hoy: hoyIso, onElegir: elegir, onCerrar: function () { setVer(false); } }) : null);
   }
   global.GAGOR_APP = global.GAGOR_APP || {}; global.GAGOR_APP.Jugador = JugadorConAnimo;
@@ -5477,6 +5533,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
                     b.nota ? h('span', { style: { color: 'var(--ink-muted)', flex: 1 } }, '«' + b.nota + '»') : null);
                 }))) : null];
             })()),
+            global.GAGOR_AnimoCard ? h('div', { className: 'panel' }, h('h2', { style: { margin: '0 0 12px', fontFamily: 'var(--font-display)', fontSize: '20px' } }, 'Estado diario'), h(global.GAGOR_AnimoCard, { plano: true, titulo: 'Hoy', mapa: ST.animoDe(state, c.id), hoy: hoyIso, dias: 14 })) : null,
             h('div', { className: 'panel' }, h('h2', { style: { margin: '0 0 12px', fontFamily: 'var(--font-display)', fontSize: '20px' } }, 'Récords'), recs.length ? h(G.RecordList, { items: recs.slice(0, 8) }) : h('p', { style: { color: 'var(--ink-muted)' } }, 'Todavía sin registros.')))),
         h('div', { key: 'pex', style: { marginTop: '16px', minWidth: 0 } }, h(PesosCliente, { key: c.id, state: state, cliente: c }))
       ]);
