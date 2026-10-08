@@ -1171,7 +1171,7 @@ a.g-btn { text-decoration: none; }
 .bars__row { grid-template-columns: 110px minmax(0, 1fr) auto; }
 .bars__val { white-space: nowrap; min-width: 40px; }
 .est__sq { flex: none; width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 14px; }
-.libre__sw { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
+.libre__sw { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
 .libre__sw input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--accent); flex: none; }
 .libre__sw span { display: grid; gap: 4px; }
 .libre__sw small, .libre__op small { color: var(--ink-muted); font-size: 13px; line-height: 18px; }
@@ -1188,6 +1188,14 @@ a.g-btn { text-decoration: none; }
   .edx__rw.is-2 { grid-template-columns: 40px minmax(44px, 1fr) minmax(44px, 1fr); }
   .edx__rw .edx__in { padding: 0 4px; text-align: center; font-size: 16px; }
 }
+.rut__row { display: flex; align-items: center; gap: 14px; width: 100%; padding: 12px 14px; border: 0; border-bottom: 1px solid var(--line); background: var(--surface-card); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.rut__row:last-child { border-bottom: 0; }
+.rut__row:active { background: var(--surface-sunken); }
+.rut__foto { flex: none; width: 56px; height: 56px; border-radius: 14px; background-color: #1d2a22; background-image: linear-gradient(135deg, #2c4535, #101611); background-size: cover; background-position: center; }
+.rut__txt { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.rut__txt b { font-family: var(--font-display); font-size: 17px; line-height: 22px; }
+.rut__txt span { font-size: 13px; color: var(--ink-muted); }
+.rut__chev { color: var(--ink-muted); flex: none; }
 .pes { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-md, 16px); background: var(--surface-card); }
 .pes.is-toca { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
 .pes__txt p { margin: 0; }
@@ -2839,7 +2847,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.21";
+<script>window.GAGOR_VERSION = "1.22";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -4758,7 +4766,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     function upd(k, val) { var x = Object.assign({}, T); x[k] = val; setT(x); }
 
     var hoyIso = ST.iso(ST.hoy);
-    var misSesiones = state.sesiones.filter(function (s) { return s.clienteId === cid; }).sort(function (a, b) { return a.fecha < b.fecha ? -1 : 1; });
+    var misSesiones = state.sesiones.filter(function (s) { return s.clienteId === cid && !s.local; }).sort(function (a, b) { return a.fecha < b.fecha ? -1 : 1; });
     var sesHoy = misSesiones.filter(function (s) { return s.fecha === hoyIso; })[0] || null;
     var ses = sesId ? state.sesiones.filter(function (s) { return s.id === sesId; })[0] : sesHoy;
     var partidoAyer = state.externos.filter(function (e) { return e.clienteId === cid && e.origen === 'sensor' && e.fecha >= ST.iso(ST.addDays(ST.hoy, -2)); }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; })[0];
@@ -4895,6 +4903,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           h('div', null, h(G.Icon, { name: 'cronometro', size: 18 }), h('div', null, h('b', null, minTxt(minutos)), h('span', null, t('tiempo total')))),
           h('div', null, h(G.Icon, { name: 'seguimiento', size: 18 }), h('div', null, h('b', null, racha), h('span', null, racha === 1 ? t('semana seguida') : t('semanas seguidas'))))),
         h('details', { className: 'sem__mas' }, h('summary', null, h('span', null, t('Carga de la semana')), h('span', { className: 'sem__chev', 'aria-hidden': 'true' }, '›')), h('div', { className: 'sem__det' }, detalle)));
+    }
+    function empezarRutina(x) {
+        var id = 'loc-' + ST.uid();
+        commit(function (st) { st.sesiones = st.sesiones.filter(function (q) { return !(q.local && q.clienteId === cid); });
+          st.sesiones.push({ id: id, clienteId: cid, fecha: hoyIso, titulo: x.titulo, plantillaId: x.id, estado: 'pendiente', bloques: JSON.parse(JSON.stringify(x.bloques)), registros: {}, rpe: null, comentario: '', duracion: null, local: true }); });
+        return id;
     }
     function HoyLibre() {
       var lista = cliente.libreSes || [];
@@ -5204,9 +5218,22 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         if (filters.material && !x.material.some(function (m) { return m.indexOf(filters.material.replace(/s$/, '')) === 0; })) return false;
         return true;
       });
+      var rutinas = (cliente && cliente.libreSes) || []; var enRut = rutinas.length && filters.tab === 'rut';
+      var seg = rutinas.length ? h(G.Segmented, { value: enRut ? 'rut' : 'lib', onChange: function (v) { setFilters(Object.assign({}, filters, { tab: v })); }, options: [{ value: 'lib', label: t('Biblioteca') }, { value: 'rut', label: t('Rutinas') + ' · ' + rutinas.length }] }) : null;
+      if (enRut) return h('div', { className: 'phone' },
+        h(G.AppHeader, { title: t('Rutinas'), subtitle: t('Prevención · hazlas cuando quieras') }),
+        h('div', { className: 'scroll' }, seg,
+          h('div', { className: 'frame rut' }, rutinas.map(function (x, i) { var tp = tipoSesion(x); var nEj = flat(x).length; var res = ST.resumenBloques ? ST.resumenBloques(x.bloques) : null;
+            return h('button', { key: x.id || i, type: 'button', className: 'rut__row', onClick: function () { var id = empezarRutina(x); setSesId(id); setView('resumen'); } },
+              h('span', { className: 'rut__foto', style: { backgroundImage: 'url("' + fotoUrl(tp) + '")' } }),
+              h('span', { className: 'rut__txt' }, h('b', null, x.titulo), h('span', null, nEj + ' ' + (nEj === 1 ? t('ejercicio') : t('ejercicios')) + ' · ~' + (res && res.minutos ? res.minutos : 15) + ' min')),
+              h(G.Icon, { name: 'adelante', size: 18, className: 'rut__chev' }));
+          })),
+          h('p', { className: 'muted small', style: { margin: '4px 2px 0' } }, t('Las prepara tu entrenador. No cuentan como sesión del calendario.'))),
+        h(G.TabBar, { value: 'ejercicios', onChange: setView }));
       return h('div', { className: 'phone' },
         h(G.AppHeader, { title: t('Ejercicios'), subtitle: list.length + t(' de ') + state.ejercicios.length + t(' en la biblioteca') }),
-        h('div', { className: 'scroll' },
+        h('div', { className: 'scroll' }, seg,
           h(G.TextField, { label: t('Buscar'), value: filters.q || '', placeholder: t('Sentadilla, barra, core…'), className: 'search', onChange: function (x) { setFilters(Object.assign({}, filters, { q: x })); } }),
           h('div', null, h(G.FilterBar, { value: filters, onChange: setFilters, groups: [
             { id: 'patron', label: t('Patrón'), options: ['Rodilla', 'Cadera', 'Unilateral', 'Empuje', 'Tracción', 'Hombros', 'Brazos', 'Potencia', 'Core', 'Movilidad', 'Prevención', 'Condición'] },
@@ -5760,15 +5787,18 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
                 commit(function (st) { var q = st.clientes.filter(function (z) { return z.id === c.id; })[0]; q.libre = libre;
                   q.libreSes = ids.map(function (id) { var pl = st.plantillas.filter(function (z) { return z.id === id; })[0]; return pl ? { id: pl.id, titulo: pl.nombre, bloques: JSON.parse(JSON.stringify(pl.bloques)) } : null; }).filter(Boolean); });
               }
-              return h('div', { className: 'panel' + (c.libre ? ' libre is-on' : ' libre') },
-                h('label', { className: 'libre__sw' }, h('input', { type: 'checkbox', checked: !!c.libre, onChange: function (e) { guardar(e.target.checked, sel); } }),
-                  h('span', null, h('b', null, 'Cuenta abierta · prevención'), h('small', null, 'Sin calendario ni preguntas. Quien entre con el código ' + c.codigo + ' elige una sesión fija y la hace cuando quiera. No se guarda nada.'))),
-                c.libre ? h('div', { className: 'libre__pl' },
-                  h('p', { className: 'muted small', style: { margin: '8px 0' } }, 'Sesiones fijas (elige 2–3 plantillas): ' + sel.length + ' elegidas'),
+              return h('div', { className: 'panel libre' + (c.libre ? ' is-on' : '') },
+                h('h2', { className: 'h2', style: { marginBottom: '4px' } }, 'Rutinas libres'),
+                h('p', { className: 'muted small', style: { margin: '0 0 10px' } }, c.libre
+                  ? 'Son las sesiones que verá al entrar. Las hace cuando quiera.'
+                  : 'Plantillas que ' + c.nombre.split(' ')[0] + ' puede hacer cuando quiera, sin programarlas. Las encuentra en Ejercicios › Rutinas. No cuentan como sesiones ni se guardan.'),
+                h('div', { className: 'libre__pl' },
                   state.plantillas.length ? state.plantillas.map(function (pl) { var on = sel.indexOf(pl.id) >= 0;
-                    return h('label', { key: pl.id, className: 'libre__op' + (on ? ' is-on' : '') }, h('input', { type: 'checkbox', checked: on, onChange: function () { guardar(true, on ? sel.filter(function (x) { return x !== pl.id; }) : sel.concat([pl.id])); } }), h('span', null, pl.nombre), h('small', null, ST.ejerciciosPlanos(pl).length + ' ej.'));
+                    return h('label', { key: pl.id, className: 'libre__op' + (on ? ' is-on' : '') }, h('input', { type: 'checkbox', checked: on, onChange: function () { guardar(!!c.libre, on ? sel.filter(function (x) { return x !== pl.id; }) : sel.concat([pl.id])); } }), h('span', null, pl.nombre), h('small', null, ST.ejerciciosPlanos(pl).length + ' ej.'));
                   }) : h('p', { className: 'muted small' }, 'Primero crea plantillas en Programas.'),
-                  sel.length ? h('p', { className: 'muted small', style: { margin: '8px 0 0' } }, 'Si cambias una plantilla, vuelve a marcarla aquí para actualizarla.') : null) : null);
+                  sel.length ? h('p', { className: 'muted small', style: { margin: '4px 0 0' } }, 'Si cambias una plantilla, desmárcala y vuelve a marcarla para actualizarla.') : null),
+                h('label', { className: 'libre__sw' }, h('input', { type: 'checkbox', checked: !!c.libre, onChange: function (e) { guardar(e.target.checked, sel); } }),
+                  h('span', null, h('b', null, 'Cuenta abierta · prevención'), h('small', null, 'Para un código que comparte mucha gente: sin calendario ni preguntas, solo estas rutinas. No se guarda nada.'))));
             })(),
             h('div', { className: 'panel' },
               h('h2', { className: 'h2', style: { marginBottom: '4px' } }, 'Acceso a la app'),
