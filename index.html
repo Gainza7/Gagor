@@ -1160,6 +1160,34 @@ a.g-btn { text-decoration: none; }
 .anh__sq.is-dec { width: 34px; font-size: 13px; }
 .ani__sheet { max-height: 100vh; max-height: 100dvh; overflow-y: auto; }
 @media (max-height: 760px) { .ani__mun { height: 176px; } .ani__mun .orb { transform: scale(.78); transform-origin: 50% 0; } .ani__qs { gap: 10px; } }
+.ini__tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.ini__tile { display: block; padding: 0; border: 0; background: none; text-align: left; cursor: pointer; border-radius: var(--radius-md); font: inherit; color: inherit; }
+.ini__tile > .g-stat { height: 100%; box-sizing: border-box; transition: border-color .15s, transform .1s; }
+.ini__tile:hover > .g-stat { border-color: var(--accent); }
+.ini__tile:active > .g-stat { transform: scale(.99); }
+.ini__tile.is-alert > .g-stat { border-color: var(--alert); box-shadow: inset 0 0 0 1px var(--alert); }
+.ini__tile.is-new > .g-stat { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.bars__sin { color: var(--alert); font-weight: 700; }
+.bars__row { grid-template-columns: 110px minmax(0, 1fr) auto; }
+.bars__val { white-space: nowrap; min-width: 40px; }
+.est__sq { flex: none; width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 14px; }
+.libre__sw { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
+.libre__sw input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--accent); flex: none; }
+.libre__sw span { display: grid; gap: 4px; }
+.libre__sw small, .libre__op small { color: var(--ink-muted); font-size: 13px; line-height: 18px; }
+.libre.is-on { border-color: var(--accent); }
+.libre__pl { display: grid; gap: 6px; }
+.libre__op { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); cursor: pointer; }
+.libre__op span { flex: 1; font-weight: 600; }
+.libre__op input { accent-color: var(--accent); width: 18px; height: 18px; }
+.libre__op.is-on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+@container (max-width: 760px) {
+  .edx__row > .edx__f:has(.edx__rw.is-2) { grid-column: span 2; }
+  .edx__row:has(.edx__rw.is-2) > :nth-child(6), .edx__row:has(.edx__rw.is-2) > :nth-child(10) { grid-column: 2; }
+  .edx__row:has(.edx__rw.is-2) > :nth-child(7) { grid-column: auto; }
+  .edx__rw.is-2 { grid-template-columns: 40px minmax(44px, 1fr) minmax(44px, 1fr); }
+  .edx__rw .edx__in { padding: 0 4px; text-align: center; font-size: 16px; }
+}
 .pes { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-md, 16px); background: var(--surface-card); }
 .pes.is-toca { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
 .pes__txt p { margin: 0; }
@@ -2811,7 +2839,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.20";
+<script>window.GAGOR_VERSION = "1.21";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -3767,6 +3795,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function avisos(state) {
     var out = [];
     state.clientes.forEach(function (c) {
+      if (c.libre) return;
       var hechas = state.sesiones.filter(function (s) { return s.clienteId === c.id && s.estado === 'hecha' && s.rpe; }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; });
       if (hechas.length >= 3 && hechas.slice(0, 3).every(function (s) { return s.rpe >= 9; })) out.push({ kind: 'rpe', clienteId: c.id, title: c.nombre + ' · RPE 9 o más en 3 sesiones seguidas', detail: hechas.slice(0, 3).map(function (s) { return fmtCorta(s.fecha); }).join(', ') });
       // se compara la última semana completa con las cuatro anteriores (la semana en curso aún no ha terminado)
@@ -3781,7 +3810,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (an && an <= 4) out.push({ kind: 'rpe', label: 'Recuperación', clienteId: c.id, title: c.nombre + (ed ? ' · recuperación ' + String(Math.round((ed.estado + ed.sueno + ed.estres) / 3 * 10) / 10).replace('.', ',') + '/5' : ' · hoy se pone un ' + an + '/10'), detail: ed ? 'Estado ' + ed.estado + ' · sueño ' + ed.sueno + ' · estrés ' + ed.estres + ' (1 malo, 5 bueno)' : 'Respuesta a la pregunta del día' });
       if (noHechas.length >= 2) out.push({ kind: 'sesion', clienteId: c.id, title: c.nombre + ' · ' + noHechas.length + ' sesiones sin hacer', detail: noHechas.map(function (s) { return fmtCorta(s.fecha); }).join(', ') });
     });
-    estadoCobros(state).filter(function (e) { return e.estado === 'vencido'; }).forEach(function (e) {
+    [].forEach(function (e) {
       out.push({ kind: 'sesion', label: 'Cobro vencido', clienteId: e.cliente.id, title: e.cliente.nombre + ' · ' + eur(e.periodo.importe) + ' del periodo que empezó el ' + fmtCorta(e.periodo.desde), detail: 'Sin cobro registrado · ' + (e.cliente.plan.periodo === 'trimestral' ? 'trimestral' : 'mensual') });
     });
     (state.partidos || []).forEach(function (p) {
@@ -3992,7 +4021,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var out = {};
     COLS.forEach(function (col) {
       (state[col] || []).forEach(function (x) {
-        if (!x || x.id === undefined || x.id === null) return;
+        if (!x || x.id === undefined || x.id === null || x.local) return;
         var d = x, cli = x.clienteId || null;
         if (col === 'clientes') { d = sinPrefs(x); cli = x.id; out['preferencias/' + x.id] = { tipo: 'preferencias', id: String(x.id), cliente_id: x.id, data: { prefs: x.prefs || {}, seguimiento: x.seguimiento || { nivel: 'ninguno' } } }; }
         out[col + '/' + x.id] = { tipo: col, id: String(x.id), cliente_id: cli, data: d };
@@ -4867,7 +4896,27 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           h('div', null, h(G.Icon, { name: 'seguimiento', size: 18 }), h('div', null, h('b', null, racha), h('span', null, racha === 1 ? t('semana seguida') : t('semanas seguidas'))))),
         h('details', { className: 'sem__mas' }, h('summary', null, h('span', null, t('Carga de la semana')), h('span', { className: 'sem__chev', 'aria-hidden': 'true' }, '›')), h('div', { className: 'sem__det' }, detalle)));
     }
+    function HoyLibre() {
+      var lista = cliente.libreSes || [];
+      function empezar(x) {
+        var id = 'loc-' + ST.uid();
+        commit(function (st) { st.sesiones = st.sesiones.filter(function (q) { return !(q.local && q.clienteId === cid); });
+          st.sesiones.push({ id: id, clienteId: cid, fecha: hoyIso, titulo: x.titulo, plantillaId: x.id, estado: 'pendiente', bloques: JSON.parse(JSON.stringify(x.bloques)), registros: {}, rpe: null, comentario: '', duracion: null, local: true }); });
+        return id;
+      }
+      return h('div', { className: 'phone' },
+        h(G.AppHeader, { title: t('Prevención'), subtitle: t('Elige una sesión y hazla cuando quieras'), action: h(G.Button, { variant: 'ghost', size: 'md', icon: 'usuario', onClick: function () { setView('ajustes'); } }, t('Ajustes')) }),
+        h('div', { className: 'scroll' },
+          lista.length ? lista.map(function (x, i) { var tp = tipoSesion(x); var nEj = flat(x).length; var res = ST.resumenBloques ? ST.resumenBloques(x.bloques) : null;
+            return h('div', { key: x.id || i }, Portada({ tipo: tp, etiqueta: t('Sesión') + ' ' + (i + 1), titulo: x.titulo, desc: t(DESC[tp]),
+              datos: [{ icon: 'ejercicios', v: nEj, l: nEj === 1 ? t('ejercicio') : t('ejercicios') }, { icon: 'cronometro', v: (res && res.minutos ? res.minutos : 15) + ' min', l: t('aprox.') }],
+              boton: t('Empezar'), icon: 'reproducir', onClick: function () { var id = empezar(x); setSesId(id); setView('resumen'); },
+              secundario: { label: t('Modo entrenamiento guiado'), onClick: function () { var id = empezar(x); startGuided({ id: id, bloques: x.bloques, registros: {} }); } } })); })
+          : h(G.EmptyState, { title: t('Aún no hay sesiones'), detail: t('Tu entrenador está preparando las sesiones de prevención.') })),
+        h(G.TabBar, { value: 'hoy', onChange: setView }));
+    }
     function Hoy() {
+      if (cliente && cliente.libre) return HoyLibre();
       var rec = ST.recuperacion(state, cid);
       var sem = ST.cargasSemanales(state, cid, 5); var esta = sem[4].value; var prev = sem.slice(0, 4).filter(function (x) { return x.value > 0; });
       var media = prev.length ? prev.reduce(function (a, b) { return a + b.value; }, 0) / prev.length : 0;
@@ -5363,6 +5412,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var KEY = 'gagor_animo_' + cid;
     var sh = useState(function () {
       if (!cid || !global.GAGOR_Animo || !global.GAGOR_MUNECO) return false;
+      var yoC = (state.clientes || []).filter(function (x) { return x.id === cid; })[0]; if (yoC && yoC.libre) return false;
       try { if (localStorage.getItem(KEY) === hoyIso) return false; } catch (e) {}
       var a = (state.avisos || []).filter(function (x) { return x.id === cid; })[0];
       return !(a && a.animo && a.animo[hoyIso]);
@@ -5497,10 +5547,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var cliente = state.clientes.filter(function (c) { return c.id === cid; })[0] || state.clientes[0];
 
     function Nav() {
-      var items = [['inicio', 'Inicio', 'hoy'], ['mensajes', 'Mensajes', 'mensaje'], ['clientes', 'Clientes', 'equipo'], ['planificador', 'Planificador', 'calendario'], ['programas', 'Programas', 'plantilla'], ['biblioteca', 'Biblioteca', 'ejercicios'], ['revision', 'Revisión', 'aviso'], ['partidos', 'Partidos', 'partido'], ['cuentas', 'Cuentas', 'euro'], ['datos', 'Datos', 'exportar']];
+      var items = [['inicio', 'Inicio', 'hoy'], ['mensajes', 'Mensajes', 'mensaje'], ['clientes', 'Clientes', 'equipo'], ['planificador', 'Planificador', 'calendario'], ['programas', 'Programas', 'plantilla'], ['biblioteca', 'Biblioteca', 'ejercicios'], ['revision', 'Revisión', 'aviso'], ['partidos', 'Partidos', 'partido'], ['datos', 'Datos', 'exportar']];
       return h('nav', { className: 'nav' },
         h('div', { className: 'nav__mark' }, h(G.Logo, { variant: 'horizontal', height: 24 })),
-        items.map(function (it) { var on = view === it[0] || (view === 'cliente' && it[0] === 'clientes') || (view === 'editor' && ed && it[0] === (ed.tipo === 'sesion' ? 'planificador' : 'programas'));
+        items.map(function (it) { var on = view === it[0] || (view === 'estados' && it[0] === 'inicio') || (view === 'cliente' && it[0] === 'clientes') || (view === 'editor' && ed && it[0] === (ed.tipo === 'sesion' ? 'planificador' : 'programas'));
           var badge = it[0] === 'revision' && todosAvisos.length ? todosAvisos.length : (it[0] === 'mensajes' && sinLeer.length ? sinLeer.length : null);
           return h('button', { key: it[0], type: 'button', className: 'nav__item' + (on ? ' is-on' : ''), 'aria-current': on ? 'page' : undefined, onClick: function () { setView(it[0]); setBajaConf(false); setConf(''); } }, h(G.Icon, { name: it[2], size: 20 }), h('span', { className: 'nav__txt' }, it[1]), badge ? h('span', { className: 'nav__badge' }, badge) : null); }),
         h('div', { className: 'nav__foot' },
@@ -5562,59 +5612,88 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
             h('li', null, h('b', null, 'Programa su semana'), ' en el Planificador con las plantillas (o crea las tuyas).'),
             h('li', null, h('b', null, 'Mándale la invitación'), ' por WhatsApp desde su ficha: la instala y entra con el código.')),
           h(G.Button, { icon: 'mas', onClick: function () { setView('clientes'); } }, 'Añadir cliente'))]);
+      var activos = state.clientes.filter(function (c) { return !c.libre; });
+      function esActivo(id) { return activos.some(function (c) { return c.id === id; }); }
+      var manIso = ST.iso(ST.addDays(ST.hoy, 1));
+      var hoyL = hoySes.filter(function (s) { return esActivo(s.clienteId) && !s.local; });
+      var manL = state.sesiones.filter(function (s) { return s.fecha === manIso && esActivo(s.clienteId) && !s.local; });
+      var resp = activos.filter(function (c) { return ST.animoDe(state, c.id)[hoyIso]; });
+      var bajos = resp.filter(function (c) { return ST.animoDe(state, c.id)[hoyIso] <= 4; });
+      function filaSes(s, futura) {
+        var c = cli(s.clienteId) || {}; var fl = ST.ejerciciosPlanos(s); var d = 0, a = 0; fl.forEach(function (fx) { var rr = s.registros[fx.key] || []; a += Number(fx.e.series) || 0; rr.forEach(function (r) { if (r.done) d++; }); });
+        return h('button', { key: s.id, type: 'button', className: 'wrow', onClick: function () { abrir(s.clienteId); } },
+          h('span', { className: 'wrow__av' }, (c.nombre || '?').charAt(0)),
+          h('span', { className: 'wrow__main' }, h('b', null, c.nombre || '—'), h('span', null, s.titulo)),
+          h('span', { className: 'wrow__state' + (s.estado === 'hecha' ? ' is-ok' : '') }, futura ? 'Programada' : (s.estado === 'hecha' ? 'Hecha · RPE ' + (s.rpe || '—') : (d ? 'En curso · ' + d + '/' + a : 'Pendiente'))),
+          h(G.Icon, { name: 'adelante', size: 16, className: 'wrow__chev' }));
+      }
+      var semana = activos.map(function (c) { var ss = state.sesiones.filter(function (s) { return s.clienteId === c.id && s.fecha >= lun && s.fecha <= dom && !s.local; }); return { c: c, ss: ss }; }).filter(function (x) { return x.ss.length; });
+      var vivosEl = (function () {
+        var ahora = Date.now();
+        var vivos = (state.avisos || []).filter(function (a) { return a.vivo && a.vivo.ts && ahora - new Date(a.vivo.ts).getTime() < 3 * 60000 && state.clientes.some(function (c) { return c.id === a.id; }); })
+          .sort(function (a, b) { return a.vivo.ts < b.vivo.ts ? 1 : -1; });
+        if (!vivos.length) return null;
+        return h(G.ListGroup, { key: 'viv', title: 'Entrenando ahora', meta: vivos.length + (vivos.length === 1 ? ' persona' : ' personas') }, vivos.map(function (a) {
+          var c = cli(a.id) || {}; var v = a.vivo; var seg = Math.max(0, Math.round((ahora - new Date(v.ts).getTime()) / 1000));
+          return h('button', { key: a.id, type: 'button', className: 'wrow', onClick: function () { abrir(a.id); } },
+            h('span', { className: 'wrow__av' }, (c.nombre || '?').charAt(0)),
+            h('span', { className: 'wrow__main' }, h('b', null, h('span', { className: 'vivo__dot', 'aria-hidden': 'true' }), c.nombre || '—'), h('span', null, v.titulo + (v.ejId ? ' · ' + ST.nombreEj(state, v.ejId) + ', serie ' + v.serie + ' de ' + v.series : ' · viendo la sesión'))),
+            h('span', { className: 'wrow__state is-ok' }, v.hechas + '/' + v.total + ' series'),
+            h('span', { className: 'wrow__when' }, seg < 60 ? 'ahora' : 'hace ' + Math.round(seg / 60) + ' min'));
+        }));
+      })();
       return shell([
-        h(G.AppHeader, { key: 'h', title: saludo() + (nombre ? ', ' + nombre : ''), subtitle: ST.fmtFecha(hoyIso) + ' · ' + state.clientes.length + ' clientes' }),
-        h('div', { key: 's', className: 'tiles4' },
-          h(G.StatTile, { icon: 'hoy', label: 'Hoy entrenan', value: hoySes.length, detail: hoySes.length ? hechasHoy + ' ya han terminado' : 'Día sin sesiones' }),
-          h(G.StatTile, { icon: 'aviso', label: 'Avisos', value: todosAvisos.length, detail: todosAvisos.length ? 'Para revisar' : 'Todo en orden' }),
-          h(G.StatTile, { icon: 'euro', label: 'Por cobrar', value: ST.eur(pend.reduce(function (a, e) { return a + e.periodo.importe; }, 0)), detail: venc.length ? '▲ ' + venc.length + (venc.length === 1 ? ' vencido' : ' vencidos') : 'Nada vencido' }),
-          h(G.StatTile, { icon: 'calendario', label: 'Próximo modelo', value: prox ? prox.modelo : '—', detail: prox ? prox.nombre + ' · ' + (dias === 0 ? 'hoy' : (dias < 0 ? 'fuera de plazo' : 'en ' + dias + ' días')) : 'Sin plazos cerca' })),
+        h(G.AppHeader, { key: 'h', title: saludo() + (nombre ? ', ' + nombre : ''), subtitle: ST.fmtFecha(hoyIso) }),
+        h('div', { key: 't', className: 'ini__tiles' },
+          h('button', { type: 'button', className: 'ini__tile' + (bajos.length ? ' is-alert' : ''), onClick: function () { setView('estados'); } },
+            h(G.StatTile, { icon: 'seguimiento', label: 'Cómo están', value: resp.length, unit: '/' + activos.length, detail: resp.length ? (bajos.length ? '▲ ' + bajos.length + ' con recuperación baja' : 'Han respondido · ver') : 'Nadie ha respondido aún' })),
+          h('button', { type: 'button', className: 'ini__tile' + (sinLeer.length ? ' is-new' : ''), onClick: function () { setView('mensajes'); } },
+            h(G.StatTile, { icon: 'mensaje', label: 'Mensajes', value: sinLeer.length, detail: sinLeer.length ? 'Sin leer · toca para verlos' : 'Todo leído' }))),
+        vivosEl,
         h('div', { key: 'c', className: 'cols' },
           h('div', { className: 'stack' },
-            (function () {
-              var ahora = Date.now();
-              var vivos = (state.avisos || []).filter(function (a) { return a.vivo && a.vivo.ts && ahora - new Date(a.vivo.ts).getTime() < 3 * 60000 && state.clientes.some(function (c) { return c.id === a.id; }); })
-                .sort(function (a, b) { return a.vivo.ts < b.vivo.ts ? 1 : -1; });
-              if (!vivos.length) return null;
-              return h(G.ListGroup, { title: 'Entrenando ahora', meta: vivos.length + (vivos.length === 1 ? ' jugador' : ' jugadores') }, vivos.map(function (a) {
-                var c = cli(a.id) || {}; var v = a.vivo; var seg = Math.max(0, Math.round((ahora - new Date(v.ts).getTime()) / 1000));
-                return h('button', { key: a.id, type: 'button', className: 'wrow', onClick: function () { abrir(a.id); } },
-                  h('span', { className: 'wrow__av' }, (c.nombre || '?').charAt(0)),
-                  h('span', { className: 'wrow__main' }, h('b', null, h('span', { className: 'vivo__dot', 'aria-hidden': 'true' }), c.nombre || '—'), h('span', null, v.titulo + (v.ejId ? ' · ' + ST.nombreEj(state, v.ejId) + ', serie ' + v.serie + ' de ' + v.series : ' · viendo la sesión'))),
-                  h('span', { className: 'wrow__state is-ok' }, v.hechas + '/' + v.total + ' series'),
-                  h('span', { className: 'wrow__when' }, seg < 60 ? 'ahora' : 'hace ' + Math.round(seg / 60) + ' min'));
-              }));
-            })(),
-            h(G.ListGroup, { title: 'Hoy', meta: hoySes.length + (hoySes.length === 1 ? ' sesión' : ' sesiones') },
-              hoySes.length ? hoySes.map(function (s) { var c = cli(s.clienteId) || {}; var fl = ST.ejerciciosPlanos(s); var d = 0, a = 0; fl.forEach(function (fx) { var rr = s.registros[fx.key] || []; a += fx.e.series; rr.forEach(function (r) { if (r.done) d++; }); });
-                return h('button', { key: s.id, type: 'button', className: 'wrow', onClick: function () { abrir(s.clienteId); } },
-                  h('span', { className: 'wrow__av' }, (c.nombre || '?').charAt(0)),
-                  h('span', { className: 'wrow__main' }, h('b', null, c.nombre || '—'), h('span', null, s.titulo)),
-                  h('span', { className: 'wrow__state' + (s.estado === 'hecha' ? ' is-ok' : '') }, s.estado === 'hecha' ? 'Hecha · RPE ' + (s.rpe || '—') : (d ? 'En curso · ' + d + '/' + a : 'Pendiente')),
-                  h(G.Icon, { name: 'adelante', size: 16, className: 'wrow__chev' })); })
-              : h('p', { className: 'wrow__empty' }, 'Nadie tiene sesión hoy.')),
-            h(G.ListGroup, { title: 'Actividad reciente', meta: 'Últimas sesiones registradas' },
-              recientes.length ? recientes.map(function (s) { var c = cli(s.clienteId) || {};
-                return h('button', { key: s.id, type: 'button', className: 'wrow', onClick: function () { abrir(s.clienteId); } },
-                  h('span', { className: 'wrow__av' }, (c.nombre || '?').charAt(0)),
-                  h('span', { className: 'wrow__main' }, h('b', null, c.nombre + ' · ' + s.titulo), h('span', null, s.comentario ? '«' + s.comentario + '»' : ST.relativo(s.fecha) + ' · ' + (s.duracion || 45) + ' min')),
-                  h('span', { className: 'wrow__state' + (s.rpe >= 9 ? ' is-alert' : '') }, 'RPE ' + (s.rpe || '—')),
-                  h('span', { className: 'wrow__when' }, ST.relativo(s.fecha))); })
-              : h('p', { className: 'wrow__empty' }, 'Aún no hay sesiones registradas.'))),
+            h(G.ListGroup, { title: 'Hoy', meta: hoyL.length + (hoyL.length === 1 ? ' sesión' : ' sesiones') },
+              hoyL.length ? hoyL.map(function (s) { return filaSes(s, false); }) : h('p', { className: 'wrow__empty' }, 'Nadie tiene sesión hoy.')),
+            h(G.ListGroup, { title: 'Mañana', meta: manL.length + (manL.length === 1 ? ' sesión' : ' sesiones') },
+              manL.length ? manL.map(function (s) { return filaSes(s, true); }) : h('p', { className: 'wrow__empty' }, 'Nadie tiene sesión mañana.'))),
           h('div', { className: 'stack' },
             h('div', { className: 'panel' },
-              h('div', { className: 'head', style: { marginBottom: '12px' } }, h('h2', { className: 'h2' }, 'Necesita tu atención'), todosAvisos.length > 4 ? h('button', { type: 'button', className: 'link small', onClick: function () { setView('revision'); } }, 'Ver los ' + todosAvisos.length) : null),
-              todosAvisos.length ? h('div', { className: 'stack stack--8' }, todosAvisos.slice(0, 4).map(function (a, i) { return h(G.AlertItem, { key: i, kind: a.kind, label: a.label, title: a.title, detail: a.detail, onOpen: a.clienteId ? function () { abrir(a.clienteId); } : function () { setView('partidos'); } }); }))
-              : h('p', { className: 'muted', style: { margin: 0 } }, 'Nada que revisar. Buen trabajo.')),
-            h('div', { className: 'panel' },
-              h('h2', { className: 'h2', style: { marginBottom: '4px' } }, 'Esta semana'),
-              h('p', { className: 'muted small', style: { margin: '0 0 12px' } }, 'Sesiones hechas de las programadas hasta hoy · ' + ST.fmtCorta(lun) + ' – ' + ST.fmtCorta(dom)),
-              h('div', { className: 'bars' }, state.clientes.map(function (c) {
-                var ss = state.sesiones.filter(function (s) { return s.clienteId === c.id && s.fecha >= lun && s.fecha <= hoyIso; }); var hh = ss.filter(function (s) { return s.estado === 'hecha'; }).length;
-                var pct = ss.length ? Math.round(hh / ss.length * 100) : 0;
-                return h('button', { key: c.id, type: 'button', className: 'bars__row', onClick: function () { abrir(c.id); } },
-                  h('span', { className: 'bars__name' }, c.nombre), h('span', { className: 'bars__track' }, h('span', { className: 'bars__fill' + (ss.length && pct < 50 ? ' is-low' : ''), style: { width: (ss.length ? Math.max(pct, 4) : 0) + '%' } })), h('span', { className: 'bars__val' }, ss.length ? hh + '/' + ss.length : '—'));
-              }))))),
+              h('h2', { className: 'h2', style: { marginBottom: '4px' } }, 'Resumen de la semana'),
+              h('p', { className: 'muted small', style: { margin: '0 0 12px' } }, 'Solo quien tiene algo programado · ' + ST.fmtCorta(lun) + ' – ' + ST.fmtCorta(dom) + ' · ▲ sin hacer'),
+              semana.length ? h('div', { className: 'bars' }, semana.map(function (x) {
+                var hh = x.ss.filter(function (s) { return s.estado === 'hecha'; }).length; var sin = x.ss.filter(function (s) { return s.estado !== 'hecha' && s.fecha < hoyIso; }).length;
+                var pct = Math.round(hh / x.ss.length * 100);
+                return h('button', { key: x.c.id, type: 'button', className: 'bars__row', onClick: function () { abrir(x.c.id); } },
+                  h('span', { className: 'bars__name' }, x.c.nombre), h('span', { className: 'bars__track' }, h('span', { className: 'bars__fill' + (sin ? ' is-low' : ''), style: { width: Math.max(pct, 4) + '%' } })),
+                  h('span', { className: 'bars__val' }, hh + '/' + x.ss.length, sin ? h('span', { className: 'bars__sin', title: sin + ' sin hacer' }, ' ▲' + sin) : null));
+              })) : h('p', { className: 'muted', style: { margin: 0 } }, 'Nadie tiene sesiones esta semana.')))),
+      ]);
+    }
+
+    /* ------------------------------------------------------- CÓMO ESTÁN HOY */
+    function Estados() {
+      var activos = state.clientes.filter(function (c) { return !c.libre; });
+      function cli2(id) { return state.clientes.filter(function (c) { return c.id === id; })[0]; }
+      var filas = activos.map(function (c) { var v = ST.animoDe(state, c.id)[hoyIso]; var ed = ST.estadoDe(state, c.id)[hoyIso]; return { c: c, v: v, ed: ed, md: ed ? (ed.estado + ed.sueno + ed.estres) / 3 : (v ? v / 2 : null) }; });
+      var si = filas.filter(function (x) { return x.v; }).sort(function (a, b) { return a.md - b.md; });
+      var no = filas.filter(function (x) { return !x.v; });
+      var tieneHoy = function (id) { return state.sesiones.some(function (s) { return s.clienteId === id && s.fecha === hoyIso; }); };
+      function abrir(id) { setCid(id); setView('cliente'); }
+      return shell([
+        h(G.AppHeader, { key: 'h', title: 'Cómo están hoy', subtitle: si.length + ' de ' + activos.length + ' han respondido · 1 malo, 5 bueno', onBack: function () { setView('inicio'); } }),
+        h(G.ListGroup, { key: 'si', title: 'Han respondido', meta: si.length + '' }, si.length ? si.map(function (x) {
+          return h('button', { key: x.c.id, type: 'button', className: 'wrow', onClick: function () { abrir(x.c.id); } },
+            h('span', { className: 'est__sq', style: { background: global.GAGOR_ANIMO_COLOR ? global.GAGOR_ANIMO_COLOR(x.v) : null } }, String(Math.round(x.md * 10) / 10).replace('.', ',')),
+            h('span', { className: 'wrow__main' }, h('b', null, x.c.nombre), h('span', null, x.ed ? 'Estado ' + x.ed.estado + ' · Sueño ' + x.ed.sueno + ' · Estrés ' + x.ed.estres : 'Nota del día ' + x.v + '/10')),
+            h('span', { className: 'wrow__state' + (x.v <= 4 ? ' is-alert' : ' is-ok') }, global.GAGOR_ANIMO_PALABRA ? global.GAGOR_ANIMO_PALABRA(x.v) : ''),
+            h(G.Icon, { name: 'adelante', size: 16, className: 'wrow__chev' }));
+        }) : h('p', { className: 'wrow__empty' }, 'Nadie ha respondido todavía.')),
+        no.length ? h(G.ListGroup, { key: 'no', title: 'Sin responder', meta: no.length + '' }, no.map(function (x) {
+          return h('button', { key: x.c.id, type: 'button', className: 'wrow', onClick: function () { abrir(x.c.id); } },
+            h('span', { className: 'wrow__av' }, x.c.nombre.charAt(0)),
+            h('span', { className: 'wrow__main' }, h('b', null, x.c.nombre), h('span', null, tieneHoy(x.c.id) ? 'Tiene sesión hoy' : 'Sin sesión hoy')),
+            h(G.Icon, { name: 'adelante', size: 16, className: 'wrow__chev' }));
+        })) : null
       ]);
     }
 
@@ -5660,8 +5739,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           h(G.StatTile, { label: 'Sesiones · 4 sem.', value: ad.done + '/' + ad.planned }),
           h(G.StatTile, { label: 'RPE medio', value: hechas.length ? n(Math.round(hechas.reduce(function (a, s) { return a + (s.rpe || 0); }, 0) / hechas.length * 10) / 10) : '—' }),
           h(G.StatTile, { label: 'Último registro', value: hechas[0] ? ST.relativo(hechas[0].fecha) : '—', detail: hechas[0] ? hechas[0].titulo : '' }),
-          (function () { var ec = ST.estadoCobros(state).filter(function (e) { return e.cliente.id === c.id; }); var pend = ec.filter(function (e) { return e.estado !== 'cobrado'; });
-            return h(G.StatTile, { label: 'Cuota', value: c.plan && c.plan.activo && c.plan.cuota ? ST.eur(c.plan.cuota) : '—', detail: !(c.plan && c.plan.activo && c.plan.cuota) ? 'Sin cuota' : (pend.length ? (pend.some(function (e) { return e.estado === 'vencido'; }) ? '▲ Cobro vencido' : 'Cobro pendiente') : 'Al día · ' + (c.plan.periodo === 'trimestral' ? 'trimestral' : 'mensual')) }); })()),
+          null),
         h('div', { key: 'c', className: 'cols' },
           h('div', { style: { display: 'grid', gap: '16px' } },
             carga.filter(function (x) { return x.value > 0; }).length >= 3 ? h(G.ProgressChart, { title: 'Carga semanal · duración × RPE', unit: 'ua', data: carga }) : h(G.EmptyState, { title: 'Aún sin tres semanas de datos' }),
@@ -5676,6 +5754,22 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
                 h('span', { className: 'hrow__rpe' + (s.rpe >= 9 ? ' is-alert' : '') }, s.rpe ? 'RPE ' + s.rpe : ''));
             }))),
           h('div', { style: { display: 'grid', gap: '16px' } },
+            (function () {
+              var sel = (c.libreSes || []).map(function (x) { return x.id; });
+              function guardar(libre, ids) {
+                commit(function (st) { var q = st.clientes.filter(function (z) { return z.id === c.id; })[0]; q.libre = libre;
+                  q.libreSes = ids.map(function (id) { var pl = st.plantillas.filter(function (z) { return z.id === id; })[0]; return pl ? { id: pl.id, titulo: pl.nombre, bloques: JSON.parse(JSON.stringify(pl.bloques)) } : null; }).filter(Boolean); });
+              }
+              return h('div', { className: 'panel' + (c.libre ? ' libre is-on' : ' libre') },
+                h('label', { className: 'libre__sw' }, h('input', { type: 'checkbox', checked: !!c.libre, onChange: function (e) { guardar(e.target.checked, sel); } }),
+                  h('span', null, h('b', null, 'Cuenta abierta · prevención'), h('small', null, 'Sin calendario ni preguntas. Quien entre con el código ' + c.codigo + ' elige una sesión fija y la hace cuando quiera. No se guarda nada.'))),
+                c.libre ? h('div', { className: 'libre__pl' },
+                  h('p', { className: 'muted small', style: { margin: '8px 0' } }, 'Sesiones fijas (elige 2–3 plantillas): ' + sel.length + ' elegidas'),
+                  state.plantillas.length ? state.plantillas.map(function (pl) { var on = sel.indexOf(pl.id) >= 0;
+                    return h('label', { key: pl.id, className: 'libre__op' + (on ? ' is-on' : '') }, h('input', { type: 'checkbox', checked: on, onChange: function () { guardar(true, on ? sel.filter(function (x) { return x !== pl.id; }) : sel.concat([pl.id])); } }), h('span', null, pl.nombre), h('small', null, ST.ejerciciosPlanos(pl).length + ' ej.'));
+                  }) : h('p', { className: 'muted small' }, 'Primero crea plantillas en Programas.'),
+                  sel.length ? h('p', { className: 'muted small', style: { margin: '8px 0 0' } }, 'Si cambias una plantilla, vuelve a marcarla aquí para actualizarla.') : null) : null);
+            })(),
             h('div', { className: 'panel' },
               h('h2', { className: 'h2', style: { marginBottom: '4px' } }, 'Acceso a la app'),
               h('p', { className: 'muted small', style: { margin: '0 0 12px' } }, 'Código de ' + c.nombre.split(' ')[0] + ': ', h('b', { className: 'code' }, c.codigo)),
@@ -6567,6 +6661,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       ]);
     }
     if (view === 'mensajes') return Mensajes();
+    if (view === 'estados') return Estados();
     if (view === 'inicio') return Inicio();
     if (view === 'clientes') return Clientes();
     if (view === 'cliente') return Cliente();
