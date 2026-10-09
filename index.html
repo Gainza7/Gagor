@@ -1251,6 +1251,11 @@ a.g-btn { text-decoration: none; }
 .hrow.is-click:hover { background: var(--surface-sunken); }
 .edx__rep { margin: 2px 0 0 38px; padding: 6px 10px; border-radius: 8px; background: color-mix(in srgb, #d9a441 18%, transparent); color: var(--ink); font-size: 13px; font-weight: 600; }
 @container (max-width: 760px) { .edx__rep { margin-left: 34px; } }
+.dses__mov { display: grid; gap: 8px; padding: 12px; border: 1px dashed var(--line-strong, var(--line)); border-radius: 14px; }
+.dses__ml { display: grid; gap: 4px; font-size: 13px; font-weight: 700; color: var(--ink-muted); }
+.dses__in { height: 42px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line-strong, var(--line)); background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; }
+.dses__mb { display: flex; gap: 8px; flex-wrap: wrap; }
+.dses__ok { margin: 0; font-size: 13px; font-weight: 600; color: var(--accent); }
 .pes { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-md, 16px); background: var(--surface-card); }
 .pes.is-toca { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
 .pes__txt p { margin: 0; }
@@ -2902,7 +2907,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.24";
+<script>window.GAGOR_VERSION = "1.25";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -5565,7 +5570,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var cs = useState(state.clientes[0] ? state.clientes[0].id : null); var cid = cs[0], setCid = cs[1];
     var wk = useState(0); var week = wk[0], setWeek = wk[1];
     var swk = useState(0); var semOff = swk[0], setSemOff = swk[1];
-    var vsk = useState(null); var verSes = vsk[0], setVerSes = vsk[1];
+    var vsk = useState(null); var verSes = vsk[0], setVerSes0 = vsk[1];
+    var amk = useState(''); var avisoMov = amk[0], setAvisoMov = amk[1];
+    function setVerSes(id) { setVerSes0(id); if (!id) setAvisoMov(''); }
     var f = useState({}); var filters = f[0], setFilters = f[1];
     var nu = useState({ nombre: '', grupo: '', codigo: '' }); var nuevo = nu[0], setNuevo = nu[1];
     var ne = useState({ nombre: '', patron: 'Rodilla dominante', material: '', dificultad: 'Media', videoUrl: '', como: '', evita: '' }); var nEj = ne[0], setNEj = ne[1];
@@ -5664,6 +5671,26 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
               h('div', { className: 'dses__main' }, h('b', null, ST.nombreEj(state, e.ejId)), h('span', null, pres),
                 rr.length ? h('div', { className: 'dses__sets' }, rr.map(function (r, i) { return h('span', { key: i }, (r.carga !== null && r.carga !== undefined && r.carga !== '' ? nn(r.carga) + ' kg × ' : '') + nn(r.reps) + (r.repsD !== undefined && r.repsD !== null && e.lado ? '/' + nn(r.repsD) : '') + (r.carga !== null && r.carga !== undefined && r.carga !== '' ? '' : ' reps')); })) : null))];
           })),
+          (function () {
+            var man = ST.iso(ST.addDays(new Date((s.fecha > hoyIso ? s.fecha : hoyIso) + 'T12:00:00'), 1));
+            var puedeMover = s.estado !== 'hecha';
+            function dia() { var el = document.getElementById('dsesDia'); return el && el.value; }
+            function ocupado(f) { return state.sesiones.some(function (q) { return q.clienteId === s.clienteId && q.fecha === f && q.id !== s.id && !q.local; }); }
+            function mover() { var f = dia(); if (!f || f === s.fecha) return;
+              commit(function (st) { var q = st.sesiones.filter(function (z) { return z.id === s.id; })[0]; if (q) q.fecha = f; });
+              setAvisoMov('Movida al ' + ST.fmtFecha(f).toLowerCase() + (ocupado(f) ? ' · ese día ya tenía otra sesión' : '')); }
+            function copiar() { var f = dia(); if (!f) return; var nid = ST.uid();
+              commit(function (st) { var q = st.sesiones.filter(function (z) { return z.id === s.id; })[0]; if (!q) return;
+                st.sesiones.push({ id: nid, clienteId: q.clienteId, fecha: f, titulo: q.titulo, plantillaId: q.plantillaId || null, estado: 'pendiente', bloques: JSON.parse(JSON.stringify(q.bloques)), registros: {}, rpe: null, comentario: '', duracion: null }); });
+              setAvisoMov('Copiada al ' + ST.fmtFecha(f).toLowerCase() + (ocupado(f) ? ' · ese día ya tenía otra sesión' : '')); setVerSes(nid); }
+            return h('div', { className: 'dses__mov' },
+              h('label', { className: 'dses__ml' }, h('span', null, puedeMover ? 'Mover o copiar a otro día' : 'Copiar a otro día'),
+                h('input', { id: 'dsesDia', key: s.id, type: 'date', className: 'dses__in', defaultValue: man })),
+              h('div', { className: 'dses__mb' },
+                puedeMover ? h(G.Button, { size: 'md', icon: 'calendario', onClick: mover }, 'Mover aquí') : null,
+                h(G.Button, { size: 'md', variant: 'secondary', icon: 'copiar', onClick: copiar }, 'Copiar aquí')),
+              avisoMov ? h('p', { className: 'dses__ok', role: 'status' }, '✓ ' + avisoMov) : null);
+          })(),
           h('div', { className: 'dses__pie' },
             h(G.Button, { size: 'md', variant: 'secondary', icon: 'editar', onClick: function () { setVerSes(null); editarSesion(s); } }, 'Editar sesión'),
             h(G.Button, { size: 'md', variant: 'ghost', onClick: function () { setVerSes(null); } }, 'Cerrar'))));
@@ -5995,9 +6022,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
                   fl.slice(0, 4).map(function (fx, i) { var ult = ST.ultimaCargaReal(state, cliente.id, fx.e.ejId);
                     return h('span', { key: i, style: { display: 'block', fontSize: '13px', lineHeight: '18px' } }, ST.nombreEj(state, fx.e.ejId) + ' ' + fx.e.series + '×' + ST.repTxt(fx.e) + (fx.e.carga ? ' ' + n(fx.e.carga) : ''), ult !== null ? h('span', { className: 'g-planner__last' }, ' · real ' + n(ult)) : null); }),
                   fl.length > 4 ? h('span', { style: { display: 'block', fontSize: '13px', color: 'var(--ink-muted)' } }, '+' + (fl.length - 4) + ' más') : null,
-                  s.estado === 'hecha' ? null : h('span', { className: 'g-planner__acts' },
-                    h('button', { type: 'button', className: 'link', onClick: function () { editarSesion(s); } }, 'Editar'),
-                    h('button', { type: 'button', className: 'link', onClick: function () { commit(function (st) { st.sesiones = st.sesiones.filter(function (q) { return q.id !== s.id; }); }); } }, 'Quitar')));
+                  h('span', { className: 'g-planner__acts' },
+                    s.estado === 'hecha' ? h('button', { type: 'button', className: 'link', onClick: function () { setVerSes(s.id); } }, 'Ver · copiar') : h('button', { type: 'button', className: 'link', onClick: function () { editarSesion(s); } }, 'Editar'),
+                    s.estado === 'hecha' ? null : h('button', { type: 'button', className: 'link', onClick: function () { setVerSes(s.id); } }, 'Mover'),
+                    s.estado === 'hecha' ? null : h('button', { type: 'button', className: 'link', onClick: function () { commit(function (st) { st.sesiones = st.sesiones.filter(function (q) { return q.id !== s.id; }); }); } }, 'Quitar')));
               }) : h('span', { className: 'g-planner__empty' }, 'Descanso'),
               h('select', { className: 'g-import__select', value: '', style: { marginTop: 'auto' }, onChange: function (e) { var pid = e.target.value; if (!pid) return; if (pid === '__blanco') { nuevaSesion(cliente.id, d.iso); return; } commit(function (st) { var pl = st.plantillas.filter(function (q) { return q.id === pid; })[0]; st.sesiones.push(ST.sesionDesde(pl, cliente.id, d.iso)); }); } },
                 h('option', { value: '' }, '+ Añadir…'), state.plantillas.map(function (p) { return h('option', { key: p.id, value: p.id }, p.nombre); }), h('option', { value: '__blanco' }, 'Sesión en blanco')));
