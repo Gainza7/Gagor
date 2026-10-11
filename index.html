@@ -1256,6 +1256,11 @@ a.g-btn { text-decoration: none; }
 .dses__in { height: 42px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line-strong, var(--line)); background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; }
 .dses__mb { display: flex; gap: 8px; flex-wrap: wrap; }
 .dses__ok { margin: 0; font-size: 13px; font-weight: 600; color: var(--accent); }
+.edx__hist { margin: 2px 0 0 38px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 6px 10px; border-radius: 8px; background: color-mix(in srgb, var(--accent) 9%, transparent); font-size: 13px; }
+.edx__hist b { font-weight: 700; }
+.edx__hv { color: var(--ink-muted); }
+.edx__usar { margin-left: auto; height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--accent); background: var(--surface-card); color: var(--accent); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+@container (max-width: 760px) { .edx__hist { margin-left: 34px; } .edx__usar { margin-left: 0; } }
 .pes { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-md, 16px); background: var(--surface-card); }
 .pes.is-toca { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
 .pes__txt p { margin: 0; }
@@ -2907,7 +2912,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.25";
+<script>window.GAGOR_VERSION = "1.27";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -4598,6 +4603,154 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   global.GAGOR_ANIMO_COLOR = color; global.GAGOR_ANIMO_PALABRA = palabra; global.GAGOR_AnimoCard = AnimoCard;
 })(window);
 
+/* ===================================================== GAGOR · bienvenida animada (1.27) */
+(function (global) {
+  'use strict';
+  var CSS = `
+@font-face { font-family: 'GagorRespaldo'; src: local('Impact'), local('Arial Narrow Bold'), local('DejaVu Sans Condensed Bold'), local('DejaVuSansCondensed-Bold'); }
+.bv { position: fixed; inset: 0; z-index: 9500; background: #161412; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.bv__wrap { position: relative; }
+.bv__st { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; background: #161412; overflow: hidden; color: #F1EDE4; font-family: Inter, 'Helvetica Neue', Arial, 'DejaVu Sans', sans-serif; }
+.bv__st * { box-sizing: border-box; }
+.bv .H { font-family: Anton, 'GagorRespaldo', Impact, 'DejaVu Sans Condensed', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: -.01em; line-height: 1; margin: 0; font-synthesis: none; }
+.bv .H .l { display: block; white-space: nowrap; transform: scaleY(1.18); transform-origin: 50% 70%; margin-bottom: .1em; }
+.bv .el { position: absolute; will-change: transform, opacity; opacity: 0; }
+.bv .cen { left: 60px; right: 60px; text-align: center; }
+.bv__glow { position: absolute; width: 1400px; height: 1400px; border-radius: 50%; background: radial-gradient(circle, rgba(77,181,126,.22), transparent 60%); left: -160px; top: 220px; }
+.bv__logo { left: 360px; top: 560px; width: 360px; height: 360px; border-radius: 86px; background: #0f0e0c; box-shadow: 0 0 0 4px #2a2622, 0 40px 120px rgba(0,0,0,.6); }
+.bv__bar { position: absolute; height: 66px; border-radius: 16px; transform-origin: right center; transform: scaleX(0); }
+.bv__b3 { right: 62px; bottom: 66px; width: 234px; background: #4DB57E; }
+.bv__b2 { right: 62px; bottom: 148px; width: 162px; background: #4DB57E; }
+.bv__b1 { right: 62px; bottom: 230px; width: 82px; background: #F1EDE4; }
+.bv__word { top: 1000px; font-size: 200px; letter-spacing: .04em; white-space: nowrap; }
+.bv__word span { display: inline-block; opacity: 0; }
+.bv__hola { top: 1300px; font-size: 92px; color: #4DB57E; }
+.bv__cap { left: 60px; right: 60px; top: 130px; text-align: center; }
+.bv__cap em { font-style: normal; color: #4DB57E; }
+.bv__phone { left: 225px; top: 430px; width: 630px; height: 1240px; border-radius: 96px; background: #0c0b0a; box-shadow: 0 0 0 10px #2b2723, 0 0 0 12px #3b3631, 0 60px 160px rgba(0,0,0,.7); padding: 22px; }
+.bv__scr { position: relative; width: 100%; height: 100%; border-radius: 76px; overflow: hidden; background: #171513; }
+.bv__notch { position: absolute; left: 50%; top: 18px; width: 170px; height: 42px; margin-left: -85px; border-radius: 30px; background: #000; z-index: 5; }
+.bv__v { position: absolute; inset: 0; padding: 92px 34px 0; opacity: 0; }
+.bv__h1 { font: 800 60px Inter, Arial, sans-serif; letter-spacing: -.02em; margin: 0; color: #f4f1ea; }
+.bv__sub { font: 500 25px Inter, Arial, sans-serif; color: #a39c90; margin: 4px 0 0; }
+.bv__week { display: grid; grid-template-columns: repeat(7, 1fr); margin: 34px 0 24px; text-align: center; }
+.bv__week div { font: 600 20px Inter, Arial, sans-serif; color: #a39c90; padding: 10px 0; border-radius: 22px; }
+.bv__week b { display: block; font: 800 32px Inter, Arial, sans-serif; color: #f4f1ea; margin-top: 4px; }
+.bv__week .on { border: 3px solid #4DB57E; }
+.bv__hero { position: relative; border-radius: 34px; overflow: hidden; background: linear-gradient(90deg, #121412 35%, rgba(18,20,18,.55) 70%, rgba(18,20,18,.15)), linear-gradient(135deg, #2f4a39, #0f1511); border: 2px solid #2a2a26; padding: 30px 28px; }
+.bv__hero .e { font: 800 21px Inter, Arial, sans-serif; letter-spacing: .14em; color: #5fd894; }
+.bv__hero .t { font: 800 62px Inter, Arial, sans-serif; color: #fff; margin: 6px 0 8px; }
+.bv__hero .p { font: 500 24px Inter, Arial, sans-serif; color: rgba(244,246,243,.75); max-width: 72%; line-height: 1.35; margin-bottom: 24px; }
+.bv__btn { display: flex; align-items: center; gap: 14px; height: 84px; padding: 0 28px; border-radius: 999px; background: #4fd68a; color: #0b1a11; font: 800 25px Inter, Arial, sans-serif; white-space: nowrap; width: 84%; }
+.bv__btn i { margin-left: auto; font-style: normal; font-size: 32px; }
+.bv__ex { border-radius: 26px; background: #211e1b; border: 2px solid #34302b; padding: 24px; margin-top: 22px; }
+.bv__ex h4 { margin: 0 0 6px; font: 800 36px Inter, Arial, sans-serif; color: #f4f1ea; }
+.bv__ex .o { font: 500 23px Inter, Arial, sans-serif; color: #a39c90; margin-bottom: 12px; }
+.bv__set { display: grid; grid-template-columns: 56px 1fr 1fr 76px; gap: 12px; align-items: center; padding: 14px 0; border-top: 2px solid #34302b; }
+.bv__set .n { font: 800 26px Inter, Arial, sans-serif; color: #a39c90; }
+.bv__box { height: 74px; border-radius: 18px; background: #2a2622; display: grid; place-items: center; font: 800 32px Inter, Arial, sans-serif; color: #f4f1ea; }
+.bv__ck { width: 68px; height: 68px; border-radius: 50%; border: 3px solid #4a453e; display: grid; place-items: center; font: 800 30px Inter, Arial, sans-serif; color: transparent; }
+.bv__ck.on { background: #4DB57E; border-color: #4DB57E; color: #0b1a11; }
+.bv__ult { grid-column: 2 / 4; font: 700 22px Inter, Arial, sans-serif; color: #5fd894; margin-top: -4px; }
+.bv__hl { box-shadow: 0 0 0 4px #4DB57E; border-radius: 18px; }
+.bv__q { margin-top: 26px; }
+.bv__q p { margin: 0 0 12px; font: 800 30px Inter, Arial, sans-serif; color: #f4f1ea; }
+.bv__nums { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.bv__nums span { height: 80px; border-radius: 20px; display: grid; place-items: center; font: 800 32px Inter, Arial, sans-serif; color: #fff; opacity: .4; }
+.bv__nums span.s { opacity: 1; box-shadow: 0 0 0 4px #171513, 0 0 0 8px #f4f1ea; transform: scale(1.06); }
+.bv__dots { left: 0; right: 0; top: 1710px; display: flex; justify-content: center; gap: 16px; }
+.bv__dots i { width: 18px; height: 18px; border-radius: 50%; background: #3b3631; }
+.bv__dots i.on { background: #4DB57E; }
+.bv__fin { top: 640px; font-size: 200px; }
+.bv__go { left: 270px; top: 1060px; width: 540px; height: 150px; border-radius: 999px; background: #4DB57E; color: #0f1a13; display: grid; place-items: center; border: 0; cursor: pointer; box-shadow: 0 24px 60px -20px rgba(77,181,126,.9); }
+.bv__go .H { font-size: 84px; }
+.bv__skip { position: absolute; right: 44px; top: 54px; z-index: 30; height: 72px; padding: 0 34px; border-radius: 999px; border: 2px solid rgba(241,237,228,.35); background: rgba(22,20,18,.6); color: #F1EDE4; font: 700 30px Inter, Arial, sans-serif; cursor: pointer; }
+.bv__prog { position: absolute; left: 50px; right: 50px; bottom: 60px; height: 10px; border-radius: 5px; background: rgba(241,237,228,.15); overflow: hidden; z-index: 30; }
+.bv__prog i { display: block; height: 100%; width: 0; background: #4DB57E; }
+.bv.rec .bv__skip, .bv.rec .bv__prog { display: none; }
+.bv.out { transition: opacity .35s; opacity: 0; }
+`;
+  var HTML = function (nombre) {
+    var hola = nombre ? 'Hola, ' + nombre + '.' : 'Te damos la bienvenida.';
+    return '<div class="bv__wrap"><div class="bv__st">' +
+      '<div class="bv__glow"></div>' +
+      '<div class="el bv__logo" data-k="logo"><div class="bv__bar bv__b3"></div><div class="bv__bar bv__b2"></div><div class="bv__bar bv__b1"></div></div>' +
+      '<h1 class="el H cen bv__word" data-k="word" style="opacity:1"><span>G</span><span>A</span><span>G</span><span>O</span><span>R</span></h1>' +
+      '<h2 class="el H cen bv__hola" data-k="hola" data-fit="92"><span class="l">' + esc(hola) + '</span></h2>' +
+      '<div class="el bv__cap" data-k="c1"><h2 class="H" data-fit="104"><span class="l">Tu sesión de hoy,</span><span class="l"><em>aquí.</em></span></h2></div>' +
+      '<div class="el bv__cap" data-k="c2"><h2 class="H" data-fit="104"><span class="l">Apunta tus pesos.</span><span class="l"><em>Verás tu progreso.</em></span></h2></div>' +
+      '<div class="el bv__cap" data-k="c3"><h2 class="H" data-fit="104"><span class="l">Cada mañana,</span><span class="l"><em>tres preguntas rápidas.</em></span></h2></div>' +
+      '<div class="el bv__phone" data-k="phone"><div class="bv__scr"><div class="bv__notch"></div>' +
+        '<div class="bv__v" data-k="v1"><p class="bv__h1">Hoy</p><p class="bv__sub">Tu semana y tu sesión</p>' +
+          '<div class="bv__week"><div>Lun<b>5</b></div><div>Mar<b>6</b></div><div class="on">Mié<b>7</b></div><div>Jue<b>8</b></div><div>Vie<b>9</b></div><div>Sáb<b>10</b></div><div>Dom<b>11</b></div></div>' +
+          '<div class="bv__hero" data-k="hero"><div class="e">ENTRENAMIENTO</div><div class="t">Fuerza</div><div class="p">Preparada por tu entrenador.</div><div class="bv__btn">▶ Empezar entrenamiento <i>→</i></div></div></div>' +
+        '<div class="bv__v" data-k="v2"><p class="bv__h1">Sentadilla</p><p class="bv__sub">Serie 2 de 4</p><div class="bv__ex"><h4>Sentadilla</h4><div class="o">4 × 6 · 60 kg</div>' +
+          '<div class="bv__set"><span class="n">1</span><div class="bv__box">6</div><div class="bv__box">60</div><span class="bv__ck on">✓</span><span></span><span class="bv__ult">Últ. 6 × 57,5</span></div>' +
+          '<div class="bv__set" data-k="set2"><span class="n">2</span><div class="bv__box">6</div><div class="bv__box">60</div><span class="bv__ck" data-k="ck2">✓</span><span></span><span class="bv__ult">Últ. 6 × 57,5</span></div>' +
+          '<div class="bv__set"><span class="n">3</span><div class="bv__box">6</div><div class="bv__box">60</div><span class="bv__ck">✓</span><span></span><span class="bv__ult">Últ. 5 × 57,5</span></div></div></div>' +
+        '<div class="bv__v" data-k="v3"><p class="bv__h1">Buenos días</p><p class="bv__sub">Tres preguntas rápidas</p>' +
+          q('¿Cómo estás hoy?', 'qa') + q('¿Qué tal has dormido?', 'qb') + q('Estrés mental', 'qc') + '</div>' +
+      '</div></div>' +
+      '<div class="el bv__dots" data-k="dots"><i></i><i></i><i></i></div>' +
+      '<h1 class="el H cen bv__fin" data-k="fin" data-fit="200"><span class="l">A entrenar.</span></h1>' +
+      '<button type="button" class="el bv__go" data-k="go"><span class="H"><span class="l">Empezar</span></span></button>' +
+      '<button type="button" class="bv__skip" data-k="skip">Saltar</button>' +
+      '<div class="bv__prog"><i data-k="prog"></i></div>' +
+      '</div></div>';
+  };
+  function q(t, k) { var c = ['#b0302a', '#b36b26', '#a3a22c', '#4aa62f', '#2e9e5a']; return '<div class="bv__q"><p>' + t + '</p><div class="bv__nums" data-k="' + k + '">' + c.map(function (x, i) { return '<span style="background:' + x + '">' + (i + 1) + '</span>'; }).join('') + '</div></div>'; }
+  function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var cssPuesto = false;
+  function cl(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
+  function eo(x) { return 1 - Math.pow(1 - x, 3); }
+  function eb(x) { var c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); }
+  function p(t, a, b) { return cl((t - a) / (b - a)); }
+  function show(el, t, a, z, o) {
+    o = o || {}; var d = o.d || .4; var i = eo(p(t, a, a + d)), x = z == null ? 0 : eo(p(t, z, z + .3));
+    var dy = (o.y == null ? 60 : o.y) * (1 - i) - (o.oy == null ? 40 : o.oy) * x; var sc = o.s ? 1 - (1 - i) * o.s : 1;
+    el.style.opacity = i * (1 - x); el.style.transform = 'translateY(' + dy + 'px) scale(' + sc + ')';
+  }
+  function iniciar(cont, opts) {
+    opts = opts || {}; var D = 10;
+    if (!cssPuesto) { var st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st); cssPuesto = true; }
+    var root = document.createElement('div'); root.className = 'bv' + (opts.rec ? ' rec' : ''); root.setAttribute('role', 'dialog'); root.setAttribute('aria-label', 'Bienvenida a GAGOR');
+    root.innerHTML = HTML(opts.nombre); cont.appendChild(root);
+    var E = {}; root.querySelectorAll('[data-k]').forEach(function (n) { E[n.getAttribute('data-k')] = n; });
+    var stage = root.querySelector('.bv__st'), wrap = root.querySelector('.bv__wrap');
+    function fit() { var W = root.clientWidth || innerWidth, H = root.clientHeight || innerHeight; var s = Math.min(W / 1080, H / 1920); stage.style.transform = 'scale(' + s + ')'; wrap.style.width = 1080 * s + 'px'; wrap.style.height = 1920 * s + 'px'; }
+    function ajustar() { root.querySelectorAll('[data-fit]').forEach(function (el) { var f = Number(el.getAttribute('data-fit')); el.style.fontSize = f + 'px'; var w = el.clientWidth || 960; var ls = el.querySelectorAll('.l'); function an() { var m = 0; ls.forEach(function (l) { l.style.width = 'max-content'; l.style.margin = '0 auto .1em'; if (l.scrollWidth > m) m = l.scrollWidth; }); return m; } while (f > 30 && an() > w) { f -= 2; el.style.fontSize = f + 'px'; } }); }
+    fit(); ajustar(); addEventListener('resize', fit);
+    var letras = E.word.querySelectorAll('span'); var bars = root.querySelectorAll('.bv__bar');
+    function frame(t) {
+      show(E.logo, t, 0, 2.3, { y: 0, s: .4, oy: 0 });
+      [2, 1, 0].forEach(function (k, i) { var v = eb(p(t, .25 + i * .3, .65 + i * .3)); bars[k === 2 ? 0 : k === 1 ? 1 : 2].style.transform = 'scaleX(' + v + ')'; });
+      letras.forEach(function (l, i) { var k = eb(p(t, .9 + i * .07, 1.3 + i * .07)); var x = eo(p(t, 2.3, 2.6)); l.style.transform = 'translateY(' + ((1 - k) * 140 - x * 50) + 'px)'; l.style.opacity = cl(k) * (1 - x); });
+      show(E.hola, t, 1.4, 2.3, { y: 40 });
+      show(E.phone, t, 2.5, 8.5, { y: 240, d: .55, oy: 100 }); show(E.dots, t, 2.8, 8.5, { y: 20 });
+      var a = eo(p(t, 4.7, 5.05)), b = eo(p(t, 6.9, 7.25));
+      E.v1.style.opacity = 1 - a; E.v2.style.opacity = a * (1 - b); E.v3.style.opacity = b;
+      E.v1.style.transform = 'translateX(' + (-100 * a) + 'px)'; E.v2.style.transform = 'translateX(' + (t < 6 ? 100 * (1 - a) : -100 * b) + 'px)'; E.v3.style.transform = 'translateX(' + 100 * (1 - b) + 'px)';
+      E.hero.classList.toggle('bv__hl', t > 3.4 && t < 4.7);
+      E.set2.classList.toggle('bv__hl', t > 5.4 && t < 6.9); E.ck2.classList.toggle('on', t > 6.0);
+      [['qa', 3, 7.6], ['qb', 4, 7.95], ['qc', 3, 8.3]].forEach(function (x) { var sp = E[x[0]].children; for (var i = 0; i < 5; i++) sp[i].classList.toggle('s', t > x[2] && i === x[1]); });
+      show(E.c1, t, 2.75, 4.65); show(E.c2, t, 4.95, 6.85); show(E.c3, t, 7.15, 8.5);
+      var ds = E.dots.children; for (var i = 0; i < 3; i++) ds[i].classList.toggle('on', (i === 0 && t < 4.8) || (i === 1 && t >= 4.8 && t < 7) || (i === 2 && t >= 7));
+      show(E.fin, t, 8.7, null, { y: 80, s: .1 });
+      show(E.go, t, 9.1, null, { y: 60, s: .2 });
+      E.prog.style.width = cl(t / D) * 100 + '%';
+    }
+    var t0 = performance.now(), vivo = true, cerrado = false;
+    function cerrar() { if (cerrado) return; cerrado = true; vivo = false; removeEventListener('resize', fit); root.classList.add('out'); setTimeout(function () { if (root.parentNode) root.parentNode.removeChild(root); if (opts.onEnd) opts.onEnd(); }, 350); }
+    E.skip.addEventListener('click', cerrar); E.go.addEventListener('click', cerrar);
+    if (opts.rec) { frame(0); return { frame: frame, cerrar: cerrar }; }
+    var red = global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (red) { frame(D); return { cerrar: cerrar }; }
+    (function loop(now) { if (!vivo) return; var t = (now - t0) / 1000; frame(Math.min(t, D)); if (t < D) requestAnimationFrame(loop); })(t0);
+    return { cerrar: cerrar };
+  }
+  global.GAGOR_BIENVENIDA = iniciar;
+})(window);
+
 /* ======================================================= GAGOR · beta · app del jugador */
 (function (global) {
   'use strict';
@@ -5504,7 +5657,20 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var a = (state.avisos || []).filter(function (x) { return x.id === cid; })[0];
       return !(a && a.animo && a.animo[hoyIso]);
     }); var ver = sh[0], setVer = sh[1];
-    React.useEffect(function () { if (ver) { try { localStorage.setItem(KEY, hoyIso); } catch (e) {} } }, [ver]);
+    var BVK = 'gagor_bienvenida_' + cid;
+    var bvS = useState(function () {
+      if (!cid || !global.GAGOR_BIENVENIDA) return false;
+      var yo = (state.clientes || []).filter(function (x) { return x.id === cid; })[0]; if (yo && yo.libre) return false;
+      try { return !localStorage.getItem(BVK); } catch (e) { return false; }
+    }); var verBv = bvS[0], setVerBv = bvS[1];
+    var bvRef = React.useRef(null);
+    React.useEffect(function () {
+      if (!verBv || !bvRef.current) return undefined;
+      var yo = (state.clientes || []).filter(function (x) { return x.id === cid; })[0];
+      var ctl = global.GAGOR_BIENVENIDA(bvRef.current, { nombre: yo ? String(yo.nombre || '').split(' ')[0] : '', onEnd: function () { try { localStorage.setItem(BVK, new Date().toISOString()); } catch (e) {} setVerBv(false); } });
+      return function () { if (ctl && ctl.cerrar && bvRef.current) {} };
+    }, [verBv]);
+    React.useEffect(function () { if (ver && !verBv) { try { localStorage.setItem(KEY, hoyIso); } catch (e) {} } }, [ver, verBv]);
     var c = (state.clientes || []).filter(function (x) { return x.id === cid; })[0];
     function elegir(v, det) {
       props.commit(function (st) {
@@ -5516,7 +5682,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       });
     }
     return h(React.Fragment, null, h(Jugador, Object.assign({}, props, { abrirAnimo: function () { setVer(true); } })),
-      ver ? h(global.GAGOR_Animo, { nombre: c ? c.nombre : '', hoy: hoyIso, onElegir: elegir, onCerrar: function () { setVer(false); } }) : null);
+      verBv ? h('div', { ref: bvRef }) : (ver ? h(global.GAGOR_Animo, { nombre: c ? c.nombre : '', hoy: hoyIso, onElegir: elegir, onCerrar: function () { setVer(false); } }) : null));
   }
   global.GAGOR_APP = global.GAGOR_APP || {}; global.GAGOR_APP.Jugador = JugadorConAnimo;
 })(window);
@@ -6080,6 +6246,23 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var ses = esSesion && d.id ? state.sesiones.filter(function (s) { return s.id === d.id; })[0] : null;
       var cli = esSesion ? state.clientes.filter(function (c) { return c.id === d.clienteId; })[0] : null;
       var limpio = bloquesDe(d, false); var res = ST.resumenBloques(limpio); var eti = ST.etiquetas(limpio);
+      var histEj = {};
+      if (esSesion && d.clienteId) {
+        state.sesiones.filter(function (q) { return q.clienteId === d.clienteId && q.id !== d.id && !q.local; }).forEach(function (q) {
+          ST.ejerciciosPlanos(q).forEach(function (fx) {
+            var rr = (q.registros[fx.key] || []).filter(function (r) { return r.done; }); if (!rr.length || !fx.e.ejId) return;
+            var cs = rr.map(function (r) { var v = Number(String(r.carga === null || r.carga === undefined ? '' : r.carga).replace(',', '.')); return isNaN(v) || r.carga === '' || r.carga === null || r.carga === undefined ? null : v; });
+            var con = cs.filter(function (v) { return v !== null; });
+            var hx = histEj[fx.e.ejId] = histEj[fx.e.ejId] || { ult: null, rec: null, veces: 0 };
+            hx.veces++;
+            var top = con.length ? Math.max.apply(null, con) : null; var iTop = top !== null ? cs.indexOf(top) : rr.length - 1;
+            var dato = { fecha: q.fecha, kg: top, reps: rr[iTop].reps, repsD: fx.e.lado ? rr[iTop].repsD : null, series: rr.length };
+            if (!hx.ult || q.fecha > hx.ult.fecha) hx.ult = dato;
+            if (top !== null && (hx.rec === null || top > hx.rec.kg)) hx.rec = dato;
+          });
+        });
+      }
+      function txtHist(x) { return (x.kg !== null ? String(x.kg).replace('.', ',') + ' kg × ' : '') + x.reps + (x.repsD !== null && x.repsD !== undefined ? '/' + x.repsD : '') + (x.kg !== null ? '' : ' reps'); }
       var repSem = {};
       if (esSesion && d.clienteId && d.fecha) {
         var lunS = ST.semanaDe(d.fecha); var domS = ST.iso(ST.addDays(new Date(lunS + 'T12:00:00'), 6)); var DS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
@@ -6187,6 +6370,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
                       h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Duplicar', onClick: function () { up(function (x) { var c = JSON.parse(JSON.stringify(x.bloques[bi].ejercicios[ei])); c._u = ST.uid(); c._k = null; x.bloques[bi].ejercicios.splice(ei + 1, 0, c); }); } }, h(G.Icon, { name: 'copiar', size: 16 })),
                       h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Quitar', onClick: function () { up(function (x) { x.bloques[bi].ejercicios.splice(ei, 1); }); } }, h(G.Icon, { name: 'cerrar', size: 16 })))),
                   h('div', { className: 'edx__sub' },
+                    e.ejId && histEj[e.ejId] && histEj[e.ejId].ult ? (function () { var hx = histEj[e.ejId];
+                      return h('div', { className: 'edx__hist' },
+                        h('span', null, h('b', null, 'Última vez: '), txtHist(hx.ult) + ' · ' + ST.fmtCorta(hx.ult.fecha)),
+                        hx.rec && hx.rec.kg !== hx.ult.kg ? h('span', null, h('b', null, 'Récord: '), txtHist(hx.rec) + ' · ' + ST.fmtCorta(hx.rec.fecha)) : null,
+                        h('span', { className: 'edx__hv' }, hx.veces === 1 ? 'Lo ha hecho 1 vez' : 'Lo ha hecho ' + hx.veces + ' veces'),
+                        hx.ult.kg !== null && String(e.carga).replace(',', '.') !== String(hx.ult.kg) ? h('button', { type: 'button', className: 'edx__usar', onClick: function () { campoEj(bi, ei, 'carga', String(hx.ult.kg).replace('.', ',')); } }, 'Poner ' + String(hx.ult.kg).replace('.', ',') + ' kg') : null);
+                    })() : null,
                     e.ejId && repSem[e.ejId] ? h('p', { className: 'edx__rep', role: 'note' }, '▲ Ya lo tiene esta semana: ' + repSem[e.ejId].join(', ')) : null,
                     h('input', { className: 'edx__nota', value: e.nota, placeholder: 'Nota para el jugador (opcional)', 'aria-label': 'Nota', onChange: function (ev) { campoEj(bi, ei, 'nota', ev.target.value); } })));
               })) : h('p', { className: 'muted small', style: { margin: '4px 0 0' } }, 'Bloque vacío. Añade el primer ejercicio.'),
