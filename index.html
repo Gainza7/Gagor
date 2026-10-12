@@ -2914,7 +2914,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.29";
+<script>window.GAGOR_VERSION = "1.30";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6258,13 +6258,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
             var hx = histEj[fx.e.ejId] = histEj[fx.e.ejId] || { ult: null, rec: null, veces: 0 };
             hx.veces++;
             var top = con.length ? Math.max.apply(null, con) : null; var iTop = top !== null ? cs.indexOf(top) : rr.length - 1;
-            var dato = { fecha: q.fecha, kg: top, reps: rr[iTop].reps, repsD: fx.e.lado ? rr[iTop].repsD : null, series: rr.length };
+            var dato = { fecha: q.fecha, kg: top, x2: fx.e.cargaX === 2, reps: rr[iTop].reps, repsD: fx.e.lado ? rr[iTop].repsD : null, series: rr.length };
             if (!hx.ult || q.fecha > hx.ult.fecha) hx.ult = dato;
             if (top !== null && (hx.rec === null || top > hx.rec.kg)) hx.rec = dato;
           });
         });
       }
-      function txtHist(x) { return (x.kg !== null ? String(x.kg).replace('.', ',') + ' kg × ' : '') + x.reps + (x.repsD !== null && x.repsD !== undefined ? '/' + x.repsD : '') + (x.kg !== null ? '' : ' reps'); }
+      function txtHist(x) { var r = (x.reps === null || x.reps === undefined ? 0 : x.reps) + (x.repsD !== null && x.repsD !== undefined ? '/' + x.repsD : ''); return r + (r === '1' || r === 1 ? ' rep' : ' reps') + ' · ' + (x.x2 && x.kg ? '2 × ' : '') + String(x.kg === null ? 0 : x.kg).replace('.', ',') + ' kg'; }
       var repSem = {};
       if (esSesion && d.clienteId && d.fecha) {
         var lunS = ST.semanaDe(d.fecha); var domS = ST.iso(ST.addDays(new Date(lunS + 'T12:00:00'), 6)); var DS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
@@ -6378,8 +6378,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
                   h('div', { className: 'edx__sub' },
                     e.ejId && histEj[e.ejId] && histEj[e.ejId].ult ? (function () { var hx = histEj[e.ejId];
                       return h('div', { className: 'edx__hist' },
-                        h('span', null, h('b', null, 'Última vez: '), txtHist(hx.ult) + ' · ' + ST.fmtCorta(hx.ult.fecha)),
-                        hx.rec && hx.rec.kg !== hx.ult.kg ? h('span', null, h('b', null, 'Récord: '), txtHist(hx.rec) + ' · ' + ST.fmtCorta(hx.rec.fecha)) : null,
+                        h('span', null, h('b', null, 'Última vez: '), txtHist(hx.ult)),
+                        hx.rec && hx.rec.kg !== hx.ult.kg ? h('span', null, h('b', null, 'Récord: '), txtHist(hx.rec)) : null,
                         h('span', { className: 'edx__hv' }, hx.veces === 1 ? 'Lo ha hecho 1 vez' : 'Lo ha hecho ' + hx.veces + ' veces'),
                         hx.ult.kg !== null && String(e.carga).replace(',', '.') !== String(hx.ult.kg) ? h('button', { type: 'button', className: 'edx__usar', onClick: function () { campoEj(bi, ei, 'carga', String(hx.ult.kg).replace('.', ',')); } }, 'Poner ' + String(hx.ult.kg).replace('.', ',') + ' kg') : null);
                     })() : null,
