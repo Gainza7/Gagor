@@ -992,6 +992,25 @@ a.g-btn { text-decoration: none; }
 /* iPhone instalada: nada debajo de la hora ni de la isla */
 .phone > .g-head { padding-top: calc(var(--space-4) + env(safe-area-inset-top, 0px)); }
 .app { padding-top: env(safe-area-inset-top, 0px); box-sizing: border-box; }
+
+/* 1.31 · foto de perfil */
+.g-client__avatar { overflow: hidden; }
+.g-client__avatar img, .foto__img img, .yo-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.g-client__avatar.has-foto { border-radius: 50%; }
+.foto { display: flex; align-items: center; gap: 16px; }
+.foto__img { flex: none; width: 88px; height: 88px; border-radius: 50%; overflow: hidden; background: var(--surface-sunken); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 36px; font-weight: 700; color: var(--ink-muted); border: 1px solid var(--line); }
+.foto__txt { display: grid; gap: 8px; min-width: 0; flex: 1; }
+.foto__txt p { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-muted); }
+.foto__file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.yo-btn { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px; border: 0; border-radius: 999px; background: none; color: var(--ink); font: 600 16px/24px var(--font-sans); cursor: pointer; }
+.yo-btn span { width: 32px; height: 32px; border-radius: 50%; overflow: hidden; flex: none; border: 1px solid var(--line); }
+.fpop { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center; background: rgba(10, 10, 9, 0.55); padding: 16px; box-sizing: border-box; }
+.fpop__card { width: 100%; max-width: 420px; background: var(--surface); color: var(--ink); border-radius: 22px; padding: 28px 22px 20px; display: grid; gap: 14px; justify-items: center; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.35); margin-bottom: env(safe-area-inset-bottom, 0px); }
+.fpop__card h2 { margin: 0; font-family: var(--font-display); font-size: 26px; line-height: 30px; }
+.fpop__card p { margin: 0; font-size: 16px; line-height: 24px; color: var(--ink-muted); }
+.fpop__card .foto__img { width: 112px; height: 112px; font-size: 44px; }
+.fpop__acts { display: grid; gap: 8px; width: 100%; }
+@media (min-width: 700px) { .fpop { align-items: center; } }
 /* 1.3 · unilateral: repeticiones por lado */
 .edx__sub { display: flex; align-items: center; gap: 10px; margin-left: 38px; min-width: 0; }
 .edx__sub .edx__nota { margin-left: 0; flex: 1; }
@@ -2305,7 +2324,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return h(
       'button',
       { type: 'button', className: cx('g-client', p.className), onClick: p.onOpen },
-      h('span', { className: 'g-client__avatar', 'aria-hidden': 'true' }, (p.name || '?').slice(0, 1)),
+      h('span', { className: cx('g-client__avatar', p.photo && 'has-foto'), 'aria-hidden': 'true' }, p.photo ? h('img', { src: p.photo, alt: '' }) : (p.name || '?').slice(0, 1)),
       h(
         'span',
         { className: 'g-client__main' },
@@ -2914,7 +2933,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.30";
+<script>window.GAGOR_VERSION = "1.31";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -4060,6 +4079,23 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     nivelSeguimiento: nivelSeguimiento, seguimientoActivo: seguimientoActivo, pendienteSeguimiento: pendienteSeguimiento, resumenBienestar: resumenBienestar, PALABRAS: PALABRAS };
 })(window);
 
+
+/* 1.31 · foto de perfil: recorta al centro y la deja en 240 px (≈15 KB) */
+window.GAGOR_reducirFoto = function (file) {
+  return new Promise(function (ok, ko) {
+    if (!file || !/^image\//.test(file.type || 'image/')) { ko(new Error('tipo')); return; }
+    var url = URL.createObjectURL(file); var img = new Image();
+    img.onload = function () {
+      var L = 240, w = img.naturalWidth, hh = img.naturalHeight, m = Math.min(w, hh);
+      var cv = document.createElement('canvas'); cv.width = L; cv.height = L; var cx = cv.getContext('2d');
+      cx.imageSmoothingQuality = 'high'; cx.drawImage(img, (w - m) / 2, (hh - m) / 2, m, m, 0, 0, L, L);
+      URL.revokeObjectURL(url); ok(cv.toDataURL('image/jpeg', 0.82));
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); ko(new Error('leer')); };
+    img.src = url;
+  });
+};
+
 /* ======================================================= GAGOR · sincronización
    Local primero: la app funciona siempre con su copia en el dispositivo y, si hay
    servidor configurado (Supabase), sube lo que cambia y trae lo que han cambiado
@@ -5156,7 +5192,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       return h('div', { className: 'phone' },
         h(G.AppHeader, { title: t('Hoy'), subtitle: ST.fmtFecha(hoyIso), action: h('div', { style: { display: 'flex', gap: '4px' } },
           h(G.Button, { variant: 'ghost', size: 'md', icon: 'calendario', onClick: function () { setMesSel(hoyIso.slice(0, 7)); setDiaSel(hoyIso); setView('calendario'); } }, t('Calendario')),
-          h(G.Button, { variant: 'ghost', size: 'md', icon: 'usuario', onClick: function () { setView('ajustes'); } }, cliente.nombre.split(' ')[0])) }),
+          (cliente.prefs && cliente.prefs.foto ? h('button', { type: 'button', className: 'yo-btn', onClick: function () { setView('ajustes'); } }, h('span', null, h('img', { src: cliente.prefs.foto, alt: '' })), cliente.nombre.split(' ')[0]) : h(G.Button, { variant: 'ghost', size: 'md', icon: 'usuario', onClick: function () { setView('ajustes'); } }, cliente.nombre.split(' ')[0]))) }),
         h('div', { className: 'scroll' },
           false ? (function () { var av = ST.animoDe(state, cid)[hoyIso];
             var col = (new Date(hoyIso + 'T12:00:00').getDay() + 6) % 7;
@@ -5582,6 +5618,15 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       return h('div', { className: 'phone' },
         h(G.AppHeader, { title: cliente.nombre, subtitle: cliente.grupo, onBack: function () { setView('hoy'); }, action: h(G.Button, { variant: 'ghost', size: 'md', icon: 'ajustes', onClick: function () { setView('config'); } }, t('Ajustes')) }),
         h('div', { className: 'scroll' },
+          card(h('div', { className: 'foto' },
+            h('span', { className: 'foto__img' }, cliente.prefs && cliente.prefs.foto ? h('img', { src: cliente.prefs.foto, alt: t('Tu foto') }) : String(cliente.nombre || '?').slice(0, 1)),
+            h('div', { className: 'foto__txt' },
+              h('p', null, cliente.prefs && cliente.prefs.foto ? t('Tu entrenador te ve con esta foto.') : t('Pon una foto tuya para que tu entrenador te reconozca.')),
+              h('label', { className: 'g-btn g-btn--secondary g-btn--md', style: { cursor: 'pointer', justifySelf: 'start' } },
+                h('input', { type: 'file', accept: 'image/*', className: 'foto__file', onChange: function (ev) { var fl = ev.target.files && ev.target.files[0]; ev.target.value = ''; if (!fl) return;
+                  global.GAGOR_reducirFoto(fl).then(function (u) { commit(function (st) { var c = st.clientes.filter(function (q) { return q.id === cid; })[0]; c.prefs = Object.assign({}, c.prefs || {}, { foto: u }); }); }, function () {}); } }),
+                cliente.prefs && cliente.prefs.foto ? t('Cambiar foto') : t('Subir foto')),
+              cliente.prefs && cliente.prefs.foto ? h('button', { type: 'button', className: 'linkbtn', style: { justifySelf: 'start', border: 0, background: 'none', padding: 0, color: 'var(--ink-muted)', font: '600 13px/18px var(--font-sans)', cursor: 'pointer', textDecoration: 'underline' }, onClick: function () { commit(function (st) { var c = st.clientes.filter(function (q) { return q.id === cid; })[0]; var pr = Object.assign({}, c.prefs || {}); delete pr.foto; c.prefs = pr; }); } }, t('Quitar foto')) : null)), 'foto'),
           h('div', { className: 'row2' },
             h(G.StatTile, { label: t('Seguimiento'), value: t(NIV[nivel]), detail: nivel === 'ninguno' ? t('Se cambia en Ajustes') : res.n + ' ' + t(res.n === 1 ? 'respuesta' : 'respuestas') + ' · ' + t('7 días') }),
             nivel === 'ninguno' ? h(G.StatTile, { label: t('Sesiones'), value: misSesiones.filter(function (q) { return q.estado === 'hecha'; }).length, detail: t('Registradas') })
@@ -5674,6 +5719,17 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     }, [verBv]);
     React.useEffect(function () { if (ver && !verBv) { try { localStorage.setItem(KEY, hoyIso); } catch (e) {} } }, [ver, verBv]);
     var c = (state.clientes || []).filter(function (x) { return x.id === cid; })[0];
+    var FK = 'gagor_foto_aviso_' + cid;
+    var fS = useState(function () {
+      if (!cid || !c || c.libre || (c.prefs && c.prefs.foto)) return false;
+      try { var v = localStorage.getItem(FK); if (v && Date.now() - Number(v) < 3 * 864e5) return false; } catch (e) {}
+      return true;
+    }); var verFoto = fS[0], setVerFoto = fS[1];
+    var fE = useState(''); var fotoErr = fE[0], setFotoErr = fE[1];
+    function luegoFoto() { try { localStorage.setItem(FK, String(Date.now())); } catch (e) {} setVerFoto(false); }
+    function subirFoto(ev) { var fl = ev.target.files && ev.target.files[0]; ev.target.value = ''; if (!fl) return;
+      global.GAGOR_reducirFoto(fl).then(function (u) { props.commit(function (st) { var cc = st.clientes.filter(function (q) { return q.id === cid; })[0]; cc.prefs = Object.assign({}, cc.prefs || {}, { foto: u }); }); setFotoErr(''); setTimeout(function () { setVerFoto(false); }, 1400); }, function () { setFotoErr('No se ha podido leer la foto. Prueba con otra.'); }); }
+    var tieneFoto = !!(c && c.prefs && c.prefs.foto);
     function elegir(v, det) {
       props.commit(function (st) {
         st.avisos = st.avisos || []; var a = st.avisos.filter(function (x) { return x.id === cid; })[0];
@@ -5684,7 +5740,15 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       });
     }
     return h(React.Fragment, null, h(Jugador, Object.assign({}, props, { abrirAnimo: function () { setVer(true); } })),
-      verBv ? h('div', { ref: bvRef }) : (ver ? h(global.GAGOR_Animo, { nombre: c ? c.nombre : '', hoy: hoyIso, onElegir: elegir, onCerrar: function () { setVer(false); } }) : null));
+      verBv ? h('div', { ref: bvRef }) : (ver ? h(global.GAGOR_Animo, { nombre: c ? c.nombre : '', hoy: hoyIso, onElegir: elegir, onCerrar: function () { setVer(false); } }) : (verFoto ? h('div', { className: 'fpop', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Pon tu foto' },
+        h('div', { className: 'fpop__card' },
+          h('span', { className: 'foto__img' }, tieneFoto ? h('img', { src: c.prefs.foto, alt: '' }) : String(c && c.nombre || '?').slice(0, 1)),
+          h('h2', null, tieneFoto ? '¡Lista!' : 'Pon tu foto'),
+          h('p', null, tieneFoto ? 'Ya te ve tu entrenador. Puedes cambiarla cuando quieras en tu perfil.' : 'Así tu entrenador te reconoce de un vistazo. Solo la ve él.'),
+          fotoErr ? h('p', { role: 'alert', style: { color: 'var(--danger, #b3261e)', fontSize: '14px' } }, fotoErr) : null,
+          tieneFoto ? null : h('div', { className: 'fpop__acts' },
+            h('label', { className: 'g-btn g-btn--primary g-btn--md g-btn--full', style: { cursor: 'pointer' } }, h('input', { type: 'file', accept: 'image/*', className: 'foto__file', onChange: subirFoto }), 'Elegir foto'),
+            h(G.Button, { variant: 'ghost', full: true, onClick: luegoFoto }, 'Ahora no')))) : null)));
   }
   global.GAGOR_APP = global.GAGOR_APP || {}; global.GAGOR_APP.Jugador = JugadorConAnimo;
 })(window);
@@ -6058,7 +6122,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           h(G.StatTile, { label: 'Ejercicios', value: state.ejercicios.length, detail: 'En la biblioteca' })),
         h('div', { key: 'l', className: 'frame' }, state.clientes.map(function (c) {
           var ad = adherencia(c); var av = todosAvisos.filter(function (a) { return a.clienteId === c.id; });
-          return h(G.ClientRow, { key: c.id, name: c.nombre, group: c.grupo + ' · código ' + c.codigo, done: ad.done, planned: ad.planned, last: ultimo(c), alerts: av.length ? (av.length === 1 ? (av[0].label || { rpe: 'RPE alto', carga: 'Carga anómala', sesion: 'Sesión no hecha' }[av[0].kind] || 'Aviso') : av.length + ' avisos') : '', onOpen: function () { setCid(c.id); setView('cliente'); } });
+          return h(G.ClientRow, { key: c.id, photo: c.prefs && c.prefs.foto, name: c.nombre, group: c.grupo + ' · código ' + c.codigo, done: ad.done, planned: ad.planned, last: ultimo(c), alerts: av.length ? (av.length === 1 ? (av[0].label || { rpe: 'RPE alto', carga: 'Carga anómala', sesion: 'Sesión no hecha' }[av[0].kind] || 'Aviso') : av.length + ' avisos') : '', onOpen: function () { setCid(c.id); setView('cliente'); } });
         })),
         h('div', { key: 'n', className: 'panel', style: { display: 'grid', gap: '12px', maxWidth: '720px' } },
           h('h2', { style: { margin: 0, fontFamily: 'var(--font-display)', fontSize: '20px' } }, 'Añadir cliente'),
