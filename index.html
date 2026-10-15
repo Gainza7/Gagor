@@ -994,6 +994,44 @@ a.g-btn { text-decoration: none; }
 .app { padding-top: env(safe-area-inset-top, 0px); box-sizing: border-box; }
 
 
+
+/* 1.33 · ficha del cliente: semana, historial por semanas, rutinas plegables */
+.cwk__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.cwk__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.cwk__d { display: grid; align-content: start; gap: 6px; min-height: 84px; padding: 8px 6px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--line); min-width: 0; }
+.cwk__d.is-hoy { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.cwk__dl { font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-muted); }
+.cwk__vac { color: var(--ink-muted); font-size: 13px; }
+.cwk__s { display: grid; gap: 2px; width: 100%; padding: 6px 7px; border-radius: 8px; border: 0; text-align: left; cursor: pointer; background: var(--surface-sunken); color: var(--ink); min-width: 0; }
+.cwk__s b { font-size: 13px; line-height: 17px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-word; }
+.cwk__s small { font-size: 11px; line-height: 14px; color: var(--ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cwk__s.is-done { background: color-mix(in srgb, var(--accent, #4DB57E) 18%, var(--surface)); }
+.cwk__s.is-done small { color: var(--ink); }
+.cwk__s.is-miss small { color: var(--warning, #8a5a00); font-weight: 600; }
+.cwk__s:hover { filter: brightness(.97); }
+.whist { display: grid; gap: 8px; }
+.whist__head { display: flex; align-items: baseline; justify-content: space-between; padding: 0 6px; }
+.whist__w { border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-card); overflow: hidden; }
+.whist__w > summary, .libre--fold > summary { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; list-style: none; }
+.whist__w > summary::-webkit-details-marker, .libre--fold > summary::-webkit-details-marker { display: none; }
+.whist__t { flex: 1; font-weight: 700; font-size: 16px; line-height: 22px; }
+.whist__m { font-size: 14px; color: var(--ink-muted); white-space: nowrap; }
+.whist__m.is-alert { color: var(--warning, #8a5a00); font-weight: 600; }
+.whist__chev { flex: none; transition: transform .15s; color: var(--ink-muted); }
+details[open] > summary .whist__chev { transform: rotate(180deg); }
+.whist__body { border-top: 1px solid var(--line); }
+.whist__body .hrow + .hrow { border-top: 1px solid var(--line); }
+.libre--fold { padding: 0; }
+.libre--fold > summary .h2 { flex: 1; margin: 0; font-size: 18px; }
+.libre--fold > :not(summary) { margin-left: 16px; margin-right: 16px; }
+.libre--fold[open] { padding-bottom: 16px; }
+@media (max-width: 760px) {
+  .cwk__grid { grid-template-columns: 1fr; }
+  .cwk__d { grid-template-columns: 64px minmax(0, 1fr); align-items: center; min-height: 0; }
+  .cwk__d .cwk__s, .cwk__d .cwk__vac { grid-column: 2; }
+  .cwk__d .cwk__dl { grid-row: 1 / span 4; align-self: start; padding-top: 6px; }
+  .whist__w > summary { flex-wrap: wrap; row-gap: 2px; }
+}
 /* 1.32 · varias sesiones el mismo día */
 .shoy { display: grid; gap: 8px; }
 .shoy__t { font-size: 13px; line-height: 18px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-muted); }
@@ -2943,7 +2981,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.32";
+<script>window.GAGOR_VERSION = "1.33";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6172,12 +6210,30 @@ window.GAGOR_reducirFoto = function (file) {
             return h(G.StatTile, { label: 'Ánimo hoy', value: hv ? hv + '/10' : '—', detail: med !== null ? 'Media 7 días: ' + n(med) : 'Sin respuestas aún' }); })(),
           h(G.StatTile, { label: 'Sesiones · 4 sem.', value: ad.done + '/' + ad.planned }),
           h(G.StatTile, { label: 'RPE medio', value: hechas.length ? n(Math.round(hechas.reduce(function (a, s) { return a + (s.rpe || 0); }, 0) / hechas.length * 10) / 10) : '—' }),
-          h(G.StatTile, { label: 'Último registro', value: hechas[0] ? ST.relativo(hechas[0].fecha) : '—', detail: hechas[0] ? hechas[0].titulo : '' }),
           null),
+        (function () {
+              var MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+              var DSEM = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+              function rango(lun) { var a = new Date(lun + 'T12:00:00'), b = ST.addDays(a, 6); return a.getMonth() === b.getMonth() ? a.getDate() + ' – ' + b.getDate() + ' ' + MES[b.getMonth()] : a.getDate() + ' ' + MES[a.getMonth()] + ' – ' + b.getDate() + ' ' + MES[b.getMonth()]; }
+              var lunHoy = ST.semanaDe(hoyIso);
+              var dias = [0, 1, 2, 3, 4, 5, 6].map(function (k) { return ST.iso(ST.addDays(new Date(lunHoy + 'T12:00:00'), k)); });
+              return h('div', { key: 'sem', className: 'panel cwk' },
+                h('div', { className: 'cwk__head' }, h('h2', { className: 'h2', style: { margin: 0 } }, 'Esta semana'), h('span', { className: 'muted small' }, rango(lunHoy))),
+                h('div', { className: 'cwk__grid' }, dias.map(function (d, k) { var del = ses.filter(function (q) { return q.fecha === d; }).slice().reverse();
+                  return h('div', { key: d, className: 'cwk__d' + (d === hoyIso ? ' is-hoy' : '') },
+                    h('span', { className: 'cwk__dl' }, DSEM[k] + ' ' + Number(d.slice(8))),
+                    del.length ? del.map(function (q) { var est = q.estado === 'hecha' ? 'done' : (q.fecha < hoyIso ? 'miss' : 'plan');
+                      return h('button', { key: q.id, type: 'button', className: 'cwk__s is-' + est, onClick: function () { setVerSes(q.id); }, title: q.titulo }, h('b', null, q.titulo), h('small', null, est === 'done' ? '✓ Hecha' + (q.rpe ? ' · RPE ' + q.rpe : '') : (est === 'miss' ? '▲ Sin hacer' : (d === hoyIso ? 'Hoy' : 'Programada')))); })
+                      : h('span', { className: 'cwk__vac' }, '—'));
+                })));
+        })(),
         h('div', { key: 'c', className: 'cols' },
           h('div', { style: { display: 'grid', gap: '16px' } },
-            carga.filter(function (x) { return x.value > 0; }).length >= 3 ? h(G.ProgressChart, { title: 'Carga semanal · duración × RPE', unit: 'ua', data: carga }) : h(G.EmptyState, { title: 'Aún sin tres semanas de datos' }),
-            h(G.ListGroup, { title: 'Sesiones', meta: hechas.length + ' registradas' }, ses.slice(0, 14).map(function (s) {
+            (function () {
+              var MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+              var DSEM = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+              function rango(lun) { var a = new Date(lun + 'T12:00:00'), b = ST.addDays(a, 6); return a.getMonth() === b.getMonth() ? a.getDate() + ' – ' + b.getDate() + ' ' + MES[b.getMonth()] : a.getDate() + ' ' + MES[a.getMonth()] + ' – ' + b.getDate() + ' ' + MES[b.getMonth()]; }
+              function fila(s) {
               var fl = ST.ejerciciosPlanos(s); var d = 0; fl.forEach(function (fx) { (s.registros[fx.key] || []).forEach(function (r) { if (r.done) d++; }); });
               var tot = fl.reduce(function (x, fx) { return x + fx.e.series; }, 0);
               var estado = s.estado === 'hecha' ? d + '/' + tot + ' series' : (s.fecha < hoyIso ? '▲ Sin hacer' : (s.fecha === hoyIso ? 'Hoy' : 'Programada'));
@@ -6186,7 +6242,19 @@ window.GAGOR_reducirFoto = function (file) {
                 h('span', { className: 'hrow__main' }, h('b', null, s.titulo), s.comentario ? h('span', null, '«' + s.comentario + '»') : null),
                 h('span', { className: 'hrow__state' + (s.estado !== 'hecha' && s.fecha < hoyIso ? ' is-alert' : '') }, estado),
                 h('span', { className: 'hrow__rpe' + (s.rpe >= 9 ? ' is-alert' : '') }, s.rpe ? 'RPE ' + s.rpe : ''));
-            }))),
+              }
+              var lunHoy = ST.semanaDe(hoyIso);
+              var grupos = {}, orden = [];
+              ses.forEach(function (q) { var l = ST.semanaDe(q.fecha); if (!grupos[l]) { grupos[l] = []; orden.push(l); } grupos[l].push(q); });
+              var hist = h('div', { key: 'hist', className: 'whist' },
+                h('div', { className: 'whist__head' }, h('span', { className: 'g-list__title' }, 'Sesiones por semana'), h('span', { className: 'muted small' }, hechas.length + ' registradas')),
+                orden.length ? orden.slice(0, 16).map(function (l) { var g = grupos[l]; var hh = g.filter(function (q) { return q.estado === 'hecha'; }).length; var sinH = g.filter(function (q) { return q.estado !== 'hecha' && q.fecha < hoyIso; }).length;
+                  return h('details', { key: l, className: 'whist__w' },
+                    h('summary', null, h('span', { className: 'whist__t' }, 'Semana ' + rango(l) + (l === lunHoy ? ' · esta' : '')), h('span', { className: 'whist__m' + (sinH ? ' is-alert' : '') }, hh + '/' + g.length + ' hechas' + (sinH ? ' · ' + sinH + ' sin hacer' : '')), h(G.Icon, { name: 'abajo', size: 16, className: 'whist__chev' })),
+                    h('div', { className: 'whist__body' }, g.map(fila)));
+                }) : h('p', { className: 'muted small', style: { margin: 0 } }, 'Aún no tiene sesiones.'));
+              return [carga.filter(function (x) { return x.value > 0; }).length >= 3 ? h(G.ProgressChart, { key: 'car', title: 'Carga semanal · duración × RPE', unit: 'ua', data: carga }) : null, hist];
+            })()),
           h('div', { style: { display: 'grid', gap: '16px' } },
             (function () {
               var sel = (c.libreSes || []).map(function (x) { return x.id; });
@@ -6194,8 +6262,8 @@ window.GAGOR_reducirFoto = function (file) {
                 commit(function (st) { var q = st.clientes.filter(function (z) { return z.id === c.id; })[0]; q.libre = libre;
                   q.libreSes = ids.map(function (id) { var pl = st.plantillas.filter(function (z) { return z.id === id; })[0]; return pl ? { id: pl.id, titulo: pl.nombre, bloques: JSON.parse(JSON.stringify(pl.bloques)) } : null; }).filter(Boolean); });
               }
-              return h('div', { className: 'panel libre' + (c.libre ? ' is-on' : '') },
-                h('h2', { className: 'h2', style: { marginBottom: '4px' } }, 'Rutinas libres'),
+              return h('details', { className: 'panel libre libre--fold' + (c.libre ? ' is-on' : '') },
+                h('summary', null, h('span', { className: 'h2' }, 'Rutinas libres'), h('span', { className: 'muted small' }, (c.libre ? 'Cuenta abierta · ' : '') + (sel.length ? sel.length + (sel.length === 1 ? ' asignada' : ' asignadas') : 'Ninguna')), h(G.Icon, { name: 'abajo', size: 16, className: 'whist__chev' })),
                 h('p', { className: 'muted small', style: { margin: '0 0 10px' } }, c.libre
                   ? 'Son las sesiones que verá al entrar. Las hace cuando quiera.'
                   : 'Plantillas que ' + c.nombre.split(' ')[0] + ' puede hacer cuando quiera, sin programarlas. Las encuentra en Ejercicios › Rutinas. No cuentan como sesiones ni se guardan.'),
