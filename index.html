@@ -995,6 +995,32 @@ a.g-btn { text-decoration: none; }
 
 
 
+
+/* 1.34 · ficha: cuadros con icono, añadir desde la semana, laterales plegados */
+.ctile { --tc: #4DB57E; position: relative; display: flex; align-items: flex-start; gap: 14px; padding: 16px; border-radius: var(--radius-md); border: 1px solid color-mix(in srgb, var(--tc) 28%, var(--line)); background: color-mix(in srgb, var(--tc) 10%, var(--surface-card)); min-width: 0; }
+.ctile.is-b { --tc: #5B8BD9; } .ctile.is-o { --tc: #E39A4F; } .ctile.is-r { --tc: #D9626A; }
+.ctile__ic { flex: none; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--tc) 22%, var(--surface-card)); color: color-mix(in srgb, var(--tc) 75%, var(--ink)); }
+.ctile > .g-stat { flex: 1; padding: 0; border: 0; background: none; }
+.cwk__s { grid-template-columns: 26px minmax(0, 1fr); align-items: center; gap: 7px; }
+.cwk__si { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.cwk__s.is-done .cwk__si { background: color-mix(in srgb, #4DB57E 35%, var(--surface)); color: #1d5a3b; }
+.cwk__s.is-miss { background: color-mix(in srgb, #E39A4F 18%, var(--surface)); }
+.cwk__s.is-miss .cwk__si { background: color-mix(in srgb, #E39A4F 35%, var(--surface)); color: #7a4a10; }
+.cwk__st { display: grid; gap: 2px; min-width: 0; }
+.cwk__add { position: relative; display: grid; justify-items: center; align-content: center; gap: 6px; padding: 8px 4px; border-radius: 8px; color: var(--ink-muted); cursor: pointer; text-align: center; min-height: 92px; }
+.cwk__add:hover { background: var(--surface-sunken); color: var(--ink); }
+.cwk__plus { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--surface-sunken); }
+.cwk__addt { display: grid; gap: 2px; } .cwk__addt b { font-size: 13px; color: var(--ink-muted); } .cwk__addt small { font-size: 11px; line-height: 14px; }
+.cwk__add.is-mini { display: flex; justify-content: flex-start; min-height: 0; padding: 4px 6px; gap: 6px; font-size: 12px; font-weight: 600; }
+.cwk__add.is-mini .cwk__plus { width: 22px; height: 22px; }
+.cwk__sel { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; }
+.cwk__add:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
+.rfold__ic { flex: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, #4DB57E 20%, var(--surface-card)); color: #1d5a3b; }
+.rfold__ic.is-v { background: color-mix(in srgb, #8B7FD1 22%, var(--surface-card)); color: #4b3f8f; }
+.rfold__tt { flex: 1; display: grid; gap: 2px; min-width: 0; } .rfold__tt .h2 { margin: 0; font-size: 18px; } .rfold__tt small { font-size: 13px; color: var(--ink-muted); }
+.libre--fold > summary { padding: 12px 14px; }
+.libre--fold > .stack, .libre--fold > p { margin-left: 16px; margin-right: 16px; }
+@media (max-width: 760px) { .cwk__add { min-height: 0; display: flex; justify-content: flex-start; padding: 4px 6px; } .cwk__add .cwk__plus { width: 26px; height: 26px; } .cwk__addt { text-align: left; } }
 /* 1.33 · ficha del cliente: semana, historial por semanas, rutinas plegables */
 .cwk__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .cwk__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
@@ -2981,7 +3007,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.33";
+<script>window.GAGOR_VERSION = "1.34";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6203,13 +6229,13 @@ window.GAGOR_reducirFoto = function (file) {
       var hechas = ses.filter(function (s) { return s.estado === 'hecha'; }); var ad = adherencia(c);
       return shell([
         h('div', { key: 'h', className: 'head' }, h(G.AppHeader, { title: c.nombre, subtitle: c.grupo + ' · código ' + c.codigo, onBack: function () { setView('clientes'); }, action: h(G.Button, { size: 'md', icon: 'calendario', onClick: function () { setView('planificador'); } }, 'Programar semana') })),
-        h('div', { key: 's', className: 'tilesauto' },
-          h(G.StatTile, { label: 'Recuperación', value: rec.palabra, detail: rec.detalle }),
+        h('div', { key: 's', className: 'tilesauto ctiles' },
+          h('div', { className: 'ctile is-g' }, h('span', { className: 'ctile__ic' }, h(G.Icon, { name: 'ejercicios', size: 22 })), h(G.StatTile, { label: 'Recuperación', value: rec.palabra, detail: rec.detalle })),
           (function () { var m = ST.animoDe(state, c.id); var hv = m[hoyIso]; var desde = ST.iso(ST.addDays(ST.hoy, -6)); var ks = Object.keys(m).filter(function (k) { return k >= desde && k <= hoyIso; });
             var med = ks.length ? Math.round(ks.reduce(function (a, k) { return a + m[k]; }, 0) / ks.length * 10) / 10 : null;
-            return h(G.StatTile, { label: 'Ánimo hoy', value: hv ? hv + '/10' : '—', detail: med !== null ? 'Media 7 días: ' + n(med) : 'Sin respuestas aún' }); })(),
-          h(G.StatTile, { label: 'Sesiones · 4 sem.', value: ad.done + '/' + ad.planned }),
-          h(G.StatTile, { label: 'RPE medio', value: hechas.length ? n(Math.round(hechas.reduce(function (a, s) { return a + (s.rpe || 0); }, 0) / hechas.length * 10) / 10) : '—' }),
+            return h('div', { className: 'ctile is-b' }, h('span', { className: 'ctile__ic' }, h(G.Icon, { name: 'seguimiento', size: 22 })), h(G.StatTile, { label: 'Ánimo hoy', value: hv ? hv + '/10' : '—', detail: med !== null ? 'Media 7 días: ' + n(med) : 'Sin respuestas aún' })); })(),
+          h('div', { className: 'ctile is-o' }, h('span', { className: 'ctile__ic' }, h(G.Icon, { name: 'calendario', size: 22 })), h(G.StatTile, { label: 'Sesiones · 4 sem.', value: ad.done + '/' + ad.planned, detail: 'Hechas / programadas' })),
+          h('div', { className: 'ctile is-r' }, h('span', { className: 'ctile__ic' }, h(G.Icon, { name: 'carga', size: 22 })), h(G.StatTile, { label: 'RPE medio', value: hechas.length ? n(Math.round(hechas.reduce(function (a, s) { return a + (s.rpe || 0); }, 0) / hechas.length * 10) / 10) : '—', detail: hechas.length ? 'De ' + hechas.length + (hechas.length === 1 ? ' sesión' : ' sesiones') : 'Sin sesiones' })),
           null),
         (function () {
               var MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
@@ -6222,9 +6248,19 @@ window.GAGOR_reducirFoto = function (file) {
                 h('div', { className: 'cwk__grid' }, dias.map(function (d, k) { var del = ses.filter(function (q) { return q.fecha === d; }).slice().reverse();
                   return h('div', { key: d, className: 'cwk__d' + (d === hoyIso ? ' is-hoy' : '') },
                     h('span', { className: 'cwk__dl' }, DSEM[k] + ' ' + Number(d.slice(8))),
-                    del.length ? del.map(function (q) { var est = q.estado === 'hecha' ? 'done' : (q.fecha < hoyIso ? 'miss' : 'plan');
-                      return h('button', { key: q.id, type: 'button', className: 'cwk__s is-' + est, onClick: function () { setVerSes(q.id); }, title: q.titulo }, h('b', null, q.titulo), h('small', null, est === 'done' ? '✓ Hecha' + (q.rpe ? ' · RPE ' + q.rpe : '') : (est === 'miss' ? '▲ Sin hacer' : (d === hoyIso ? 'Hoy' : 'Programada')))); })
-                      : h('span', { className: 'cwk__vac' }, '—'));
+                    del.map(function (q) { var est = q.estado === 'hecha' ? 'done' : (q.fecha < hoyIso ? 'miss' : 'plan');
+                      return h('button', { key: q.id, type: 'button', className: 'cwk__s is-' + est, onClick: function () { setVerSes(q.id); }, title: q.titulo },
+                        h('span', { className: 'cwk__si' }, h(G.Icon, { name: est === 'miss' ? 'aviso' : 'ejercicios', size: 15 })),
+                        h('span', { className: 'cwk__st' }, h('b', null, q.titulo), h('small', null, est === 'done' ? '✓ Hecha' + (q.rpe ? ' · RPE ' + q.rpe : '') : (est === 'miss' ? 'Sin hacer' : (d === hoyIso ? 'Hoy' : 'Programada'))))); }),
+                    h('label', { className: 'cwk__add' + (del.length ? ' is-mini' : '') },
+                      h('span', { className: 'cwk__plus' }, h(G.Icon, { name: 'mas', size: del.length ? 14 : 18 })),
+                      del.length ? h('span', null, 'Añadir') : h('span', { className: 'cwk__addt' }, h('b', null, 'Sin sesión'), h('small', null, 'Añadir entrenamiento')),
+                      h('select', { className: 'cwk__sel', value: '', 'aria-label': 'Añadir sesión el ' + DSEM[k] + ' ' + Number(d.slice(8)), onChange: function (ev) { var pid = ev.target.value; if (!pid) return; ev.target.value = '';
+                          if (pid === '__blanco') { nuevaSesion(c.id, d); return; }
+                          commit(function (st) { var pl = st.plantillas.filter(function (q) { return q.id === pid; })[0]; if (pl) st.sesiones.push(ST.sesionDesde(pl, c.id, d)); }); } },
+                        h('option', { value: '' }, 'Añadir sesión…'),
+                        h('option', { value: '__blanco' }, '+ Sesión en blanco'),
+                        state.plantillas.length ? h('optgroup', { label: 'Plantillas' }, state.plantillas.map(function (pl) { return h('option', { key: pl.id, value: pl.id }, pl.nombre); })) : null)));
                 })));
         })(),
         h('div', { key: 'c', className: 'cols' },
@@ -6263,7 +6299,7 @@ window.GAGOR_reducirFoto = function (file) {
                   q.libreSes = ids.map(function (id) { var pl = st.plantillas.filter(function (z) { return z.id === id; })[0]; return pl ? { id: pl.id, titulo: pl.nombre, bloques: JSON.parse(JSON.stringify(pl.bloques)) } : null; }).filter(Boolean); });
               }
               return h('details', { className: 'panel libre libre--fold' + (c.libre ? ' is-on' : '') },
-                h('summary', null, h('span', { className: 'h2' }, 'Rutinas libres'), h('span', { className: 'muted small' }, (c.libre ? 'Cuenta abierta · ' : '') + (sel.length ? sel.length + (sel.length === 1 ? ' asignada' : ' asignadas') : 'Ninguna')), h(G.Icon, { name: 'abajo', size: 16, className: 'whist__chev' })),
+                h('summary', null, h('span', { className: 'rfold__ic is-v' }, h(G.Icon, { name: 'plantilla', size: 18 })), h('span', { className: 'h2' }, 'Rutinas libres'), h('span', { className: 'muted small' }, (c.libre ? 'Cuenta abierta · ' : '') + (sel.length ? sel.length + (sel.length === 1 ? ' asignada' : ' asignadas') : 'Ninguna')), h(G.Icon, { name: 'abajo', size: 16, className: 'whist__chev' })),
                 h('p', { className: 'muted small', style: { margin: '0 0 10px' } }, c.libre
                   ? 'Son las sesiones que verá al entrar. Las hace cuando quiera.'
                   : 'Plantillas que ' + c.nombre.split(' ')[0] + ' puede hacer cuando quiera, sin programarlas. Las encuentra en Ejercicios › Rutinas. No cuentan como sesiones ni se guardan.'),
@@ -6275,9 +6311,8 @@ window.GAGOR_reducirFoto = function (file) {
                 h('label', { className: 'libre__sw' }, h('input', { type: 'checkbox', checked: !!c.libre, onChange: function (e) { guardar(e.target.checked, sel); } }),
                   h('span', null, h('b', null, 'Cuenta abierta · prevención'), h('small', null, 'Para un código que comparte mucha gente: sin calendario ni preguntas, solo estas rutinas. No se guarda nada.'))));
             })(),
-            h('div', { className: 'panel' },
-              h('h2', { className: 'h2', style: { marginBottom: '4px' } }, 'Acceso a la app'),
-              h('p', { className: 'muted small', style: { margin: '0 0 12px' } }, 'Código de ' + c.nombre.split(' ')[0] + ': ', h('b', { className: 'code' }, c.codigo)),
+            h('details', { className: 'panel libre--fold' },
+              h('summary', null, h('span', { className: 'rfold__ic is-g' }, h(G.Icon, { name: 'usuario', size: 18 })), h('span', { className: 'rfold__tt' }, h('span', { className: 'h2' }, 'Acceso a la app'), h('small', null, 'Código: ', h('b', { className: 'code' }, c.codigo))), h(G.Icon, { name: 'abajo', size: 16, className: 'whist__chev' })),
               (function () { var a = (state.avisos || []).filter(function (x) { return x.id === c.id; })[0]; return state.demo === false ? h('p', { className: 'muted small', style: { margin: '-6px 0 12px' } }, a && a.activo && (a.subs || []).length ? 'Recordatorios activados · ' + (a.hora || '09:00') : 'Recordatorios desactivados') : null; })(),
               h('div', { className: 'stack stack--8' },
                 h(G.Button, { full: true, size: 'md', icon: copiado === 'inv' + c.id ? 'check' : 'copiar', onClick: function () { copiar(invitacion(c), 'inv' + c.id); } }, copiado === 'inv' + c.id ? 'Invitación copiada' : 'Copiar invitación'),
