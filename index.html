@@ -993,6 +993,16 @@ a.g-btn { text-decoration: none; }
 .phone > .g-head { padding-top: calc(var(--space-4) + env(safe-area-inset-top, 0px)); }
 .app { padding-top: env(safe-area-inset-top, 0px); box-sizing: border-box; }
 
+
+/* 1.32 · varias sesiones el mismo día */
+.shoy { display: grid; gap: 8px; }
+.shoy__t { font-size: 13px; line-height: 18px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-muted); }
+.shoy__row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+.shoy__b { flex: 1 0 auto; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 14px 6px 6px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font: 600 15px/20px var(--font-sans); cursor: pointer; white-space: nowrap; }
+.shoy__n { width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--surface-sunken); font-size: 14px; flex: none; }
+.shoy__b.is-on { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.shoy__b.is-hecha { color: var(--ink-muted); }
+.shoy__b.is-hecha .shoy__n { background: var(--accent, #4DB57E); color: #fff; }
 /* 1.31 · foto de perfil */
 .g-client__avatar { overflow: hidden; }
 .g-client__avatar img, .foto__img img, .yo-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -2933,7 +2943,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.31";
+<script>window.GAGOR_VERSION = "1.32";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -5018,7 +5028,11 @@ window.GAGOR_reducirFoto = function (file) {
 
     var hoyIso = ST.iso(ST.hoy);
     var misSesiones = state.sesiones.filter(function (s) { return s.clienteId === cid && !s.local; }).sort(function (a, b) { return a.fecha < b.fecha ? -1 : 1; });
-    var sesHoy = misSesiones.filter(function (s) { return s.fecha === hoyIso; })[0] || null;
+    var sesionesHoy = misSesiones.filter(function (s) { return s.fecha === hoyIso; });
+    var elS = useState(null); var elegidaHoy = elS[0], setElegidaHoy = elS[1];
+    React.useEffect(function () { if (view === 'cierre') setElegidaHoy(null); }, [view]);
+    // varias sesiones el mismo día: la elegida; si no, la primera sin hacer; si están todas, la última
+    var sesHoy = sesionesHoy.filter(function (s) { return s.id === elegidaHoy; })[0] || sesionesHoy.filter(function (s) { return s.estado !== 'hecha'; })[0] || sesionesHoy[sesionesHoy.length - 1] || null;
     var ses = sesId ? state.sesiones.filter(function (s) { return s.id === sesId; })[0] : sesHoy;
     var partidoAyer = state.externos.filter(function (e) { return e.clienteId === cid && e.origen === 'sensor' && e.fecha >= ST.iso(ST.addDays(ST.hoy, -2)); }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; })[0];
 
@@ -5199,7 +5213,7 @@ window.GAGOR_reducirFoto = function (file) {
             var ed0 = ST.estadoDe(state, cid)[hoyIso]; var md0 = ed0 ? String(Math.round((ed0.estado + ed0.sueno + ed0.estres) / 3 * 10) / 10).replace('.', ',') : (av ? String(Math.round(av / 2)) : null);
             return h('div', { className: 'anh' }, h('button', { type: 'button', className: 'anh__sq' + (av ? '' : ' is-vacio') + (md0 && md0.length > 1 ? ' is-dec' : ''), style: { background: global.GAGOR_ANIMO_COLOR(av), left: ((col + .5) / 7 * 100) + '%' }, title: av ? global.GAGOR_ANIMO_PALABRA(av) : t('Cómo llegas hoy'), 'aria-label': av ? t('Cómo llegas hoy') + ': ' + av + '/10' : t('Responder'), onClick: av ? undefined : props.abrirAnimo }, md0 || '?')); })() : null,
           h(G.WeekStrip, { value: diaSel || hoyIso, today: hoyIso, marks: marcas().marks, onChange: function (d) { setDiaSel(d === hoyIso ? null : d); } }),
-          otroDia ? h(SesionDia, { fecha: diaSel, sesion: misSesiones.filter(function (s) { return s.fecha === diaSel; })[0] }) : null,
+          otroDia ? (function () { var l = misSesiones.filter(function (s) { return s.fecha === diaSel; }); return l.length ? l.map(function (x) { return h(SesionDia, { key: x.id, fecha: diaSel, sesion: x }); }) : h(SesionDia, { fecha: diaSel, sesion: null }); })() : null,
           otroDia ? h(G.Button, { variant: 'ghost', full: true, onClick: function () { setDiaSel(null); } }, t('Volver a hoy')) : null,
           otroDia ? null : h('div', { className: 'row2 l1' },
             (function () {
@@ -5217,6 +5231,12 @@ window.GAGOR_reducirFoto = function (file) {
             h('p', { key: 't', style: { margin: 0, fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 700 } }, t('Seguimiento de hoy')),
             h('p', { key: 'd', style: { margin: 0, fontSize: '16px', lineHeight: '24px', color: 'var(--ink-muted)' } }, (pend.diario ? t(pend.nivel === 'completo' ? 'Sueño, cansancio y dolor muscular' : 'Una pregunta: cómo llegas hoy') : '') + (pend.diario && pend.semanal ? ' · ' : '') + (pend.semanal ? t('Peso de la semana') : '') + t('. Menos de un minuto.')),
             h(G.Button, { key: 'b', variant: 'secondary', full: true, icon: 'seguimiento', onClick: function () { setView('checkin'); } }, t('Responder'))], 'chk'),
+          otroDia || sesionesHoy.length < 2 ? null : h('div', { className: 'shoy', role: 'group', 'aria-label': t('Sesiones de hoy') },
+            h('span', { className: 'shoy__t' }, t('Hoy tienes') + ' ' + sesionesHoy.length + ' ' + t('sesiones') + ' · ' + (function (k) { return k + ' ' + (k === 1 ? t('hecha') : t('hechas')); })(sesionesHoy.filter(function (s) { return s.estado === 'hecha'; }).length)),
+            h('div', { className: 'shoy__row' }, sesionesHoy.map(function (s, i) { var on = sesHoy && s.id === sesHoy.id; var hecha = s.estado === 'hecha';
+              return h('button', { key: s.id, type: 'button', className: 'shoy__b' + (on ? ' is-on' : '') + (hecha ? ' is-hecha' : ''), 'aria-pressed': on ? 'true' : 'false', onClick: function () { setElegidaHoy(s.id); } },
+                h('span', { className: 'shoy__n' }, hecha ? h(G.Icon, { name: 'check', size: 14 }) : i + 1),
+                h('span', { className: 'shoy__l' }, t(corto(s.titulo)))); }))),
           otroDia ? null : (sesHoy ? (function () { var tp = tipoSesion(sesHoy); var hecha = sesHoy.estado === 'hecha';
               return Portada({ tipo: tp, hecha: hecha, etiqueta: hecha ? t('Entrenamiento hecho') : t('Entrenamiento'), titulo: corto(sesHoy.titulo), desc: t(DESC[tp]),
                 datos: [{ icon: 'ejercicios', v: nEj, l: nEj === 1 ? t('ejercicio') : t('ejercicios') }, tot.done && !hecha ? { icon: 'check', v: tot.done + '/' + tot.all, l: t('series') } : { icon: 'cronometro', v: (sesHoy.duracion || 45) + ' min', l: t('aprox.') }],
@@ -5600,14 +5620,14 @@ window.GAGOR_reducirFoto = function (file) {
         } }, t('Guardar'))));
     }
     function Calendario() {
-      var mk = marcas(); var d = diaSel || hoyIso; var s = misSesiones.filter(function (q) { return q.fecha === d; })[0];
+      var mk = marcas(); var d = diaSel || hoyIso; var sl = misSesiones.filter(function (q) { return q.fecha === d; });
       var ext = state.externos.filter(function (e) { return e.clienteId === cid && e.fecha === d; });
       return h('div', { className: 'phone' },
         h(G.AppHeader, { title: t('Calendario'), subtitle: t('Programado por tu entrenador'), onBack: function () { setDiaSel(null); setView('hoy'); } }),
         h('div', { className: 'scroll' },
           h(G.MonthCalendar, { month: mesSel || hoyIso.slice(0, 7), value: d, today: hoyIso, marks: mk.marks, labels: mk.labels, onChange: setDiaSel, onMonth: setMesSel }),
           ext.map(function (e) { return h(G.TeamSessionCard, { key: e.id, title: t(e.titulo), meta: ST.fmtFecha(e.fecha), minutes: e.minutos, loadWord: e.cargaPalabra || (e.rpe ? t('RPE ') + e.rpe : '—'), rpe: e.rpe === null ? undefined : e.rpe }); }),
-          h(SesionDia, { fecha: d, sesion: s })
+          sl.length ? sl.map(function (x) { return h(SesionDia, { key: x.id, fecha: d, sesion: x }); }) : h(SesionDia, { fecha: d, sesion: null })
         ),
         h(G.TabBar, { value: 'hoy', onChange: function (v) { setDiaSel(null); setView(v); } })
       );
