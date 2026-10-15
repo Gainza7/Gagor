@@ -54,16 +54,16 @@
   color-scheme: dark;
 }
 @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
-  --surface: #ffffff;
-  --surface-card: #f3efe8;
-  --surface-sunken: #e9e3d9;
-  --ink: #1f1b16;
-  --ink-muted: #5f564a;
-  --line: #ded7cc;
-  --line-strong: #8a7f70;
-  --accent: #1e5e3f;
-  --accent-soft: #e2ede6;
-  --on-accent: #ffffff;
+  --surface: #F6F8F7;
+  --surface-card: #FFFFFF;
+  --surface-sunken: #E8EFEB;
+  --ink: #161412;
+  --ink-muted: #56615B;
+  --line: #DDE5E0;
+  --line-strong: #8A958F;
+  --accent: #4DB57E;
+  --accent-soft: #DCF0E4;
+  --on-accent: #161412;
   --alert: #8a5a12;
   --alert-soft: #f6ecd8;
   --on-alert: #ffffff;
@@ -75,16 +75,16 @@
   color-scheme: light;
 } }
 :root[data-theme="light"] {
-  --surface: #ffffff;
-  --surface-card: #f3efe8;
-  --surface-sunken: #e9e3d9;
-  --ink: #1f1b16;
-  --ink-muted: #5f564a;
-  --line: #ded7cc;
-  --line-strong: #8a7f70;
-  --accent: #1e5e3f;
-  --accent-soft: #e2ede6;
-  --on-accent: #ffffff;
+  --surface: #F6F8F7;
+  --surface-card: #FFFFFF;
+  --surface-sunken: #E8EFEB;
+  --ink: #161412;
+  --ink-muted: #56615B;
+  --line: #DDE5E0;
+  --line-strong: #8A958F;
+  --accent: #4DB57E;
+  --accent-soft: #DCF0E4;
+  --on-accent: #161412;
   --alert: #8a5a12;
   --alert-soft: #f6ecd8;
   --on-alert: #ffffff;
@@ -996,6 +996,19 @@ a.g-btn { text-decoration: none; }
 
 
 
+
+/* 1.35 · colores de marca: menú lateral en carbón, verde del logo */
+.nav { background: #161412; border-right-color: #161412; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.nav .nav__item { color: #CFC8BB; }
+.nav .nav__item svg { color: #8F887C; }
+.nav .nav__item:hover { background: #221F1B; }
+.nav .nav__item.is-on { background: #2A2622; color: #F1EDE4; box-shadow: inset 3px 0 0 #4DB57E; }
+.nav .nav__item.is-on svg { color: #4DB57E; }
+.nav .g-logo path, .nav .g-logo rect[fill="var(--ink)"] { fill: #F1EDE4; }
+.nav .g-logo rect[fill="var(--accent)"] { fill: #4DB57E; }
+.nav .nav__badge { background: #4DB57E; color: #161412; }
+.nav .nav__foot, .nav .nav__foot * { color: #8F887C; }
+.cwk__d.is-hoy { border-color: #4DB57E; box-shadow: inset 0 0 0 1px #4DB57E; }
 /* 1.34 · ficha: cuadros con icono, añadir desde la semana, laterales plegados */
 .ctile { --tc: #4DB57E; position: relative; display: flex; align-items: flex-start; gap: 14px; padding: 16px; border-radius: var(--radius-md); border: 1px solid color-mix(in srgb, var(--tc) 28%, var(--line)); background: color-mix(in srgb, var(--tc) 10%, var(--surface-card)); min-width: 0; }
 .ctile.is-b { --tc: #5B8BD9; } .ctile.is-o { --tc: #E39A4F; } .ctile.is-r { --tc: #D9626A; }
@@ -3007,7 +3020,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.34";
+<script>window.GAGOR_VERSION = "1.35";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
