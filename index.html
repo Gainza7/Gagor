@@ -3020,7 +3020,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.35";
+<script>window.GAGOR_VERSION = "1.36";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6241,7 +6241,7 @@ window.GAGOR_reducirFoto = function (file) {
       var carga = ST.cargasSemanales(state, c.id, 8); var recs = ST.records(state, c.id); var rec = ST.recuperacion(state, c.id);
       var hechas = ses.filter(function (s) { return s.estado === 'hecha'; }); var ad = adherencia(c);
       return shell([
-        h('div', { key: 'h', className: 'head' }, h(G.AppHeader, { title: c.nombre, subtitle: c.grupo + ' · código ' + c.codigo, onBack: function () { setView('clientes'); }, action: h(G.Button, { size: 'md', icon: 'calendario', onClick: function () { setView('planificador'); } }, 'Programar semana') })),
+        h('div', { key: 'h', className: 'head' }, h(G.AppHeader, { title: c.nombre, subtitle: c.grupo + ' · código ' + c.codigo, onBack: function () { setView('clientes'); } })),
         h('div', { key: 's', className: 'tilesauto ctiles' },
           h('div', { className: 'ctile is-g' }, h('span', { className: 'ctile__ic' }, h(G.Icon, { name: 'ejercicios', size: 22 })), h(G.StatTile, { label: 'Recuperación', value: rec.palabra, detail: rec.detalle })),
           (function () { var m = ST.animoDe(state, c.id); var hv = m[hoyIso]; var desde = ST.iso(ST.addDays(ST.hoy, -6)); var ks = Object.keys(m).filter(function (k) { return k >= desde && k <= hoyIso; });
