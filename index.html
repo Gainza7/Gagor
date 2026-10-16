@@ -694,7 +694,7 @@ body { margin: 0; background: var(--surface); color: var(--ink); font-family: va
 }
 /* acceso */
 .phone--login { grid-template-rows: minmax(0, 1fr); overflow: hidden; }
-.login__art { position: absolute; inset: 0 0 45% 0; pointer-events: none; -webkit-mask-image: linear-gradient(180deg, #000 30%, transparent 100%); mask-image: linear-gradient(180deg, #000 30%, transparent 100%); }
+.login__art { position: absolute; inset: 0 0 4% 0; pointer-events: none; -webkit-mask-image: linear-gradient(180deg, #000 75%, transparent 100%); mask-image: linear-gradient(180deg, #000 75%, transparent 100%); }
 .login { position: relative; grid-row: 1; grid-column: 1; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr; gap: 40px; padding: calc(72px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)); overflow-y: auto; }
 .login__brand { display: grid; gap: 12px; }
 .login__tag { margin: 0; max-width: 300px; font-size: 17px; line-height: 24px; color: var(--ink-muted); }
@@ -3020,7 +3020,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.36";
+<script>window.GAGOR_VERSION = "1.37";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -7343,7 +7343,7 @@ window.GAGOR_reducirFoto = function (file) {
     }
     var jug = f.modo === 'jugador';
     return h('div', { className: 'phone phone--login' },
-      h('div', { className: 'login__art' }, h(G.BrandBackdrop, { opacity: 0.2 })),
+      h('div', { className: 'login__art' }, h(G.BrandBackdrop, { opacity: 0.45 })),
       h('div', { className: 'login' },
         h('div', { className: 'login__brand' },
           h(G.Logo, { variant: 'horizontal', height: 36 }),
