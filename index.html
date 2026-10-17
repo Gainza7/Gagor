@@ -3162,7 +3162,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.41";
+<script>window.GAGOR_VERSION = "1.42";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6467,9 +6467,11 @@ window.GAGOR_reducirFoto = function (file) {
                       del.length ? h('span', null, 'Añadir') : h('span', { className: 'cwk__addt' }, h('b', null, 'Sin sesión'), h('small', null, 'Añadir entrenamiento')),
                       h('select', { className: 'cwk__sel', value: '', 'aria-label': 'Añadir sesión el ' + DSEM[k] + ' ' + Number(d.slice(8)), onChange: function (ev) { var pid = ev.target.value; if (!pid) return; ev.target.value = '';
                           if (pid === '__blanco') { nuevaSesion(c.id, d); return; }
+                          if (pid === '__bici') { nuevaBici(c.id, d); return; }
                           commit(function (st) { var pl = st.plantillas.filter(function (q) { return q.id === pid; })[0]; if (pl) st.sesiones.push(ST.sesionDesde(pl, c.id, d)); }); } },
                         h('option', { value: '' }, 'Añadir sesión…'),
                         h('option', { value: '__blanco' }, '+ Sesión en blanco'),
+                        h('option', { value: '__bici' }, '+ HIIT de bici'),
                         state.plantillas.length ? h('optgroup', { label: 'Plantillas' }, state.plantillas.map(function (pl) { return h('option', { key: pl.id, value: pl.id }, pl.nombre); })) : null)));
                 })));
         })(),
@@ -6592,8 +6594,8 @@ window.GAGOR_reducirFoto = function (file) {
                     s.estado === 'hecha' ? null : h('button', { type: 'button', className: 'link', onClick: function () { setVerSes(s.id); } }, 'Mover'),
                     s.estado === 'hecha' ? null : h('button', { type: 'button', className: 'link', onClick: function () { commit(function (st) { st.sesiones = st.sesiones.filter(function (q) { return q.id !== s.id; }); }); } }, 'Quitar')));
               }) : h('span', { className: 'g-planner__empty' }, 'Descanso'),
-              h('select', { className: 'g-import__select', value: '', style: { marginTop: 'auto' }, onChange: function (e) { var pid = e.target.value; if (!pid) return; if (pid === '__blanco') { nuevaSesion(cliente.id, d.iso); return; } commit(function (st) { var pl = st.plantillas.filter(function (q) { return q.id === pid; })[0]; st.sesiones.push(ST.sesionDesde(pl, cliente.id, d.iso)); }); } },
-                h('option', { value: '' }, '+ Añadir…'), state.plantillas.map(function (p) { return h('option', { key: p.id, value: p.id }, p.nombre); }), h('option', { value: '__blanco' }, 'Sesión en blanco')));
+              h('select', { className: 'g-import__select', value: '', style: { marginTop: 'auto' }, onChange: function (e) { var pid = e.target.value; if (!pid) return; if (pid === '__blanco') { nuevaSesion(cliente.id, d.iso); return; } if (pid === '__bici') { nuevaBici(cliente.id, d.iso); return; } commit(function (st) { var pl = st.plantillas.filter(function (q) { return q.id === pid; })[0]; st.sesiones.push(ST.sesionDesde(pl, cliente.id, d.iso)); }); } },
+                h('option', { value: '' }, '+ Añadir…'), state.plantillas.map(function (p) { return h('option', { key: p.id, value: p.id }, p.nombre); }), h('option', { value: '__blanco' }, 'Sesión en blanco'), h('option', { value: '__bici' }, 'HIIT de bici')));
           }))),
         h('div', { key: 'cp', className: 'rowline', style: { justifyContent: 'flex-start', flexWrap: 'wrap' } },
           h(G.Button, { size: 'md', variant: 'secondary', icon: 'copiar', disabled: !dias.some(function (d) { return sesDia(d.iso).length; }), onClick: function () {
@@ -6635,6 +6637,13 @@ window.GAGOR_reducirFoto = function (file) {
       setConf(''); setAviso(''); setView('editor');
     }
     function editarSesion(s) { abrirEditor('sesion', s, { fecha: s.fecha, clienteId: s.clienteId }); }
+    // 1.42 · HIIT de bici: abre el editor con un bloque de intervalos ya montado (3' + 8 × 30/30 + 3')
+    function nuevaBici(cid0, fecha) {
+      var trs = [ivBorrador({ tipo: 'calentamiento', seg: 180, rpm: 80, res: '3', nota: 'Sentado, suelto' })];
+      for (var q = 0; q < 8; q++) { trs.push(ivBorrador({ tipo: 'trabajo', seg: 30, rpm: 100, res: '6', nota: 'Sprint sentado' })); trs.push(ivBorrador({ tipo: 'descanso', seg: 30, rpm: 70, res: '2' })); }
+      trs.pop(); trs.push(ivBorrador({ tipo: 'calma', seg: 180, rpm: 75, res: '2', nota: 'Baja pulsaciones' }));
+      setEd({ tipo: 'sesion', id: null, nombre: 'HIIT bici', fecha: fecha, clienteId: cid0, volver: view, sucio: true, error: '', bloques: [{ _u: ST.uid(), titulo: 'Bici · intervalos', ejercicios: [], _iv: null, intervalos: trs }] }); setConf(''); setAviso(''); setView('editor');
+    }
     function nuevaSesion(cid0, fecha) { setEd({ tipo: 'sesion', id: null, nombre: '', fecha: fecha, clienteId: cid0, volver: view, sucio: false, error: '', bloques: [{ _u: ST.uid(), titulo: 'Principal', ejercicios: [] }] }); setConf(''); setAviso(''); setView('editor'); }
     var PATRONES_BASE = ['Rodilla dominante', 'Cadera dominante', 'Unilateral', 'Empuje', 'Tracción', 'Hombros', 'Brazos', 'Potencia', 'Core', 'Movilidad', 'Prevención', 'Condición', 'A. Exposito'];
     // 1.40 · grupos propios: cualquier grupo que tenga algún ejercicio (se sincroniza con los ejercicios) + los recién creados aún vacíos
