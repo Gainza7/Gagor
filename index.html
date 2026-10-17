@@ -3030,7 +3030,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.39";
+<script>window.GAGOR_VERSION = "1.40";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -5917,6 +5917,7 @@ window.GAGOR_reducirFoto = function (file) {
     var ne = useState({ nombre: '', patron: 'Rodilla dominante', material: '', dificultad: 'Media', videoUrl: '', como: '', evita: '' }); var nEj = ne[0], setNEj = ne[1];
     var msg = useState(''); var aviso = msg[0], setAviso = msg[1];
     var mg = useState(false); var modoGrupos = mg[0], setModoGrupos = mg[1];
+    var gnv = useState([]); var gruposNuevos = gnv[0], setGruposNuevos = gnv[1]; var gtx = useState(''); var grupoTxt = gtx[0], setGrupoTxt = gtx[1];
     var mc = useState(null); var mesCal = mc[0], setMesCal = mc[1];
     var ta = useState(false); var show = ta[0], setShow = ta[1];
     // descargas: en el artefacto las da la plataforma; fuera, el propio navegador
@@ -6473,9 +6474,12 @@ window.GAGOR_reducirFoto = function (file) {
     }
     function editarSesion(s) { abrirEditor('sesion', s, { fecha: s.fecha, clienteId: s.clienteId }); }
     function nuevaSesion(cid0, fecha) { setEd({ tipo: 'sesion', id: null, nombre: '', fecha: fecha, clienteId: cid0, volver: view, sucio: false, error: '', bloques: [{ _u: ST.uid(), titulo: 'Principal', ejercicios: [] }] }); setConf(''); setAviso(''); setView('editor'); }
-    var PATRONES = ['Rodilla dominante', 'Cadera dominante', 'Unilateral', 'Empuje', 'Tracción', 'Hombros', 'Brazos', 'Potencia', 'Core', 'Movilidad', 'Prevención', 'Condición', 'A. Exposito'];
+    var PATRONES_BASE = ['Rodilla dominante', 'Cadera dominante', 'Unilateral', 'Empuje', 'Tracción', 'Hombros', 'Brazos', 'Potencia', 'Core', 'Movilidad', 'Prevención', 'Condición', 'A. Exposito'];
+    // 1.40 · grupos propios: cualquier grupo que tenga algún ejercicio (se sincroniza con los ejercicios) + los recién creados aún vacíos
+    var PATRONES = PATRONES_BASE.concat((function () { var vistos = {}; state.ejercicios.forEach(function (x) { if (x.patron && PATRONES_BASE.indexOf(x.patron) < 0) vistos[x.patron] = 1; }); gruposNuevos.forEach(function (g) { if (PATRONES_BASE.indexOf(g) < 0) vistos[g] = 1; }); return Object.keys(vistos).sort(function (a, b) { return a.localeCompare(b, 'es'); }); })());
+    function grupoDe(x) { var p = x.patron || ''; if (PATRONES.indexOf(p) >= 0) return p; return PATRONES_BASE.filter(function (q) { return p.indexOf(q) === 0; })[0] || 'Otros'; }
     function opcionesEj(valor, vacio) {
-      var porPatron = {}; state.ejercicios.forEach(function (x) { var p = PATRONES.filter(function (q) { return x.patron.indexOf(q) === 0; })[0] || 'Otros'; (porPatron[p] = porPatron[p] || []).push(x); });
+      var porPatron = {}; state.ejercicios.forEach(function (x) { var p = grupoDe(x); (porPatron[p] = porPatron[p] || []).push(x); });
       var out = [vacio ? h('option', { key: '_', value: '' }, vacio) : null];
       if (valor && !state.ejercicios.some(function (x) { return x.id === valor; })) out.push(h('option', { key: '_x', value: valor }, 'Ejercicio que ya no está'));
       PATRONES.concat(['Otros']).forEach(function (p) { if (!porPatron[p]) return; out.push(h('optgroup', { key: p, label: p }, porPatron[p].slice().sort(function (a, b) { return a.nombre.localeCompare(b.nombre, 'es'); }).map(function (x) { return h('option', { key: x.id, value: x.id }, x.nombre); }))); });
@@ -6772,13 +6776,13 @@ window.GAGOR_reducirFoto = function (file) {
     function Biblioteca() {
       var qn = sinTildes(filters.q || '').toLowerCase().trim();
       var list = state.ejercicios.filter(function (x) {
-        if (filters.patron && x.patron.indexOf(filters.patron) !== 0) return false;
+        if (filters.patron && (PATRONES_BASE.indexOf(filters.patron) < 0 && PATRONES.indexOf(filters.patron) >= 0 ? x.patron !== filters.patron : x.patron.indexOf(filters.patron) !== 0)) return false;
         if (filters.material && !x.material.some(function (m) { return m.indexOf(filters.material.replace(/s$/, '')) === 0; })) return false;
         if (filters.video === 'Con vídeo' && !x.videoUrl) return false; if (filters.video === 'Sin vídeo' && x.videoUrl) return false;
         if (qn && sinTildes(x.nombre + ' ' + x.patron + ' ' + x.material.join(' ')).toLowerCase().indexOf(qn) < 0) return false;
         return true; });
       var conVideo = state.ejercicios.filter(function (x) { return x.videoUrl; }).length; var nuevos = ST.ejerciciosNuevos(state);
-      var grupos = PATRONES.concat(['Otros']).map(function (pt) { return { pt: pt, items: list.filter(function (x) { return (PATRONES.filter(function (q) { return x.patron.indexOf(q) === 0; })[0] || 'Otros') === pt; }).sort(function (a, b) { return a.nombre.localeCompare(b.nombre, 'es'); }) }; }).filter(function (g) { return g.items.length; });
+      var grupos = PATRONES.concat(['Otros']).map(function (pt) { return { pt: pt, items: list.filter(function (x) { return grupoDe(x) === pt; }).sort(function (a, b) { return a.nombre.localeCompare(b.nombre, 'es'); }) }; }).filter(function (g) { return g.items.length; });
       var editando = nEj.id ? state.ejercicios.filter(function (x) { return x.id === nEj.id; })[0] : null;
       function campo(k, v) { setNEj(Object.assign({}, nEj, (function () { var o = {}; o[k] = v; return o; })())); }
       function lineas(txt) { return String(txt || '').split('\n').map(function (l) { return l.trim(); }).filter(Boolean); }
@@ -6799,8 +6803,16 @@ window.GAGOR_reducirFoto = function (file) {
         h(G.AppHeader, { key: 'h', title: 'Biblioteca', subtitle: state.ejercicios.length + (modoGrupos ? ' ejercicios · elige el grupo de cada uno' : ' ejercicios · toca uno para editarlo'), action: h('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } }, h(G.Button, { size: 'md', variant: modoGrupos ? 'primary' : 'secondary', icon: modoGrupos ? 'check' : 'editar', onClick: function () { setModoGrupos(!modoGrupos); } }, modoGrupos ? 'Listo' : 'Cambiar grupos'), editando && !modoGrupos ? h(G.Button, { size: 'md', variant: 'secondary', icon: 'mas', onClick: limpiar }, 'Nuevo ejercicio') : null) }),
         nuevos.length ? h('div', { key: 'nv', className: 'panel rowline', style: { flexWrap: 'wrap' } }, h('p', { style: { margin: 0 } }, h('b', null, nuevos.length + ' ejercicios nuevos'), ' en la biblioteca de GAGOR, con su técnica explicada. Los tuyos no se tocan.'),
           h(G.Button, { size: 'md', icon: 'mas', onClick: function () { var add = nuevos.map(function (x) { return JSON.parse(JSON.stringify(x)); }); commit(function (st) { add.forEach(function (x) { if (!st.ejercicios.some(function (q) { return q.id === x.id; })) st.ejercicios.push(x); }); }); setAviso('Añadidos ' + add.length + ' ejercicios.'); } }, 'Añadirlos')) : null,
+        modoGrupos ? h('div', { key: 'ng', className: 'panel', style: { display: 'grid', gap: '10px', maxWidth: '720px' } },
+          h('div', { style: { display: 'flex', gap: '8px', alignItems: 'flex-end', flexWrap: 'wrap' } },
+            h('div', { style: { flex: '1 1 220px' } }, h(G.TextField, { label: 'Nuevo grupo', value: grupoTxt, placeholder: 'Isquios, Glúteo, Pliometría…', onChange: setGrupoTxt })),
+            h(G.Button, { size: 'md', icon: 'mas', disabled: !grupoTxt.trim(), onClick: function () { var g = grupoTxt.trim().replace(/\s+/g, ' '); var ya = PATRONES.filter(function (q) { return sinTildes(q).toLowerCase() === sinTildes(g).toLowerCase(); })[0];
+              if (ya) { setAviso('Ya existe el grupo «' + ya + '».'); setGrupoTxt(''); return; }
+              setGruposNuevos(gruposNuevos.concat([g])); setGrupoTxt(''); setAviso('Creado «' + g + '». Ya puedes elegirlo en el desplegable de cada ejercicio.'); } }, 'Crear grupo')),
+          h('p', { className: 'muted small', style: { margin: 0 } }, 'Un grupo se guarda en cuanto le pasas algún ejercicio. Si lo dejas vacío, desaparece. Para borrar un grupo, mueve sus ejercicios a otro.'),
+          aviso ? h('p', { style: { margin: 0, fontSize: '13px', fontWeight: 600 } }, aviso) : null) : null,
         h('div', { key: 'q', className: 'libsearch' }, h(G.TextField, { label: 'Buscar', value: filters.q || '', placeholder: 'Sentadilla, polea, isquios…', onChange: function (v) { setFilters(Object.assign({}, filters, { q: v })); } })),
-        h(G.FilterBar, { key: 'f', value: filters, onChange: setFilters, groups: [{ id: 'patron', label: 'Patrón', options: ['Rodilla', 'Cadera', 'Unilateral', 'Empuje', 'Tracción', 'Hombros', 'Brazos', 'Potencia', 'Core', 'Movilidad', 'Prevención', 'Condición', 'A. Exposito'] }, { id: 'material', label: 'Material', options: ['Barra', 'Mancuernas', 'Máquina', 'Polea', 'Gomas', 'Sin material'] }, { id: 'video', label: 'Vídeo', options: ['Con vídeo', 'Sin vídeo'] }] }),
+        h(G.FilterBar, { key: 'f', value: filters, onChange: setFilters, groups: [{ id: 'patron', label: 'Patrón', options: ['Rodilla', 'Cadera', 'Unilateral', 'Empuje', 'Tracción', 'Hombros', 'Brazos', 'Potencia', 'Core', 'Movilidad', 'Prevención', 'Condición', 'A. Exposito'].concat(PATRONES.slice(PATRONES_BASE.length)) }, { id: 'material', label: 'Material', options: ['Barra', 'Mancuernas', 'Máquina', 'Polea', 'Gomas', 'Sin material'] }, { id: 'video', label: 'Vídeo', options: ['Con vídeo', 'Sin vídeo'] }] }),
         h('div', { key: 'c', className: 'cols' },
           h('div', { className: 'stack' }, grupos.length ? grupos.map(function (g) { return h(G.ListGroup, { key: g.pt, title: g.pt, meta: g.items.length + (g.items.length === 1 ? ' ejercicio' : ' ejercicios') }, g.items.map(function (x) { if (modoGrupos) { var ops = PATRONES.indexOf(x.patron) >= 0 ? PATRONES : [x.patron].concat(PATRONES); return h('div', { key: x.id, className: 'gmov' }, h('span', null, x.nombre), h('select', { value: x.patron, 'aria-label': 'Grupo de ' + x.nombre, onChange: function (ev) { var nv = ev.target.value; commit(function (st) { var y = st.ejercicios.filter(function (q) { return q.id === x.id; })[0]; if (y) y.patron = nv; }); setAviso(x.nombre + ' → ' + nv); } }, ops.map(function (o) { return h('option', { key: o, value: o }, o); }))); }
               return h(G.LibraryItem, { key: x.id, name: x.nombre, equipment: x.material, difficulty: x.dificultad, duration: x.videoUrl ? 'Vídeo' : 'Sin vídeo', posterUrl: ytPoster(x.videoUrl), onOpen: function () { abrir(x); } }); })); })
@@ -6809,7 +6821,7 @@ window.GAGOR_reducirFoto = function (file) {
           h('div', { className: 'panel', style: { display: 'grid', gap: '12px', alignSelf: 'start' } },
             h('h2', { style: { margin: 0, fontFamily: 'var(--font-display)', fontSize: '20px' } }, editando ? 'Editar · ' + editando.nombre : 'Nuevo ejercicio'),
             h(G.TextField, { label: 'Nombre', value: nEj.nombre, onChange: function (x) { campo('nombre', x); } }),
-            h(G.TextField, { label: 'Patrón', type: 'select', value: nEj.patron, options: PATRONES, onChange: function (x) { campo('patron', x); } }),
+            h(G.TextField, { label: 'Grupo', type: 'select', value: nEj.patron, options: PATRONES.indexOf(nEj.patron) >= 0 || !nEj.patron ? PATRONES : [nEj.patron].concat(PATRONES), onChange: function (x) { campo('patron', x); } }),
             h(G.TextField, { label: 'Material', value: nEj.material, placeholder: 'Barra, Rack', hint: 'Separado por comas', onChange: function (x) { campo('material', x); } }),
             h(G.TextField, { label: 'Dificultad', type: 'select', value: nEj.dificultad, options: ['Baja', 'Media', 'Alta'], onChange: function (x) { campo('dificultad', x); } }),
             h(G.TextField, { label: 'Vídeo (enlace de YouTube)', value: nEj.videoUrl || '', placeholder: 'https://youtu.be/…', onChange: function (x) { campo('videoUrl', x); }, hint: 'Súbelo a YouTube como «oculto» (no listado): solo lo ve quien tenga el enlace. Se reproduce dentro de la app.', error: nEj.videoUrl && !yt ? 'No parece un enlace de YouTube' : undefined }),
