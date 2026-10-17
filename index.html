@@ -1036,6 +1036,15 @@ a.g-btn { text-decoration: none; }
 .libre--fold > .stack, .libre--fold > p { margin-left: 16px; margin-right: 16px; }
 @media (max-width: 760px) { .cwk__add { min-height: 0; display: flex; justify-content: flex-start; padding: 4px 6px; } .cwk__add .cwk__plus { width: 26px; height: 26px; } .cwk__addt { text-align: left; } }
 /* 1.33 · ficha del cliente: semana, historial por semanas, rutinas plegables */
+.cbal { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: var(--radius-md); background: var(--alert-soft); border: 1px solid var(--alert); }
+.cbal__ic { color: var(--alert); flex: none; padding-top: 2px; }
+.cbal__tx { display: grid; gap: 4px; min-width: 0; }
+.cbal__tx p { margin: 0; font-size: 15px; line-height: 22px; }
+.cbal__tx small { color: var(--ink-muted); font-size: 13px; }
+.gmov { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+.gmov:last-child { border-bottom: 0; }
+.gmov span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gmov select { flex: none; max-width: 48%; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-card); color: var(--ink); font: inherit; font-size: 14px; }
 .cwk__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .cwk__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
 .cwk__d { display: grid; align-content: start; gap: 6px; min-height: 84px; padding: 8px 6px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--line); min-width: 0; }
@@ -3021,7 +3030,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.38";
+<script>window.GAGOR_VERSION = "1.39";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -5907,6 +5916,7 @@ window.GAGOR_reducirFoto = function (file) {
     var nu = useState({ nombre: '', grupo: '', codigo: '' }); var nuevo = nu[0], setNuevo = nu[1];
     var ne = useState({ nombre: '', patron: 'Rodilla dominante', material: '', dificultad: 'Media', videoUrl: '', como: '', evita: '' }); var nEj = ne[0], setNEj = ne[1];
     var msg = useState(''); var aviso = msg[0], setAviso = msg[1];
+    var mg = useState(false); var modoGrupos = mg[0], setModoGrupos = mg[1];
     var mc = useState(null); var mesCal = mc[0], setMesCal = mc[1];
     var ta = useState(false); var show = ta[0], setShow = ta[1];
     // descargas: en el artefacto las da la plataforma; fuera, el propio navegador
@@ -6251,6 +6261,34 @@ window.GAGOR_reducirFoto = function (file) {
           h('div', { className: 'ctile is-o' }, h('span', { className: 'ctile__ic' }, h(G.Icon, { name: 'calendario', size: 22 })), h(G.StatTile, { label: 'Sesiones · 4 sem.', value: ad.done + '/' + ad.planned, detail: 'Hechas / programadas' })),
           h('div', { className: 'ctile is-r' }, h('span', { className: 'ctile__ic' }, h(G.Icon, { name: 'carga', size: 22 })), h(G.StatTile, { label: 'RPE medio', value: hechas.length ? n(Math.round(hechas.reduce(function (a, s) { return a + (s.rpe || 0); }, 0) / hechas.length * 10) / 10) : '—', detail: hechas.length ? 'De ' + hechas.length + (hechas.length === 1 ? ' sesión' : ' sesiones') : 'Sin sesiones' })),
           null),
+        (function () {
+          // 1.39 · equilibrio de volumen esta semana: rodilla vs cadera (tren inferior) y empuje vs tracción (tren superior)
+          var lun = ST.semanaDe(hoyIso), fin = ST.iso(ST.addDays(new Date(lun + 'T12:00:00'), 6));
+          var nt = function (x) { return sinTildes(String(x || '')).toLowerCase(); };
+          function lado(x) { if (!x) return null; var p = x.patron || '';
+            if (p.indexOf('Rodilla') === 0) return 'ia'; if (p.indexOf('Cadera') === 0) return 'ip';
+            if (p.indexOf('Empuje') === 0) return 'sa'; if (p.indexOf('Tracción') === 0) return 'sp';
+            if (p.indexOf('Unilateral') === 0) { var nm = nt(x.nombre);
+              if (/peso muerto|rdl|puente|hip|thrust|buenos dias|nordic|femoral|isquio|swing/.test(nm)) return 'ip';
+              if (/sentadilla|zancada|split|bulgar|step|subida|pistol|lunge|prensa|cuadriceps/.test(nm)) return 'ia'; }
+            return null; }
+          var v = { ia: 0, ip: 0, sa: 0, sp: 0 }, prog = false;
+          ses.filter(function (q) { return q.fecha >= lun && q.fecha <= fin; }).forEach(function (q) {
+            var conReg = q.estado === 'hecha' && Object.keys(q.registros || {}).length;
+            ST.ejerciciosPlanos(q).forEach(function (fx) { var k = lado(ST.ejercicio(state, fx.e.ejId)); if (!k) return;
+              var nS = conReg ? ((q.registros || {})[fx.key] || []).filter(function (r) { return r && r.done; }).length : (Number(fx.e.series) || 0);
+              if (q.estado !== 'hecha' && nS) prog = true; v[k] += nS; }); });
+          function cmp(a, b, nA, nB, tren, dA, dB) { var hi = Math.max(a, b), lo = Math.min(a, b); if (a + b < 6 || a === b) return null; var gana = a > b;
+            if (!lo) return hi < 4 ? null : { t: tren + ': solo ' + (gana ? nA : nB), d: hi + ' series de ' + (gana ? dA : dB) + ' y ninguna de ' + (gana ? dB : dA) + '.' };
+            var pct = Math.round((hi - lo) / lo * 100); if (pct < 20 || hi - lo < 2) return null;
+            return { t: tren + ': +' + pct + ' % de ' + (gana ? nA : nB), d: hi + ' series de ' + (gana ? dA : dB) + ' frente a ' + lo + ' de ' + (gana ? dB : dA) + '.' }; }
+          var avs = [cmp(v.ia, v.ip, 'cadena anterior', 'cadena posterior', 'Tren inferior', 'rodilla dominante', 'cadera dominante'), cmp(v.sa, v.sp, 'empuje', 'tracción', 'Tren superior', 'empuje', 'tracción')].filter(Boolean);
+          if (!avs.length) return null;
+          return h('div', { key: 'bal', className: 'cbal' },
+            h('span', { className: 'cbal__ic' }, h(G.Icon, { name: 'aviso', size: 20 })),
+            h('div', { className: 'cbal__tx' }, avs.map(function (a, i) { return h('p', { key: i }, h('b', null, a.t), ' · ', a.d); }),
+              h('small', null, 'Esta semana' + (prog ? ', contando lo programado que falta' : '') + '. Se calcula con el grupo de cada ejercicio en la Biblioteca.')));
+        })(),
         (function () {
               var MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
               var DSEM = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
@@ -6758,13 +6796,14 @@ window.GAGOR_reducirFoto = function (file) {
           h('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } },
             h(G.Button, { size: 'md', icon: 'check', onClick: function () { commit(function (st) { mover.forEach(function (m) { var x = st.ejercicios.filter(function (q) { return q.id === m.id; })[0]; if (x) x.patron = m.a; }); }); setAviso('Movidos ' + mover.length + ' ejercicios a Hombros y Brazos.'); } }, 'Moverlos'),
             h(G.Button, { size: 'md', variant: 'ghost', onClick: function () { try { localStorage.setItem('gagor_grupos_17', 'no'); } catch (e) {} setAviso('Vale, se quedan donde estaban. Puedes cambiar el grupo de cualquiera al editarlo.'); } }, 'Dejarlos como están'))) : null,
-        h(G.AppHeader, { key: 'h', title: 'Biblioteca', subtitle: state.ejercicios.length + ' ejercicios · toca uno para editarlo', action: editando ? h(G.Button, { size: 'md', variant: 'secondary', icon: 'mas', onClick: limpiar }, 'Nuevo ejercicio') : null }),
+        h(G.AppHeader, { key: 'h', title: 'Biblioteca', subtitle: state.ejercicios.length + (modoGrupos ? ' ejercicios · elige el grupo de cada uno' : ' ejercicios · toca uno para editarlo'), action: h('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } }, h(G.Button, { size: 'md', variant: modoGrupos ? 'primary' : 'secondary', icon: modoGrupos ? 'check' : 'editar', onClick: function () { setModoGrupos(!modoGrupos); } }, modoGrupos ? 'Listo' : 'Cambiar grupos'), editando && !modoGrupos ? h(G.Button, { size: 'md', variant: 'secondary', icon: 'mas', onClick: limpiar }, 'Nuevo ejercicio') : null) }),
         nuevos.length ? h('div', { key: 'nv', className: 'panel rowline', style: { flexWrap: 'wrap' } }, h('p', { style: { margin: 0 } }, h('b', null, nuevos.length + ' ejercicios nuevos'), ' en la biblioteca de GAGOR, con su técnica explicada. Los tuyos no se tocan.'),
           h(G.Button, { size: 'md', icon: 'mas', onClick: function () { var add = nuevos.map(function (x) { return JSON.parse(JSON.stringify(x)); }); commit(function (st) { add.forEach(function (x) { if (!st.ejercicios.some(function (q) { return q.id === x.id; })) st.ejercicios.push(x); }); }); setAviso('Añadidos ' + add.length + ' ejercicios.'); } }, 'Añadirlos')) : null,
         h('div', { key: 'q', className: 'libsearch' }, h(G.TextField, { label: 'Buscar', value: filters.q || '', placeholder: 'Sentadilla, polea, isquios…', onChange: function (v) { setFilters(Object.assign({}, filters, { q: v })); } })),
         h(G.FilterBar, { key: 'f', value: filters, onChange: setFilters, groups: [{ id: 'patron', label: 'Patrón', options: ['Rodilla', 'Cadera', 'Unilateral', 'Empuje', 'Tracción', 'Hombros', 'Brazos', 'Potencia', 'Core', 'Movilidad', 'Prevención', 'Condición', 'A. Exposito'] }, { id: 'material', label: 'Material', options: ['Barra', 'Mancuernas', 'Máquina', 'Polea', 'Gomas', 'Sin material'] }, { id: 'video', label: 'Vídeo', options: ['Con vídeo', 'Sin vídeo'] }] }),
         h('div', { key: 'c', className: 'cols' },
-          h('div', { className: 'stack' }, grupos.length ? grupos.map(function (g) { return h(G.ListGroup, { key: g.pt, title: g.pt, meta: g.items.length + (g.items.length === 1 ? ' ejercicio' : ' ejercicios') }, g.items.map(function (x) { return h(G.LibraryItem, { key: x.id, name: x.nombre, equipment: x.material, difficulty: x.dificultad, duration: x.videoUrl ? 'Vídeo' : 'Sin vídeo', posterUrl: ytPoster(x.videoUrl), onOpen: function () { abrir(x); } }); })); })
+          h('div', { className: 'stack' }, grupos.length ? grupos.map(function (g) { return h(G.ListGroup, { key: g.pt, title: g.pt, meta: g.items.length + (g.items.length === 1 ? ' ejercicio' : ' ejercicios') }, g.items.map(function (x) { if (modoGrupos) { var ops = PATRONES.indexOf(x.patron) >= 0 ? PATRONES : [x.patron].concat(PATRONES); return h('div', { key: x.id, className: 'gmov' }, h('span', null, x.nombre), h('select', { value: x.patron, 'aria-label': 'Grupo de ' + x.nombre, onChange: function (ev) { var nv = ev.target.value; commit(function (st) { var y = st.ejercicios.filter(function (q) { return q.id === x.id; })[0]; if (y) y.patron = nv; }); setAviso(x.nombre + ' → ' + nv); } }, ops.map(function (o) { return h('option', { key: o, value: o }, o); }))); }
+              return h(G.LibraryItem, { key: x.id, name: x.nombre, equipment: x.material, difficulty: x.dificultad, duration: x.videoUrl ? 'Vídeo' : 'Sin vídeo', posterUrl: ytPoster(x.videoUrl), onOpen: function () { abrir(x); } }); })); })
             : h(G.EmptyState, { title: 'Nada con esos filtros', detail: 'Quita algún filtro o busca otra palabra.' })),
           h('div', { className: 'stack libside' },
           h('div', { className: 'panel', style: { display: 'grid', gap: '12px', alignSelf: 'start' } },
