@@ -506,10 +506,10 @@
 
 /* ---------- Intervalos de bici (1.41) ---------- */
 .g-ivp { position: relative; display: flex; align-items: flex-end; gap: 2px; height: 56px; padding: 4px 0; }
-.g-ivp__s { flex: 1 1 0; min-width: 2px; height: 100%; display: flex; align-items: flex-end; }
+.g-ivp__s { position: relative; flex: 1 1 0; min-width: 2px; height: 100%; display: flex; align-items: flex-end; }
 .g-ivp__s span { display: block; width: 100%; border-radius: 3px 3px 1px 1px; }
 .g-ivp__s.is-past span { opacity: .35; }
-.g-ivp__head { position: absolute; top: -4px; bottom: -4px; width: 3px; margin-left: -1px; background: #fff; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,.4), 0 0 10px rgba(255,255,255,.6); }
+.g-ivp__head { position: absolute; z-index: 1; top: -8px; bottom: -8px; width: 3px; margin-left: -1px; background: #fff; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,.4), 0 0 10px rgba(255,255,255,.6); }
 .g-ivp--big { height: 96px; }
 .g-ivplay { min-height: 100%; display: grid; gap: 16px; align-content: start; padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(24px + env(safe-area-inset-bottom, 0px)); background: #161412; color: #F1EDE4; }
 .g-ivplay__top { display: flex; gap: 12px; align-items: center; }
@@ -2775,8 +2775,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var p = props || {}; var trs = p.tramos || []; var tot = intTotal(trs) || 1;
     return h('div', { className: cx('g-ivp', p.className), 'aria-hidden': 'true' },
       trs.map(function (tr, i) { return h('div', { key: i, className: 'g-ivp__s' + (p.pos !== undefined && p.pos !== null && i < p.actual ? ' is-past' : '') + (i === p.actual ? ' is-on' : ''), style: { flexGrow: Number(tr.seg) || 1 } },
-        h('span', { style: { height: intAlto(tr) + '%', background: intColor(tr) } })); }),
-      p.pos !== undefined && p.pos !== null ? h('i', { className: 'g-ivp__head', style: { left: Math.min(100, p.pos / tot * 100) + '%' } }) : null);
+        h('span', { style: { height: intAlto(tr) + '%', background: intColor(tr) } }),
+        // 1.43 · la línea va dentro de la barra del tramo actual: así cuadra con la cuenta atrás aunque haya huecos entre barras
+        i === p.actual && p.pos !== undefined && p.pos !== null ? h('i', { className: 'g-ivp__head', style: { left: Math.max(0, Math.min(100, (p.frac || 0) * 100)) + '%' } }) : null); }));
   }
   function IntervalPlayer(props) {
     var p = props || {}; var trs = (p.bloque && p.bloque.intervalos || []).filter(function (x) { return Number(x.seg) > 0; }); var tot = intTotal(trs);
@@ -2819,7 +2820,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       h('div', { className: 'g-ivplay__top' },
         h('button', { type: 'button', className: 'g-ivplay__x', 'aria-label': t('Salir'), onClick: function () { pausa(); if (p.onExit) p.onExit(); } }, h(Icon, { name: 'atras', size: 20 })),
         h('div', { className: 'g-ivplay__tt' }, h('b', null, p.titulo || t('Intervalos')), h('span', null, fmt(Math.ceil(tot - el)) + t(' para acabar') + ' · ' + t('tramo ') + (i + 1) + t(' de ') + trs.length))),
-      h(IntervalProfile, { tramos: trs, pos: el, actual: i, className: 'g-ivp--big' }),
+      h(IntervalProfile, { tramos: trs, pos: el, actual: i, frac: fin ? 1 : dentro / (Number(cur.seg) || 1), className: 'g-ivp--big' }),
       fin ? h('div', { className: 'g-ivplay__card is-fin' },
           h('p', { className: 'g-ivplay__tipo' }, t('Sesión de bici completada')),
           h('p', { className: 'g-ivplay__time' }, fmt(Math.round(tot))),
@@ -3162,7 +3163,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.42";
+<script>window.GAGOR_VERSION = "1.43";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
