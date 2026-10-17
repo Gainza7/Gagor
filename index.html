@@ -504,6 +504,52 @@
 .g-phase__fill { height: 100%; background: var(--accent); transition: width 1s linear; }
 .g-phase__actions { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2); margin-top: var(--space-2); }
 
+/* ---------- Intervalos de bici (1.41) ---------- */
+.g-ivp { position: relative; display: flex; align-items: flex-end; gap: 2px; height: 56px; padding: 4px 0; }
+.g-ivp__s { flex: 1 1 0; min-width: 2px; height: 100%; display: flex; align-items: flex-end; }
+.g-ivp__s span { display: block; width: 100%; border-radius: 3px 3px 1px 1px; }
+.g-ivp__s.is-past span { opacity: .35; }
+.g-ivp__head { position: absolute; top: -4px; bottom: -4px; width: 3px; margin-left: -1px; background: #fff; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,.4), 0 0 10px rgba(255,255,255,.6); }
+.g-ivp--big { height: 96px; }
+.g-ivplay { min-height: 100%; display: grid; gap: 16px; align-content: start; padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(24px + env(safe-area-inset-bottom, 0px)); background: #161412; color: #F1EDE4; }
+.g-ivplay__top { display: flex; gap: 12px; align-items: center; }
+.g-ivplay__x { width: 44px; height: 44px; flex: none; border-radius: 12px; border: 1px solid rgba(241,237,228,.25); background: transparent; color: inherit; display: grid; place-items: center; cursor: pointer; }
+.g-ivplay__tt { display: grid; min-width: 0; } .g-ivplay__tt b { font-size: 18px; } .g-ivplay__tt span { font-size: 13px; opacity: .7; }
+.g-ivplay__card { --ivc: #4DB57E; display: grid; gap: 6px; justify-items: center; text-align: center; padding: 24px 16px 18px; border-radius: 24px; background: color-mix(in srgb, var(--ivc) 22%, #161412); border: 2px solid var(--ivc); transition: background .4s, border-color .4s; }
+.g-ivplay__card p { margin: 0; }
+.g-ivplay__tipo { font-size: 15px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ivc); }
+.g-ivplay__card.is-fin { --ivc: #4DB57E; }
+.g-ivplay__time { font-family: var(--font-display); font-size: 96px; line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+.g-ivplay__rpm { font-size: 22px; } .g-ivplay__rpm b { font-size: 44px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.g-ivplay__res { font-size: 17px; font-weight: 600; opacity: .9; }
+.g-ivplay__nota { font-size: 17px; line-height: 24px; opacity: .9; max-width: 32ch; }
+.g-ivplay__bar { width: 100%; height: 8px; margin-top: 10px; border-radius: 99px; background: rgba(241,237,228,.15); overflow: hidden; }
+.g-ivplay__bar span { display: block; height: 100%; background: var(--ivc); }
+.g-ivplay__next { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 14px; background: rgba(241,237,228,.07); font-size: 15px; }
+.g-ivplay__next i { width: 14px; height: 14px; flex: none; border-radius: 4px; }
+.g-ivplay__ctrl { display: flex; justify-content: center; align-items: center; gap: 28px; margin-top: 4px; }
+.g-ivplay__ctrl.is-fin { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.g-ivplay__ib { width: 56px; height: 56px; border-radius: 50%; border: 1px solid rgba(241,237,228,.3); background: transparent; color: inherit; display: grid; place-items: center; cursor: pointer; }
+.g-ivplay__play { width: 84px; height: 84px; border-radius: 50%; border: 0; background: #4DB57E; color: #161412; display: grid; place-items: center; cursor: pointer; box-shadow: 0 6px 24px rgba(77,181,126,.35); }
+.g-ivplay__hint { margin: 0; text-align: center; font-size: 14px; opacity: .7; }
+.ivphone { background: #161412; min-height: 100vh; min-height: 100dvh; }
+.ivphone > .g-ivplay { min-height: 100vh; min-height: 100dvh; }
+.g-ivplay .g-btn--secondary { color: #F1EDE4; border-color: rgba(241,237,228,.35); background: transparent; }
+.ivover { position: fixed; inset: 0; z-index: 90; overflow-y: auto; background: #161412; }
+.ivover > .g-ivplay { max-width: 520px; margin: 0 auto; }
+.ivrow { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 12px; border-radius: var(--radius-md); background: var(--surface-card); border: 1px solid var(--line); cursor: pointer; text-align: left; width: 100%; font: inherit; color: inherit; }
+.ivrow .g-ivp { height: 40px; grid-column: 1 / -1; }
+.ivrow b { font-size: 16px; } .ivrow small { color: var(--ink-muted); font-size: 13px; display: block; }
+.ivrow.is-done { border-color: var(--accent); }
+.ivx { display: grid; gap: 8px; }
+.ivx__row { display: grid; grid-template-columns: 28px 172px 76px 70px 60px minmax(120px, 1fr) auto; gap: 6px; align-items: center; }
+.ivx__row--head { font-size: 12px; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+.ivx__dot { width: 22px; height: 22px; border-radius: 6px; }
+.ivx__tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ivx__tools select { width: auto; }
+.ivx__sum { font-size: 14px; color: var(--ink-muted); }
+@media (max-width: 760px) { .ivx__row { grid-template-columns: 22px 1fr 64px 58px 48px; } .ivx__row .ivx__nt { grid-column: 2 / -1; } .ivx__row .edx__acts { grid-column: 2 / -1; } .ivx__row--head span:nth-child(6), .ivx__row--head span:nth-child(7) { display: none; } }
+
 /* ---------- BrandBackdrop ---------- */
 .g-backdrop { position: absolute; inset: 0; overflow: hidden; pointer-events: none; color: var(--ink); }
 .g-backdrop__art { position: absolute; top: 0; left: 50%; height: 100%; aspect-ratio: 788 / 1024; transform: translateX(-50%); }
@@ -2716,6 +2762,87 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     );
   }
 
+  /* ------------------------------------------------- Intervalos de bici (1.41) */
+  var INT_TIPOS = { calentamiento: 'Calentamiento', trabajo: 'Trabajo', descanso: 'Descanso', calma: 'Vuelta a la calma' };
+  function intColor(tr) {
+    if (!tr || tr.tipo === 'descanso') return '#8C948F';
+    var r = Number(tr.rpm) || 0; if (!r) return '#64748B';
+    if (r < 70) return '#3B82F6'; if (r < 85) return '#22C55E'; if (r < 95) return '#EAB308'; if (r < 105) return '#F97316'; return '#EF4444';
+  }
+  function intTotal(trs) { return (trs || []).reduce(function (a, x) { return a + (Number(x.seg) || 0); }, 0); }
+  function intAlto(tr) { if (tr.tipo === 'descanso') return 16; var r = Number(tr.rpm) || 0; if (!r) return 36; return Math.max(22, Math.min(100, (r - 40) / 80 * 100)); }
+  function IntervalProfile(props) {
+    var p = props || {}; var trs = p.tramos || []; var tot = intTotal(trs) || 1;
+    return h('div', { className: cx('g-ivp', p.className), 'aria-hidden': 'true' },
+      trs.map(function (tr, i) { return h('div', { key: i, className: 'g-ivp__s' + (p.pos !== undefined && p.pos !== null && i < p.actual ? ' is-past' : '') + (i === p.actual ? ' is-on' : ''), style: { flexGrow: Number(tr.seg) || 1 } },
+        h('span', { style: { height: intAlto(tr) + '%', background: intColor(tr) } })); }),
+      p.pos !== undefined && p.pos !== null ? h('i', { className: 'g-ivp__head', style: { left: Math.min(100, p.pos / tot * 100) + '%' } }) : null);
+  }
+  function IntervalPlayer(props) {
+    var p = props || {}; var trs = (p.bloque && p.bloque.intervalos || []).filter(function (x) { return Number(x.seg) > 0; }); var tot = intTotal(trs);
+    var sa = React.useState({ acc: 0, t0: null }); var clk = sa[0], setClk = sa[1];
+    var tk = React.useState(0); var setTick = tk[1];
+    var fn = React.useState(false); var fin = fn[0], setFin = fn[1];
+    var aud = React.useRef(null), wl = React.useRef(null), lastS = React.useRef(null), lastI = React.useRef(-1);
+    var running = clk.t0 !== null;
+    var el = Math.min(tot, clk.acc + (running ? (Date.now() - clk.t0) / 1000 : 0));
+    var i = 0, ini = 0; while (i < trs.length - 1 && el >= ini + Number(trs[i].seg)) { ini += Number(trs[i].seg); i++; }
+    var cur = trs[i] || {}; var dentro = el - ini; var queda = Math.max(0, Math.ceil(Number(cur.seg) - dentro - 0.001)); var sig = trs[i + 1] || null;
+    function pita(f, d) { try { var a = aud.current; if (!a) return; var o = a.createOscillator(), g = a.createGain(); o.frequency.value = f; o.connect(g); g.connect(a.destination); g.gain.setValueAtTime(0.25, a.currentTime); g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + d); o.start(); o.stop(a.currentTime + d); } catch (x) {} }
+    function pedirLuz() { try { if (navigator.wakeLock && !wl.current) navigator.wakeLock.request('screen').then(function (w) { wl.current = w; w.addEventListener('release', function () { wl.current = null; }); }, function () {}); } catch (x) {} }
+    function soltarLuz() { try { if (wl.current) wl.current.release(); } catch (x) {} wl.current = null; }
+    React.useEffect(function () {
+      if (!running) return undefined;
+      var id = setInterval(function () { setTick(function (v) { return v + 1; }); }, 200);
+      var vis = function () { if (document.visibilityState === 'visible') pedirLuz(); };
+      document.addEventListener('visibilitychange', vis);
+      return function () { clearInterval(id); document.removeEventListener('visibilitychange', vis); };
+    }, [running]);
+    React.useEffect(function () { return soltarLuz; }, []);
+    // pitidos: 3-2-1 antes de cambiar de tramo y uno largo al empezar el siguiente
+    React.useEffect(function () {
+      if (!running) return;
+      if (i !== lastI.current) { if (lastI.current >= 0) { pita(i < trs.length && cur.tipo === 'descanso' ? 520 : 1040, 0.45); try { if (navigator.vibrate) navigator.vibrate(300); } catch (x) {} } lastI.current = i; lastS.current = null; }
+      if (queda <= 3 && queda >= 1 && lastS.current !== queda) { lastS.current = queda; pita(880, 0.12); }
+      if (el >= tot && tot > 0) { setClk({ acc: tot, t0: null }); setFin(true); soltarLuz(); pita(1320, 0.8); try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (x) {} }
+    });
+    function play() {
+      if (!aud.current) { try { var AC = window.AudioContext || window.webkitAudioContext; if (AC) aud.current = new AC(); } catch (x) {} }
+      try { if (aud.current && aud.current.state === 'suspended') aud.current.resume(); } catch (x) {}
+      if (fin) { setFin(false); lastI.current = -1; setClk({ acc: 0, t0: Date.now() }); } else { if (lastI.current < 0) lastI.current = i; setClk({ acc: el, t0: Date.now() }); }
+      pedirLuz();
+    }
+    function pausa() { setClk({ acc: el, t0: null }); soltarLuz(); }
+    function ir(k) { var s0 = 0; for (var q = 0; q < Math.max(0, Math.min(k, trs.length - 1)); q++) s0 += Number(trs[q].seg); lastI.current = Math.max(0, Math.min(k, trs.length - 1)); lastS.current = null; setFin(false); setClk({ acc: s0, t0: running ? Date.now() : null }); }
+    var col = intColor(cur);
+    return h('div', { className: 'g-ivplay' },
+      h('div', { className: 'g-ivplay__top' },
+        h('button', { type: 'button', className: 'g-ivplay__x', 'aria-label': t('Salir'), onClick: function () { pausa(); if (p.onExit) p.onExit(); } }, h(Icon, { name: 'atras', size: 20 })),
+        h('div', { className: 'g-ivplay__tt' }, h('b', null, p.titulo || t('Intervalos')), h('span', null, fmt(Math.ceil(tot - el)) + t(' para acabar') + ' · ' + t('tramo ') + (i + 1) + t(' de ') + trs.length))),
+      h(IntervalProfile, { tramos: trs, pos: el, actual: i, className: 'g-ivp--big' }),
+      fin ? h('div', { className: 'g-ivplay__card is-fin' },
+          h('p', { className: 'g-ivplay__tipo' }, t('Sesión de bici completada')),
+          h('p', { className: 'g-ivplay__time' }, fmt(Math.round(tot))),
+          h('p', { className: 'g-ivplay__nota' }, trs.length + t(' tramos hechos. ¡Bien!')))
+        : h('div', { className: 'g-ivplay__card', style: { '--ivc': col } },
+          h('p', { className: 'g-ivplay__tipo' }, t(INT_TIPOS[cur.tipo] || 'Trabajo')),
+          h('p', { className: 'g-ivplay__time', role: 'timer' }, fmt(queda)),
+          cur.rpm ? h('p', { className: 'g-ivplay__rpm' }, h('b', null, cur.rpm), ' RPM') : null,
+          cur.res ? h('p', { className: 'g-ivplay__res' }, t('Resistencia ') + cur.res) : null,
+          cur.nota ? h('p', { className: 'g-ivplay__nota' }, cur.nota) : null,
+          h('div', { className: 'g-ivplay__bar' }, h('span', { style: { width: Math.min(100, dentro / (Number(cur.seg) || 1) * 100) + '%' } }))),
+      !fin && sig ? h('div', { className: 'g-ivplay__next' }, h('i', { style: { background: intColor(sig) } }), h('span', null, h('b', null, t('Después: ')), t(INT_TIPOS[sig.tipo] || 'Trabajo') + ' · ' + fmt(Number(sig.seg)) + (sig.rpm ? ' · ' + sig.rpm + ' RPM' : '') + (sig.res ? ' · R' + sig.res : ''))) : null,
+      !fin && !sig ? h('div', { className: 'g-ivplay__next' }, h('span', null, h('b', null, t('Último tramo')))) : null,
+      fin ? h('div', { className: 'g-ivplay__ctrl is-fin' },
+          h(Button, { variant: 'secondary', size: 'lg', icon: 'reproducir', onClick: play }, t('Repetir')),
+          h(Button, { size: 'lg', icon: 'check', onClick: function () { if (p.onFinish) p.onFinish(Math.round(tot)); } }, p.finLabel || t('Terminar')))
+        : h('div', { className: 'g-ivplay__ctrl' },
+          h('button', { type: 'button', className: 'g-ivplay__ib', 'aria-label': t('Tramo anterior'), onClick: function () { ir(dentro > 3 ? i : i - 1); } }, h(Icon, { name: 'atras', size: 22 })),
+          h('button', { type: 'button', className: 'g-ivplay__play', 'aria-label': running ? t('Pausar') : t('Empezar'), onClick: running ? pausa : play }, h(Icon, { name: running ? 'pausar' : 'reproducir', size: 34 })),
+          h('button', { type: 'button', className: 'g-ivplay__ib', 'aria-label': t('Siguiente tramo'), onClick: function () { if (i < trs.length - 1) ir(i + 1); else { setClk({ acc: tot, t0: null }); setFin(true); soltarLuz(); } } }, h(Icon, { name: 'saltar', size: 22 }))),
+      !running && !fin && el === 0 ? h('p', { className: 'g-ivplay__hint' }, t('Dale al play. Pitará 3-2-1 antes de cada cambio. Las RPM las marca la pantalla de tu bici.')) : null);
+  }
+
   /* ---------------------------------------------------------- PhaseTimer */
   function PhaseTimer(props) {
     var p = props || {};
@@ -3001,6 +3128,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     TabBar: TabBar,
     SessionBlock: SessionBlock,
     RestTimer: RestTimer,
+    IntervalPlayer: IntervalPlayer,
+    IntervalProfile: IntervalProfile,
+    intColor: intColor,
+    intTotal: intTotal,
+    INT_TIPOS: INT_TIPOS,
     ExerciseVideo: ExerciseVideo,
     StatTile: StatTile,
     RecordList: RecordList,
@@ -3030,7 +3162,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.40";
+<script>window.GAGOR_VERSION = "1.41";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -3597,6 +3729,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   // duración estimada: 4 s por repetición (o los segundos si es isométrico) más el descanso entre series
   function resumenBloques(bloques) {
     var ej = 0, series = 0, seg = 0;
+    (bloques || []).forEach(function (b) { (b.intervalos || []).forEach(function (x) { seg += Number(x.seg) || 0; }); });
     (bloques || []).forEach(function (b) { b.ejercicios.forEach(function (e) {
       ej++; var s = Number(e.series) || 0; series += s;
       var trabajo = e.seg ? (Number(e.reps) || 1) * Number(e.seg) : ((Number(e.reps) || 0) > 20 ? Number(e.reps) : (Number(e.reps) || 0) * 4);
@@ -3621,7 +3754,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function esUnilateral(st, id) { var x = (st.ejercicios || []).filter(function (q) { return q.id === id; })[0]; return !!(x && /^Unilateral/.test(x.patron || '')); }
   function aplicarEdicion(ses, bloques) {
     var reg = {};
-    var limpio = bloques.map(function (b, bi) { return { titulo: b.titulo, circuito: b.circuito || undefined, ejercicios: b.ejercicios.map(function (e, ei) {
+    var limpio = bloques.map(function (b, bi) { if (b.intervalos) { var kk = 'iv' + (b._iv !== undefined && b._iv !== null ? b._iv : bi); if (ses.registros && ses.registros[kk]) reg['iv' + bi] = ses.registros[kk]; return { titulo: b.titulo, intervalos: b.intervalos, ejercicios: [] }; } return { titulo: b.titulo, circuito: b.circuito || undefined, ejercicios: b.ejercicios.map(function (e, ei) {
       if (e._k && ses.registros && ses.registros[e._k]) reg[bi + '-' + ei] = ses.registros[e._k];
       var x = Object.assign({}, e); delete x._k; return x; }) }; });
     ses.bloques = limpio; ses.registros = reg; return ses;
@@ -4991,6 +5124,7 @@ window.GAGOR_reducirFoto = function (file) {
     var v = useState('hoy'); var view = v[0], setView = v[1];
     var si = useState(null); var sesId = si[0], setSesId = si[1];
     var ix = useState(0); var idx = ix[0], setIdx = ix[1];
+    var ivx = useState(0); var ivBi = ivx[0], setIvBi = ivx[1];
     var gm = useState({ si: 0, phase: 'work', key: 0 }); var guide = gm[0], setGuide = gm[1];
     var f = useState({}); var filters = f[0], setFilters = f[1];
     var pk = useState(null); var picked = pk[0], setPicked = pk[1];
@@ -5186,6 +5320,18 @@ window.GAGOR_reducirFoto = function (file) {
       return null;
     }
     function totales(s) { var d = 0, a = 0; flat(s).forEach(function (fx) { regs(s, fx.key, fx.e).forEach(function (r) { a++; if (r.done) d++; }); }); return { done: d, all: a }; }
+    function ivDone(s, bi) { return ((s.registros || {})['iv' + bi] || []).some(function (r) { return r && r.done; }); }
+    function fmtS(sg) { return Math.floor(sg / 60) + ':' + ('0' + (sg % 60)).slice(-2); }
+    function Intervalos() {
+      if (!ses || !ses.bloques[ivBi] || !ses.bloques[ivBi].intervalos) return Resumen();
+      var b = ses.bloques[ivBi]; var sid0 = ses.id;
+      return h('div', { className: 'phone ivphone' }, h(G.IntervalPlayer, { key: sid0 + '-' + ivBi, bloque: b, titulo: t(b.titulo), onExit: function () { setView('resumen'); },
+        onFinish: function (sg) {
+          commit(function (st) { var x = st.sesiones.filter(function (q) { return q.id === sid0; })[0]; if (!x) return; x.registros = x.registros || {}; x.registros['iv' + ivBi] = [{ done: true, seg: sg }]; if (!x.inicio && x.estado !== 'hecha') x.inicio = Date.now() - sg * 1000; });
+          var quedaEj = flat(ses).some(function (fx) { return !exDone(ses, fx); }); var quedaIv = ses.bloques.some(function (q, k) { return q.intervalos && k !== ivBi && !ivDone(ses, k); });
+          setView(quedaEj || quedaIv ? 'resumen' : 'cierre');
+        } }));
+    }
     function exDone(s, fx) { return regs(s, fx.key, fx.e).every(function (r) { return r.done; }); }
 
     function Tecnica(props) {
@@ -5356,12 +5502,18 @@ window.GAGOR_reducirFoto = function (file) {
       var pend = ST.ordenSesion(ses).filter(function (o) { var rr = regs(ses, fl[o.i].key, fl[o.i].e); return rr[o.r] && !rr[o.r].done; })[0]; if (pend) primero = pend.i;
       var pct = tot.all ? Math.round(tot.done / tot.all * 100) : 0;
       return h('div', { className: 'phone' },
-        h(G.AppHeader, { title: t(ses.titulo), subtitle: ST.fmtFecha(ses.fecha) + ' · ' + fl.length + (fl.length === 1 ? t(' ejercicio') : t(' ejercicios')) + ' · ~' + (ses.duracion || 45) + t(' min'), onBack: function () { setView('hoy'); } }),
+        h(G.AppHeader, { title: t(ses.titulo), subtitle: ST.fmtFecha(ses.fecha) + (fl.length ? ' · ' + fl.length + (fl.length === 1 ? t(' ejercicio') : t(' ejercicios')) : '') + (ses.bloques.some(function (b) { return b.intervalos; }) ? ' · ' + t('bici') : '') + ' · ~' + (ses.duracion || ST.resumenBloques(ses.bloques).minutos || 45) + t(' min'), onBack: function () { setView('hoy'); } }),
         h('div', { className: 'scroll' },
-          h('div', { className: 'progress', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': tot.all, 'aria-valuenow': tot.done, 'aria-label': t('Series hechas') },
+          !tot.all ? null : h('div', { className: 'progress', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': tot.all, 'aria-valuenow': tot.done, 'aria-label': t('Series hechas') },
             h('div', { className: 'progress__bar' }, h('span', { style: { width: pct + '%' } })),
             h('p', { className: 'progress__txt' }, tot.done ? tot.done + t(' de ') + tot.all + t(' series hechas') : tot.all + t(' series en total'))),
           ses.bloques.map(function (b, bi) {
+            if (b.intervalos) { var ivHecho = ivDone(ses, bi); var tt = G.intTotal(b.intervalos);
+              return h(G.ListGroup, { key: bi, title: t(b.titulo), meta: t('Bici · ') + fmtS(tt) + ' min' },
+                h('button', { type: 'button', className: 'ivrow' + (ivHecho ? ' is-done' : ''), onClick: function () { setIvBi(bi); setView('intervalos'); } },
+                  h('span', null, h('b', null, ivHecho ? '✓ ' + t('Hecho') : t('Empezar intervalos')), h('small', null, b.intervalos.length + t(' tramos · dale al play y sigue los colores'))),
+                  h(G.Icon, { name: 'reproducir', size: 22 }),
+                  h(G.IntervalProfile, { tramos: b.intervalos }))); }
             return h(G.ListGroup, { key: bi, title: t(b.titulo), meta: (b.circuito && b.ejercicios.length > 1 ? t('En circuito · ') : '') + b.ejercicios.length + (b.ejercicios.length === 1 ? t(' ejercicio') : t(' ejercicios')) },
               b.ejercicios.map(function (e, ei) {
                 var key = bi + '-' + ei; var fi = fl.findIndex(function (x) { return x.key === key; }); var fx = fl[fi];
@@ -5373,7 +5525,8 @@ window.GAGOR_reducirFoto = function (file) {
           }),
           botonChat()
         ),
-        h('div', { className: 'bar' },
+        h('div', { className: 'bar' }, !fl.length ? h('div', { style: { display: 'grid', gap: '8px' } }, (function () { var pv = ses.bloques.map(function (b, bi) { return b.intervalos && !ivDone(ses, bi) ? bi : -1; }).filter(function (k) { return k >= 0; })[0];
+              return pv !== undefined ? h(G.Button, { full: true, icon: 'reproducir', onClick: function () { setIvBi(pv); setView('intervalos'); } }, t('Empezar intervalos')) : h(G.Button, { full: true, icon: 'check', onClick: function () { setView('cierre'); } }, t('Terminar sesión')); })()) :
           h('div', { style: { display: 'grid', gap: '8px' } },
             h(G.Button, { full: true, icon: 'reproducir', onClick: function () { setIdx(primero); setRonda(pend ? { i: pend.i, r: pend.r } : null); setView('sesion'); } }, tot.done ? t('Seguir por el ejercicio ') + (primero + 1) : t('Empezar por el primero')),
             h(G.Button, { full: true, variant: 'secondary', icon: 'cronometro', onClick: function () { startGuided(ses); } }, t('Modo entrenamiento guiado'))))
@@ -5430,7 +5583,7 @@ window.GAGOR_reducirFoto = function (file) {
 
     /* ------------------------------------------------------------- SESIÓN */
     function Sesion() {
-      if (!ses) return Hoy();
+      if (!ses) return Hoy(); if (!flat(ses).length) return Resumen();
       var fl = flat(ses); var cur = fl[Math.min(idx, fl.length - 1)]; var e = cur.e; var last = idx === fl.length - 1; var ex = ST.ejercicio(state, e.ejId) || {};
       var rows = regs(ses, cur.key, e);
       var ssLab = ST.etiquetas(ses.bloques)[cur.key]; var ssCon = ssLab ? ST.companeros(ses.bloques, cur.key) : [];
@@ -5492,7 +5645,7 @@ window.GAGOR_reducirFoto = function (file) {
       setSesId(s.id); setIdx(gi); setGuide({ si: sidx, phase: 'work', key: guide.key + 1 }); setView('guiado');
     }
     function Guiado() {
-      if (!ses) return Hoy();
+      if (!ses) return Hoy(); if (!flat(ses).length) return Resumen();
       var fl = flat(ses); var cur = fl[idx]; var e = cur.e; var ex = ST.ejercicio(state, e.ejId) || {}; var rows = regs(ses, cur.key, e);
       var lastSet = guide.si === rows.length - 1, lastEx = idx === fl.length - 1; var row = rows[guide.si];
       function cargaTxt(x) { return x.carga ? (x.cargaX === 2 ? ' · ' + t('2 mancuernas de ') : ' × ') + n(x.carga) + t(' kg') : ''; }
@@ -5786,6 +5939,7 @@ window.GAGOR_reducirFoto = function (file) {
     if (view === 'analisis') return Analisis();
     if (view === 'sesion') return Sesion();
     if (view === 'guiado') return Guiado();
+    if (view === 'intervalos') return Intervalos();
     if (view === 'cierre') return Cierre();
     if (view === 'ejercicios') return Ejercicios();
     if (view === 'ejercicio') return Ejercicio();
@@ -5917,6 +6071,7 @@ window.GAGOR_reducirFoto = function (file) {
     var ne = useState({ nombre: '', patron: 'Rodilla dominante', material: '', dificultad: 'Media', videoUrl: '', como: '', evita: '' }); var nEj = ne[0], setNEj = ne[1];
     var msg = useState(''); var aviso = msg[0], setAviso = msg[1];
     var mg = useState(false); var modoGrupos = mg[0], setModoGrupos = mg[1];
+    var piv = useState(null); var probarIv = piv[0], setProbarIv = piv[1];
     var gnv = useState([]); var gruposNuevos = gnv[0], setGruposNuevos = gnv[1]; var gtx = useState(''); var grupoTxt = gtx[0], setGrupoTxt = gtx[1];
     var mc = useState(null); var mesCal = mc[0], setMesCal = mc[1];
     var ta = useState(false); var show = ta[0], setShow = ta[1];
@@ -6003,6 +6158,8 @@ window.GAGOR_reducirFoto = function (file) {
             h('div', null, h('p', { className: 'dses__q' }, c.nombre + ' · ' + ST.fmtFecha(s.fecha)), h('h2', { className: 'dses__t' }, s.titulo), h('p', { className: 'dses__e is-' + (s.estado === 'hecha' ? 'ok' : (hechas ? 'curso' : (s.fecha < hoyIso ? 'mal' : 'pend'))) }, est)),
             h('button', { type: 'button', className: 'dses__x', 'aria-label': 'Cerrar', onClick: function () { setVerSes(null); } }, '×')),
           s.comentario ? h('p', { className: 'dses__com' }, '«' + s.comentario + '»') : null,
+          s.bloques.filter(function (b) { return b.intervalos; }).map(function (b, k) { var bi = s.bloques.indexOf(b); var hecho = ((s.registros || {})['iv' + bi] || []).some(function (r) { return r.done; }); var tt = G.intTotal(b.intervalos);
+            return h('div', { key: 'iv' + k, style: { display: 'grid', gap: '6px', margin: '8px 0' } }, h('p', { className: 'dses__bl', style: { margin: 0 } }, b.titulo + ' · ' + Math.floor(tt / 60) + ':' + ('0' + tt % 60).slice(-2) + ' min · ' + b.intervalos.length + ' tramos' + (hecho ? ' · ✓ hecho' : '')), h(G.IntervalProfile, { tramos: b.intervalos })); }),
           h('div', { className: 'dses__list' }, fl.map(function (fx) {
             var rr = (s.registros[fx.key] || []).filter(function (r) { return r.done; }); var e = fx.e;
             var pres = e.series + ' × ' + ST.repTxt(e) + (e.carga ? ' · ' + (e.cargaX === 2 ? '2 \u00d7 ' : '') + nn(e.carga) + ' kg' : '');
@@ -6036,7 +6193,7 @@ window.GAGOR_reducirFoto = function (file) {
             h(G.Button, { size: 'md', variant: 'secondary', icon: 'editar', onClick: function () { setVerSes(null); editarSesion(s); } }, 'Editar sesión'),
             h(G.Button, { size: 'md', variant: 'ghost', onClick: function () { setVerSes(null); } }, 'Cerrar'))));
     }
-    function shell(content) { return h('div', { className: 'app' }, Nav(), h('div', { className: 'main' }, content), DetalleSesion()); }
+    function shell(content) { return h('div', { className: 'app' }, Nav(), h('div', { className: 'main' }, content), DetalleSesion(), probarIv ? h('div', { className: 'ivover', role: 'dialog', 'aria-modal': 'true' }, h(G.IntervalPlayer, { bloque: probarIv.bloque, titulo: 'Vista previa · ' + probarIv.titulo, finLabel: 'Cerrar', onExit: function () { setProbarIv(null); }, onFinish: function () { setProbarIv(null); } })) : null); }
     function adherencia(c) {
       var ses = state.sesiones.filter(function (s) { return s.clienteId === c.id && s.fecha <= hoyIso && s.fecha >= ST.iso(ST.addDays(ST.hoy, -28)); });
       return { done: ses.filter(function (s) { return s.estado === 'hecha'; }).length, planned: ses.length };
@@ -6465,11 +6622,16 @@ window.GAGOR_reducirFoto = function (file) {
       if (numTxt(d.seg) > 0) e.seg = Math.round(numTxt(d.seg)); if (d.cargaX === 2) e.cargaX = 2; if (d.lado) { e.lado = true; if (numTxt(d.repsIzq) > 0) e.reps = Math.round(numTxt(d.repsIzq)); if (numTxt(d.repsIzq) > 0) e.repsIzq = Math.round(numTxt(d.repsIzq)); if (numTxt(d.repsDer) > 0) e.repsDer = Math.round(numTxt(d.repsDer)); } if (d.tempo && d.tempo.trim()) e.tempo = d.tempo.trim(); if (numTxt(d.rpe)) e.rpe = numTxt(d.rpe); if (d.ss) e.ss = d.ss; if (d.nota && d.nota.trim()) e.nota = d.nota.trim();
       if (conClave && d._k) e._k = d._k; return e;
     }
-    function bloquesDe(draft, conClave) { return draft.bloques.map(function (b) { var o = { titulo: (b.titulo || '').trim() || 'Bloque', ejercicios: b.ejercicios.map(function (d) { return deBorrador(d, conClave); }) }; if (b.circuito) o.circuito = true; return o; }); }
+    // 1.41 · tramos de intervalos: en el borrador la duración va como texto «1:30» o «90»
+    function segTxt(v) { v = Number(v) || 0; var m = Math.floor(v / 60), r = v % 60; return m ? m + ':' + (r < 10 ? '0' : '') + r : String(r); }
+    function txtSeg(v) { v = String(v || '').trim().replace(',', '.'); if (!v) return 0; var m = /^(\d+):(\d{1,2})$/.exec(v); if (m) return Number(m[1]) * 60 + Number(m[2]); var n0 = Number(v); return isNaN(n0) ? NaN : Math.round(n0); }
+    function ivBorrador(x) { return { _u: ST.uid(), tipo: x.tipo || 'trabajo', seg: segTxt(x.seg), rpm: x.rpm ? String(x.rpm) : '', res: x.res || '', nota: x.nota || '' }; }
+    function ivLimpio(x) { var o = { tipo: x.tipo || 'trabajo', seg: txtSeg(x.seg) }; var r = Math.round(numTxt(x.rpm) || 0); if (r) o.rpm = r; if (String(x.res || '').trim()) o.res = String(x.res).trim(); if (String(x.nota || '').trim()) o.nota = String(x.nota).trim(); return o; }
+    function bloquesDe(draft, conClave) { return draft.bloques.map(function (b) { if (b.intervalos) { var oi = { titulo: (b.titulo || '').trim() || 'Bici', intervalos: b.intervalos.map(ivLimpio), ejercicios: [] }; if (conClave) oi._iv = b._iv; return oi; } var o = { titulo: (b.titulo || '').trim() || 'Bloque', ejercicios: b.ejercicios.map(function (d) { return deBorrador(d, conClave); }) }; if (b.circuito) o.circuito = true; return o; }); }
     function abrirEditor(tipo, obj, extra) {
       var bl = (obj && obj.bloques) || [{ titulo: 'Calentamiento', ejercicios: [] }, { titulo: 'Principal', ejercicios: [] }];
       setEd(Object.assign({ tipo: tipo, id: obj ? obj.id : null, nombre: obj ? (obj.nombre || obj.titulo || '') : '', volver: view, sucio: false, error: '',
-        bloques: bl.map(function (b, bi) { return { _u: ST.uid(), titulo: b.titulo, circuito: !!b.circuito, ejercicios: b.ejercicios.map(function (e, ei) { return aBorrador(e, tipo === 'sesion' ? bi + '-' + ei : null); }) }; }) }, extra || {}));
+        bloques: bl.map(function (b, bi) { var o = { _u: ST.uid(), titulo: b.titulo, circuito: !!b.circuito, ejercicios: b.ejercicios.map(function (e, ei) { return aBorrador(e, tipo === 'sesion' ? bi + '-' + ei : null); }) }; if (b.intervalos) { o.intervalos = b.intervalos.map(ivBorrador); o._iv = tipo === 'sesion' ? bi : null; } return o; }) }, extra || {}));
       setConf(''); setAviso(''); setView('editor');
     }
     function editarSesion(s) { abrirEditor('sesion', s, { fecha: s.fecha, clienteId: s.clienteId }); }
@@ -6525,10 +6687,59 @@ window.GAGOR_reducirFoto = function (file) {
         var nb = bi + dir; if (nb < 0 || nb >= x.bloques.length) return; arr.splice(ei, 1);
         if (dir < 0) x.bloques[nb].ejercicios.push(it); else x.bloques[nb].ejercicios.unshift(it);
       }); }
+      function BloqueIv(b, bi) {
+        var trs = b.intervalos; var cl = trs.map(ivLimpio); var totS = cl.reduce(function (a, x) { return a + (x.seg || 0); }, 0);
+        function campoIv(k, c, v) { up(function (x) { x.bloques[bi].intervalos[k][c] = v; }); }
+        function nuevo(tipo) { up(function (x) { var arr = x.bloques[bi].intervalos; var ult = arr[arr.length - 1]; arr.push(ivBorrador(tipo === 'descanso' ? { tipo: 'descanso', seg: 30, rpm: 70 } : { tipo: tipo, seg: tipo === 'trabajo' ? 30 : 120, rpm: tipo === 'trabajo' ? 95 : 80, res: ult && ult.res ? ult.res : '' })); }); }
+        var rp = b._rep || { n: '2', v: '4' };
+        return h('section', { key: b._u, className: 'panel edx__block' },
+          h('div', { className: 'edx__bhead' },
+            h('input', { className: 'edx__btitle', value: b.titulo, 'aria-label': 'Nombre del bloque', placeholder: 'Bici', onChange: function (e) { var v = e.target.value; up(function (x) { x.bloques[bi].titulo = v; }); } }),
+            h('span', { className: 'edx__bmeta' }, trs.length + ' tramos · ' + fmtMin(totS)),
+            h('span', { className: 'edx__acts' },
+              h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Probar', title: 'Ver cómo lo verá el jugador', onClick: function () { setProbarIv({ titulo: b.titulo, bloque: { intervalos: cl.filter(function (x) { return x.seg > 0; }) } }); } }, h(G.Icon, { name: 'reproducir', size: 16 })),
+              h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Subir bloque', disabled: bi === 0, onClick: function () { moverBloque(bi, -1); } }, h(G.Icon, { name: 'arriba', size: 16 })),
+              h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Bajar bloque', disabled: bi === d.bloques.length - 1, onClick: function () { moverBloque(bi, 1); } }, h(G.Icon, { name: 'abajo', size: 16 })),
+              h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Quitar bloque', disabled: d.bloques.length === 1, onClick: function () { if (conf !== 'blq-' + b._u) { setConf('blq-' + b._u); return; } up(function (x) { x.bloques.splice(bi, 1); }); setConf(''); } }, h(G.Icon, { name: 'borrar', size: 16 })))),
+          conf === 'blq-' + b._u ? h('div', { className: 'confirm' }, h('p', { className: 'small', style: { margin: 0 } }, 'Se quitan sus ' + trs.length + ' tramos.'),
+            h('div', { className: 'rowline' }, h(G.Button, { size: 'md', variant: 'secondary', onClick: function () { setConf(''); } }, 'Cancelar'), h(G.Button, { size: 'md', icon: 'borrar', className: 'g-btn--danger', onClick: function () { up(function (x) { x.bloques.splice(bi, 1); }); setConf(''); } }, 'Quitar bloque'))) : null,
+          h(G.IntervalProfile, { tramos: cl.filter(function (x) { return x.seg > 0; }) }),
+          h('div', { className: 'ivx' },
+            h('div', { className: 'ivx__row ivx__row--head', 'aria-hidden': 'true' }, h('span', null, ''), h('span', null, 'Tipo'), h('span', { title: 'Minutos:segundos (1:30) o segundos (90)' }, 'Duración'), h('span', null, 'RPM'), h('span', { title: 'Resistencia o marcha de la bici (opcional)' }, 'Resist.'), h('span', null, 'Nota'), h('span', null, '')),
+            trs.map(function (x, k) {
+              return h('div', { key: x._u, className: 'ivx__row' },
+                h('span', { className: 'ivx__dot', style: { background: G.intColor(cl[k]) } }),
+                h('select', { className: 'edx__in', value: x.tipo, 'aria-label': 'Tipo de tramo', onChange: function (ev) { campoIv(k, 'tipo', ev.target.value); } }, Object.keys(G.INT_TIPOS).map(function (q) { return h('option', { key: q, value: q }, G.INT_TIPOS[q]); })),
+                h('input', { className: 'edx__in', value: x.seg, placeholder: '0:30', 'aria-label': 'Duración', inputMode: 'text', onChange: function (ev) { campoIv(k, 'seg', ev.target.value); } }),
+                h('input', { className: 'edx__in', value: x.rpm, placeholder: '—', 'aria-label': 'RPM', inputMode: 'numeric', onChange: function (ev) { campoIv(k, 'rpm', ev.target.value); } }),
+                h('input', { className: 'edx__in', value: x.res, placeholder: '—', 'aria-label': 'Resistencia', inputMode: 'text', onChange: function (ev) { campoIv(k, 'res', ev.target.value); } }),
+                h('input', { className: 'edx__in ivx__nt', value: x.nota, placeholder: 'De pie, sentado, sprint…', 'aria-label': 'Nota', onChange: function (ev) { campoIv(k, 'nota', ev.target.value); } }),
+                h('span', { className: 'edx__acts' },
+                  h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Subir tramo', disabled: k === 0, onClick: function () { up(function (y) { var a = y.bloques[bi].intervalos; var t0 = a[k]; a[k] = a[k - 1]; a[k - 1] = t0; }); } }, h(G.Icon, { name: 'arriba', size: 16 })),
+                  h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Bajar tramo', disabled: k === trs.length - 1, onClick: function () { up(function (y) { var a = y.bloques[bi].intervalos; var t0 = a[k]; a[k] = a[k + 1]; a[k + 1] = t0; }); } }, h(G.Icon, { name: 'abajo', size: 16 })),
+                  h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Duplicar tramo', onClick: function () { up(function (y) { var c = JSON.parse(JSON.stringify(y.bloques[bi].intervalos[k])); c._u = ST.uid(); y.bloques[bi].intervalos.splice(k + 1, 0, c); }); } }, h(G.Icon, { name: 'copiar', size: 16 })),
+                  h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Quitar tramo', onClick: function () { up(function (y) { y.bloques[bi].intervalos.splice(k, 1); }); } }, h(G.Icon, { name: 'cerrar', size: 16 }))));
+            })),
+          h('div', { className: 'ivx__tools' },
+            h(G.Button, { size: 'sm', variant: 'secondary', icon: 'mas', onClick: function () { nuevo('trabajo'); } }, 'Trabajo'),
+            h(G.Button, { size: 'sm', variant: 'secondary', icon: 'mas', onClick: function () { nuevo('descanso'); } }, 'Descanso'),
+            h(G.Button, { size: 'sm', variant: 'ghost', icon: 'mas', onClick: function () { nuevo('calma'); } }, 'Vuelta a la calma'),
+            h('span', { className: 'ivx__sum' }, 'Repetir los últimos'),
+            h('select', { className: 'edx__in', value: rp.n, 'aria-label': 'Cuántos tramos repetir', onChange: function (ev) { var v = ev.target.value; up(function (y) { y.bloques[bi]._rep = { n: v, v: rp.v }; }); } }, [1, 2, 3, 4, 5, 6].map(function (q) { return h('option', { key: q, value: String(q) }, q + (q === 1 ? ' tramo' : ' tramos')); })),
+            h('select', { className: 'edx__in', value: rp.v, 'aria-label': 'Cuántas veces en total', onChange: function (ev) { var v = ev.target.value; up(function (y) { y.bloques[bi]._rep = { n: rp.n, v: v }; }); } }, [2, 3, 4, 5, 6, 8, 10, 12].map(function (q) { return h('option', { key: q, value: String(q) }, '× ' + q + ' en total'); })),
+            h(G.Button, { size: 'sm', icon: 'copiar', disabled: trs.length < Number(rp.n), onClick: function () { up(function (y) { var a = y.bloques[bi].intervalos; var nN = Number(rp.n), vV = Number(rp.v); var base = a.slice(a.length - nN); for (var q = 1; q < vV; q++) base.forEach(function (z) { var c = JSON.parse(JSON.stringify(z)); c._u = ST.uid(); a.push(c); }); }); } }, 'Repetir')));
+      }
+      function fmtMin(sg) { var m = Math.floor(sg / 60), r = sg % 60; return m + ':' + (r < 10 ? '0' : '') + r + ' min'; }
       function moverBloque(bi, dir) { up(function (x) { var j = bi + dir; if (j < 0 || j >= x.bloques.length) return; var t = x.bloques[bi]; x.bloques[bi] = x.bloques[j]; x.bloques[j] = t; }); }
       function validar() {
         if (!d.nombre.trim()) return esSesion ? 'Ponle un título a la sesión.' : 'Ponle nombre a la plantilla.';
-        if (!res.ejercicios) return 'Añade al menos un ejercicio.';
+        var hayIv = d.bloques.some(function (b) { return b.intervalos; });
+        if (!res.ejercicios && !hayIv) return 'Añade al menos un ejercicio.';
+        var malIv = null; d.bloques.forEach(function (b) { if (!b.intervalos || malIv) return; if (!b.intervalos.length) { malIv = 'El bloque «' + (b.titulo || 'Bici') + '» no tiene tramos.'; return; }
+          b.intervalos.forEach(function (x, k) { if (malIv) return; var sg = txtSeg(x.seg); var r = numTxt(x.rpm);
+            if (!(sg >= 5 && sg <= 3600)) malIv = 'Revisa la duración del tramo ' + (k + 1) + ' de «' + (b.titulo || 'Bici') + '» (de 0:05 a 60:00).';
+            else if (x.rpm && !(r >= 20 && r <= 200)) malIv = 'Las RPM del tramo ' + (k + 1) + ' van de 20 a 200.'; }); });
+        if (malIv) return malIv;
         var malo = null; d.bloques.forEach(function (b) { b.ejercicios.forEach(function (e) { if (malo) return;
           var nm = ST.nombreEj(state, e.ejId) || 'un ejercicio';
           if (!e.ejId) malo = 'Hay un ejercicio sin elegir.';
@@ -6578,6 +6789,7 @@ window.GAGOR_reducirFoto = function (file) {
             h('span', null, h('b', null, '~' + res.minutos), ' min'))),
         esSesion && regsHechos.length ? h('p', { key: 'rg', className: 'muted small', style: { margin: 0 } }, 'Ya ha registrado ' + regsHechos.length + (regsHechos.length === 1 ? ' ejercicio' : ' ejercicios') + '. Lo registrado se conserva aunque cambies el orden.') : null,
         h('div', { key: 'bl', className: 'stack' }, d.bloques.map(function (b, bi) {
+          if (b.intervalos) return BloqueIv(b, bi);
           var sb = ST.resumenBloques([limpio[bi]]);
           return h('section', { key: b._u, className: 'panel edx__block' },
             h('div', { className: 'edx__bhead' },
@@ -6631,7 +6843,8 @@ window.GAGOR_reducirFoto = function (file) {
               })) : h('p', { className: 'muted small', style: { margin: '4px 0 0' } }, 'Bloque vacío. Añade el primer ejercicio.'),
             h('select', { className: 'g-import__select edx__add', value: '', 'aria-label': 'Añadir ejercicio a ' + b.titulo, onChange: function (ev) { var id = ev.target.value; if (!id) return; up(function (x) { x.bloques[bi].ejercicios.push({ _u: ST.uid(), _k: null, ejId: id, series: '3', reps: '8', lado: ST.esUnilateral(state, id), repsIzq: ST.esUnilateral(state, id) ? '8' : '', repsDer: ST.esUnilateral(state, id) ? '8' : '', seg: '', carga: '', descanso: '90', tempo: '', rpe: '', ss: '', nota: '' }); }); } }, opcionesEj('', '+ Añadir ejercicio…')));
         })),
-        h('div', { key: 'nb' }, h(G.Button, { size: 'md', variant: 'secondary', icon: 'mas', onClick: function () { up(function (x) { x.bloques.push({ _u: ST.uid(), titulo: 'Bloque ' + (x.bloques.length + 1), ejercicios: [] }); }); } }, 'Añadir bloque')),
+        h('div', { key: 'nb', className: 'rowline', style: { flexWrap: 'wrap' } }, h(G.Button, { size: 'md', variant: 'secondary', icon: 'mas', onClick: function () { up(function (x) { x.bloques.push({ _u: ST.uid(), titulo: 'Bloque ' + (x.bloques.length + 1), ejercicios: [] }); }); } }, 'Añadir bloque'),
+          h(G.Button, { size: 'md', variant: 'secondary', icon: 'cronometro', onClick: function () { up(function (x) { x.bloques.push({ _u: ST.uid(), titulo: 'Bici · intervalos', ejercicios: [], _iv: null, intervalos: [ivBorrador({ tipo: 'calentamiento', seg: 120, rpm: 80, res: '3' }), ivBorrador({ tipo: 'trabajo', seg: 30, rpm: 100, res: '6' }), ivBorrador({ tipo: 'descanso', seg: 30, rpm: 70 })] }); }); } }, 'Añadir bici por intervalos')),
         d.error ? h('p', { key: 'er', className: 'g-field__error', role: 'alert', style: { margin: 0 } }, d.error) : null,
         h('div', { key: 'ft', className: 'edx__foot' },
           h(G.Button, { icon: 'check', onClick: guardar }, esSesion ? 'Guardar sesión' : 'Guardar plantilla'),
