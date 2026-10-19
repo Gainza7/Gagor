@@ -570,7 +570,9 @@
 .meso__row { --mc: #64748B; display: grid; grid-template-columns: 96px 180px 80px 70px 100px minmax(140px, 1fr); gap: 6px; align-items: center; padding-left: 8px; border-left: 4px solid var(--mc); }
 .meso__row--head { border-left-color: transparent; font-size: 12px; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
 .meso__wk { font-size: 13px; }
-.meso__copy { width: auto; }
+.meso__copy { width: auto; max-width: 260px; }
+.dses__box.mzbox { max-width: 980px; width: 100%; }
+.mzbox > .meso { border: 0; padding: 0; box-shadow: none; }
 @media (max-width: 760px) { .meso__row { grid-template-columns: 80px 1fr 1fr; } .meso__row .meso__nt { grid-column: 1 / -1; } .meso__row--head { display: none; } }
 .mesoed { --mc: #64748B; display: grid; gap: 4px; padding: 12px 14px; border-radius: var(--radius-md); background: color-mix(in srgb, var(--mc) 10%, var(--surface-card)); border: 1px solid color-mix(in srgb, var(--mc) 35%, var(--line)); border-left: 6px solid var(--mc); }
 .mesoed p { margin: 0; } .mesoed__t { font-size: 15px; } .mesoed__n { font-size: 13px; color: var(--ink-muted); }
@@ -670,6 +672,14 @@
 .g-cal__dot--team { background: var(--ink-muted); }
 .g-cal__legend { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); font-size: 13px; line-height: 18px; color: var(--ink-muted); }
 .g-cal__legend i { margin-right: 4px; vertical-align: middle; }
+.g-cal__day, .g-cal__empty { position: relative; }
+.g-cal__day.has-wk::after, .g-cal__empty.has-wk::after { content: ''; position: absolute; left: -3px; right: -3px; bottom: -3px; height: 4px; background: var(--wk); pointer-events: none; }
+.g-cal__day.has-wk::after { left: -4px; right: -4px; bottom: -4px; }
+.g-cal__legend--wk { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; margin-top: 6px; scrollbar-width: none; }
+.g-cal__legend--wk::-webkit-scrollbar { display: none; }
+.g-cal__legend--wk > * { flex: none; }
+.g-cal__wl i { display: inline-block; width: 14px; height: 4px; border-radius: 2px; }
+.g-cal__mz { border: 0; background: none; padding: 0; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 
 /* Segmented */
 .g-seg { display: grid; gap: var(--space-2); font-family: var(--font-sans); color: var(--ink); }
@@ -3090,7 +3100,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var cells = []; for (var i = 0; i < offset; i++) cells.push(null);
     for (var d = 1; d <= daysIn; d++) cells.push(ym + '-' + (d < 10 ? '0' : '') + d);
     while (cells.length % 7) cells.push(null);
-    var marks = p.marks || {}; var labels = p.labels || {};
+    var marks = p.marks || {}; var labels = p.labels || {}; var weeks = p.weeks || {};
+    // 1.45 · cada fila (lunes-domingo) puede llevar el color del objetivo de esa semana
+    function lunesDe(isoD) { var dd = new Date(isoD + 'T12:00:00Z'); dd.setUTCDate(dd.getUTCDate() - (dd.getUTCDay() + 6) % 7); return dd.toISOString().slice(0, 10); }
+    var filaLun = []; for (var r0 = 0; r0 < cells.length / 7; r0++) { var f0 = cells.slice(r0 * 7, r0 * 7 + 7).filter(Boolean)[0]; filaLun.push(f0 ? lunesDe(f0) : null); }
+    var vistos = {}; var leyenda = []; filaLun.forEach(function (l) { var w = l && weeks[l]; if (w && !vistos[w.n]) { vistos[w.n] = 1; leyenda.push(w); } });
     function shift(n) { var nm = new Date(Date.UTC(y, mo + n, 1)); return nm.toISOString().slice(0, 7); }
     return h(
       'div',
@@ -3102,11 +3116,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       h('div', { className: 'g-cal__grid', role: 'grid' },
         DIAS_C.map(function (d, i) { return h('span', { key: 'h' + i, className: 'g-cal__dow' }, t(d)); }),
         cells.map(function (iso, i) {
-          if (!iso) return h('span', { key: 'e' + i, className: 'g-cal__empty' });
+          var wk = weeks[filaLun[Math.floor(i / 7)]]; var wst = wk ? { '--wk': wk.c } : undefined;
+          if (!iso) return h('span', { key: 'e' + i, className: cx('g-cal__empty', wk && 'has-wk'), style: wst });
           var m = marks[iso]; var sel = iso === p.value;
           return h('button', {
-            key: iso, type: 'button', className: cx('g-cal__day', sel && 'is-sel', iso === today && 'is-today', m && 'has-' + m),
-            'aria-label': iso + (labels[iso] ? ' · ' + labels[iso] : ''), onClick: function () { if (p.onChange) p.onChange(iso); }
+            key: iso, type: 'button', className: cx('g-cal__day', sel && 'is-sel', iso === today && 'is-today', m && 'has-' + m, wk && 'has-wk'), style: wst, title: wk ? wk.t : undefined,
+            'aria-label': iso + (labels[iso] ? ' · ' + labels[iso] : '') + (wk ? ' · ' + wk.t : ''), onClick: function () { if (p.onChange) p.onChange(iso); }
           },
             h('span', { className: 'g-cal__num' }, String(Number(iso.slice(8, 10)))),
             labels[iso] ? h('span', { className: 'g-cal__label' }, labels[iso]) : (m ? h('span', { className: cx('g-cal__dot', 'g-cal__dot--' + m) }) : null)
@@ -3116,7 +3131,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         h('span', null, h('i', { className: 'g-cal__dot g-cal__dot--done' }), t(' Hecha')),
         h('span', null, h('i', { className: 'g-cal__dot g-cal__dot--planned' }), t(' Programada')),
         h('span', null, h('i', { className: 'g-cal__dot g-cal__dot--missed' }), t(' Sin hacer')),
-        h('span', null, h('i', { className: 'g-cal__dot g-cal__dot--team' }), t(' Equipo')))
+        h('span', null, h('i', { className: 'g-cal__dot g-cal__dot--team' }), t(' Equipo'))),
+      p.extra || leyenda.length ? h('div', { className: 'g-cal__legend g-cal__legend--wk' }, p.extra || null,
+        leyenda.map(function (w) { return h('span', { key: 'w' + w.n, className: 'g-cal__wl' }, h('i', { style: { background: w.c } }), w.n); })) : null
     );
   }
 
@@ -3189,7 +3206,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.44";
+<script>window.GAGOR_VERSION = "1.45";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6475,7 +6492,7 @@ window.GAGOR_reducirFoto = function (file) {
             h('div', { className: 'cbal__tx' }, avs.map(function (a, i) { return h('p', { key: i }, h('b', null, a.t), ' · ', a.d); }),
               h('small', null, 'Esta semana' + (prog ? ', contando lo programado que falta' : '') + '. Se calcula con el grupo de cada ejercicio en la Biblioteca.')));
         })(),
-        MesoPanel(c),
+        mesoEd && mesoEd.cid === c.id ? h('div', { key: 'mzm', className: 'dses', role: 'dialog', 'aria-modal': 'true', onClick: function (ev) { if (ev.target === ev.currentTarget) setMesoEd(null); } }, h('div', { className: 'dses__box mzbox' }, MesoPanel(c))) : null,
         (function () {
               var MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
               var DSEM = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
@@ -6563,7 +6580,9 @@ window.GAGOR_reducirFoto = function (file) {
                   : h(G.Button, { full: true, size: 'md', variant: 'ghost', icon: 'borrar', onClick: function () { setBajaConf(true); } }, 'Dar de baja'))),
             h('div', { className: 'panel' }, (function () { var marks = {}, labels = {}; ses.forEach(function (s) { marks[s.fecha] = s.estado === 'hecha' ? 'done' : (s.fecha < hoyIso ? 'missed' : 'planned'); labels[s.fecha] = (function (w) { return w.charAt(0).toUpperCase() + w.slice(1); })((s.titulo || '').replace(/^Fuerza\s+/i, '').split(' ')[0]); });
               state.externos.filter(function (x) { return x.clienteId === c.id; }).forEach(function (x) { if (!marks[x.fecha]) { marks[x.fecha] = 'team'; labels[x.fecha] = x.origen === 'sensor' ? 'Partido' : 'Equipo'; } });
-              return h(G.MonthCalendar, { month: mesCal || hoyIso.slice(0, 7), today: hoyIso, marks: marks, labels: labels, onMonth: setMesCal, onChange: function (d) { var lun = new Date(ST.semanaDe(d) + 'T12:00:00'); var hoyL = new Date(ST.semanaDe(hoyIso) + 'T12:00:00'); setWeek(Math.round((lun - hoyL) / (7 * 86400000))); setView('planificador'); } }); })()),
+              var wks = {}; if (c.meso && c.meso.semanas) c.meso.semanas.forEach(function (w, k) { var sm = semMeso(w); wks[ST.iso(ST.addDays(new Date(c.meso.inicio + 'T12:00:00'), 7 * k))] = { c: sm.color, n: sm.nombre, t: 'Semana ' + (k + 1) + ' · ' + sm.nombre + (w.reps ? ' · ' + w.reps + ' reps' : '') + (w.rpe ? ' · RPE ' + w.rpe : '') }; });
+              var abrirMz = function () { setConf(''); if (c.meso) setMesoEd({ cid: c.id, inicio: c.meso.inicio, semanas: JSON.parse(JSON.stringify(c.meso.semanas)) }); else { var p0 = OBJ.hipertrofia, d0 = OBJ.descarga; setMesoEd({ cid: c.id, inicio: ST.semanaDe(hoyIso), semanas: [0, 1, 2].map(function () { return { obj: 'hipertrofia', reps: p0.reps, rpe: p0.rpe, vol: p0.vol, nota: '' }; }).concat([{ obj: 'descarga', reps: d0.reps, rpe: d0.rpe, vol: d0.vol, nota: '' }]) }); } };
+              return h(G.MonthCalendar, { month: mesCal || hoyIso.slice(0, 7), today: hoyIso, marks: marks, labels: labels, weeks: wks, extra: h('button', { type: 'button', className: 'g-cal__mz', onClick: abrirMz }, c.meso ? 'Editar mesociclo' : '+ Mesociclo'), onMonth: setMesCal, onChange: function (d) { var lun = new Date(ST.semanaDe(d) + 'T12:00:00'); var hoyL = new Date(ST.semanaDe(hoyIso) + 'T12:00:00'); setWeek(Math.round((lun - hoyL) / (7 * 86400000))); setView('planificador'); } }); })()),
             h('div', { className: 'panel' }, (function () {
               var nivel = ST.nivelSeguimiento(state, c.id); var activo = nivel !== 'ninguno'; var res = ST.resumenBienestar(state, c.id, 7);
               function pal(k, v) { return v === null ? '' : ST.PALABRAS[k][Math.round(v)]; }
@@ -6695,7 +6714,8 @@ window.GAGOR_reducirFoto = function (file) {
       if (ed0) {
         var upM = function (fn) { var x = JSON.parse(JSON.stringify(ed0)); fn(x); setMesoEd(x); };
         return h('div', { key: 'meso', className: 'panel meso is-ed' },
-          h('div', { className: 'meso__head' }, h('h2', { className: 'h2', style: { margin: 0 } }, 'Mesociclo'), h('span', { className: 'muted small' }, ed0.semanas.length + ' semanas · hasta ' + fc(lunK(ed0.inicio, ed0.semanas.length - 1)))),
+          h('div', { className: 'meso__head' }, h('h2', { className: 'h2', style: { margin: 0 } }, 'Mesociclo · ' + c.nombre), h('span', { className: 'muted small' }, ed0.semanas.length + ' semanas · hasta ' + fc(lunK(ed0.inicio, ed0.semanas.length - 1)))),
+          aviso && /^Mesociclo copiado/.test(aviso) ? h('p', { className: 'small', style: { margin: 0, fontWeight: 600 } }, '✓ ' + aviso) : null,
           h('div', { className: 'meso__cfg' },
             h(G.TextField, { label: 'Empieza la semana del', type: 'date', value: ed0.inicio, onChange: function (v) { if (v) upM(function (x) { x.inicio = ST.semanaDe(v); }); } }),
             h('div', { className: 'meso__n' }, h('span', { className: 'meso__nl' }, 'Semanas'),
@@ -6718,6 +6738,9 @@ window.GAGOR_reducirFoto = function (file) {
             h(G.Button, { size: 'md', icon: 'check', onClick: function () { var m0 = { inicio: ed0.inicio, semanas: ed0.semanas.map(function (w) { var o = { obj: w.obj, reps: String(w.reps || '').trim(), rpe: String(w.rpe || '').trim(), vol: w.vol || 'medio' }; if (String(w.nota || '').trim()) o.nota = String(w.nota).trim(); return o; }) };
               commit(function (st) { var x = st.clientes.filter(function (q) { return q.id === c.id; })[0]; if (x) x.meso = m0; }); setMesoEd(null); } }, 'Guardar mesociclo'),
             h(G.Button, { size: 'md', variant: 'secondary', onClick: function () { setMesoEd(null); } }, 'Cancelar'),
+            (function () { var otros0 = state.clientes.filter(function (q) { return q.id !== c.id && !q.baja; }); if (!otros0.length) return null;
+              return h('select', { className: 'edx__in meso__copy', value: '', 'aria-label': 'Copiar este mesociclo a otro cliente', onChange: function (ev) { var id = ev.target.value; if (!id) return; var m1 = { inicio: ed0.inicio, semanas: ed0.semanas.map(function (w) { var o = { obj: w.obj, reps: String(w.reps || '').trim(), rpe: String(w.rpe || '').trim(), vol: w.vol || 'medio' }; if (String(w.nota || '').trim()) o.nota = String(w.nota).trim(); return o; }) }; var nm = (otros0.filter(function (q) { return q.id === id; })[0] || {}).nombre;
+                commit(function (st) { var x = st.clientes.filter(function (q) { return q.id === id; })[0]; if (x) x.meso = JSON.parse(JSON.stringify(m1)); }); setAviso('Mesociclo copiado a ' + nm); } }, h('option', { value: '' }, 'Copiar a…'), otros0.map(function (q) { return h('option', { key: q.id, value: q.id }, q.nombre + (q.meso ? ' (ya tiene uno)' : '')); })); })(),
             c.meso ? h(G.Button, { size: 'md', variant: 'ghost', icon: 'borrar', onClick: function () { if (conf !== 'meso-del') { setConf('meso-del'); return; } commit(function (st) { var x = st.clientes.filter(function (q) { return q.id === c.id; })[0]; if (x) delete x.meso; }); setConf(''); setMesoEd(null); } }, conf === 'meso-del' ? 'Confirmar: borrar mesociclo' : 'Borrar mesociclo') : null));
       }
       if (!c.meso) return h('div', { key: 'meso', className: 'panel meso is-vacio' },
