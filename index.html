@@ -550,6 +550,32 @@
 .ivx__sum { font-size: 14px; color: var(--ink-muted); }
 @media (max-width: 760px) { .ivx__row { grid-template-columns: 22px 1fr 64px 58px 48px; } .ivx__row .ivx__nt { grid-column: 2 / -1; } .ivx__row .edx__acts { grid-column: 2 / -1; } .ivx__row--head span:nth-child(6), .ivx__row--head span:nth-child(7) { display: none; } }
 
+
+/* ---------- Mesociclo (1.44) ---------- */
+.meso { display: grid; gap: 12px; }
+.meso.is-vacio { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.meso__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.meso__strip { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(150px, 1fr); gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.meso__w { --mc: #64748B; display: grid; gap: 3px; align-content: start; padding: 10px 12px 12px; border-radius: 12px; background: color-mix(in srgb, var(--mc) 10%, var(--surface-card)); border: 1px solid color-mix(in srgb, var(--mc) 35%, var(--line)); border-top: 5px solid var(--mc); min-width: 0; }
+.meso__w.is-hoy { box-shadow: 0 0 0 2px var(--ink); }
+.meso__w.is-past { opacity: .55; }
+.meso__wd { font-size: 12px; color: var(--ink-muted); font-weight: 600; }
+.meso__wn { font-size: 16px; color: color-mix(in srgb, var(--mc) 70%, var(--ink)); }
+.meso__wr, .meso__wv { font-size: 13px; }
+.meso__wnt { font-size: 12px; color: var(--ink-muted); line-height: 16px; }
+.meso__cfg { display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; }
+.meso__n { display: grid; gap: 6px; } .meso__nl { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-muted); }
+.meso__n b { min-width: 28px; text-align: center; font-size: 18px; }
+.meso__rows { display: grid; gap: 6px; }
+.meso__row { --mc: #64748B; display: grid; grid-template-columns: 96px 180px 80px 70px 100px minmax(140px, 1fr); gap: 6px; align-items: center; padding-left: 8px; border-left: 4px solid var(--mc); }
+.meso__row--head { border-left-color: transparent; font-size: 12px; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+.meso__wk { font-size: 13px; }
+.meso__copy { width: auto; }
+@media (max-width: 760px) { .meso__row { grid-template-columns: 80px 1fr 1fr; } .meso__row .meso__nt { grid-column: 1 / -1; } .meso__row--head { display: none; } }
+.mesoed { --mc: #64748B; display: grid; gap: 4px; padding: 12px 14px; border-radius: var(--radius-md); background: color-mix(in srgb, var(--mc) 10%, var(--surface-card)); border: 1px solid color-mix(in srgb, var(--mc) 35%, var(--line)); border-left: 6px solid var(--mc); }
+.mesoed p { margin: 0; } .mesoed__t { font-size: 15px; } .mesoed__n { font-size: 13px; color: var(--ink-muted); }
+.mesoed__w { font-size: 14px; font-weight: 600; color: var(--alert, #b45309); }
+
 /* ---------- BrandBackdrop ---------- */
 .g-backdrop { position: absolute; inset: 0; overflow: hidden; pointer-events: none; color: var(--ink); }
 .g-backdrop__art { position: absolute; top: 0; left: 50%; height: 100%; aspect-ratio: 788 / 1024; transform: translateX(-50%); }
@@ -3163,7 +3189,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.43";
+<script>window.GAGOR_VERSION = "1.44";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6073,6 +6099,7 @@ window.GAGOR_reducirFoto = function (file) {
     var msg = useState(''); var aviso = msg[0], setAviso = msg[1];
     var mg = useState(false); var modoGrupos = mg[0], setModoGrupos = mg[1];
     var piv = useState(null); var probarIv = piv[0], setProbarIv = piv[1];
+    var mze = useState(null); var mesoEd = mze[0], setMesoEd = mze[1];
     var gnv = useState([]); var gruposNuevos = gnv[0], setGruposNuevos = gnv[1]; var gtx = useState(''); var grupoTxt = gtx[0], setGrupoTxt = gtx[1];
     var mc = useState(null); var mesCal = mc[0], setMesCal = mc[1];
     var ta = useState(false); var show = ta[0], setShow = ta[1];
@@ -6448,6 +6475,7 @@ window.GAGOR_reducirFoto = function (file) {
             h('div', { className: 'cbal__tx' }, avs.map(function (a, i) { return h('p', { key: i }, h('b', null, a.t), ' · ', a.d); }),
               h('small', null, 'Esta semana' + (prog ? ', contando lo programado que falta' : '') + '. Se calcula con el grupo de cada ejercicio en la Biblioteca.')));
         })(),
+        MesoPanel(c),
         (function () {
               var MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
               var DSEM = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
@@ -6638,6 +6666,80 @@ window.GAGOR_reducirFoto = function (file) {
       setConf(''); setAviso(''); setView('editor');
     }
     function editarSesion(s) { abrirEditor('sesion', s, { fecha: s.fecha, clienteId: s.clienteId }); }
+    /* 1.44 · MESOCICLO: objetivo y rangos por semana para cada cliente (c.meso = { inicio: lunes, semanas: [{ obj, reps, rpe, vol, nota }] }) */
+    var OBJ = {
+      adaptacion: { n: 'Adaptación', c: '#14B8A6', reps: '12-15', rpe: '6-7', vol: 'medio' },
+      hipertrofia: { n: 'Hipertrofia', c: '#3B82F6', reps: '8-12', rpe: '7-8', vol: 'alto' },
+      hipfuerza: { n: 'Hipertrofia-fuerza', c: '#8B5CF6', reps: '6-8', rpe: '7-9', vol: 'medio' },
+      fuerza: { n: 'Fuerza', c: '#F97316', reps: '3-6', rpe: '8-9', vol: 'medio' },
+      potencia: { n: 'Potencia', c: '#EF4444', reps: '1-5', rpe: '7-8', vol: 'bajo' },
+      mantenimiento: { n: 'Mantenimiento', c: '#22C55E', reps: '6-10', rpe: '7', vol: 'medio' },
+      descarga: { n: 'Descarga', c: '#94A3B8', reps: '8-10', rpe: '5-6', vol: 'bajo' },
+      otro: { n: 'Otro', c: '#64748B', reps: '', rpe: '', vol: 'medio' }
+    };
+    var VOLS = { alto: 'Volumen alto', medio: 'Volumen medio', bajo: 'Volumen bajo' };
+    function mesoSemana(c, fecha) { var m = c && c.meso; if (!m || !m.inicio || !m.semanas || !fecha) return null;
+      var k = Math.round((new Date(ST.semanaDe(fecha) + 'T12:00:00') - new Date(m.inicio + 'T12:00:00')) / (7 * 86400000));
+      if (k < 0 || k >= m.semanas.length) return null; return Object.assign({ k: k, n: m.semanas.length }, m.semanas[k]); }
+    function rangoNum(txt) { var tx = String(txt || '').trim().replace(/,/g, '.'); var m = /^(\d+(?:\.\d+)?)\s*(?:-|–|a)\s*(\d+(?:\.\d+)?)$/.exec(tx); if (m) return [Number(m[1]), Number(m[2])]; var v = Number(tx); return tx && !isNaN(v) ? [v, v] : null; }
+    function seriesSemana(cid0, lun, sinId) { var dom = ST.iso(ST.addDays(new Date(lun + 'T12:00:00'), 6)); var tot = 0;
+      state.sesiones.forEach(function (q) { if (q.clienteId !== cid0 || q.id === sinId || q.fecha < lun || q.fecha > dom) return; ST.ejerciciosPlanos(q).forEach(function (fx) { tot += Number(fx.e.series) || 0; }); }); return tot; }
+    function mediaSeries(cid0, lun) { var vals = [1, 2, 3, 4].map(function (k) { return seriesSemana(cid0, ST.iso(ST.addDays(new Date(lun + 'T12:00:00'), -7 * k)), null); }).filter(function (v) { return v > 0; });
+      return vals.length ? Math.round(vals.reduce(function (a, b) { return a + b; }, 0) / vals.length) : 0; }
+    function semMeso(x) { var o = OBJ[x.obj] || OBJ.otro; return { obj: x.obj, reps: x.reps, rpe: x.rpe, vol: x.vol, nota: x.nota, nombre: x.obj === 'otro' && x.etiqueta ? x.etiqueta : o.n, color: o.c }; }
+    function MesoPanel(c) {
+      var MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+      function fc(f) { var dd = new Date(f + 'T12:00:00'); return dd.getDate() + ' ' + MES[dd.getMonth()]; }
+      function lunK(ini, k) { return ST.iso(ST.addDays(new Date(ini + 'T12:00:00'), 7 * k)); }
+      var ed0 = mesoEd && mesoEd.cid === c.id ? mesoEd : null; var lunHoy = ST.semanaDe(hoyIso);
+      if (ed0) {
+        var upM = function (fn) { var x = JSON.parse(JSON.stringify(ed0)); fn(x); setMesoEd(x); };
+        return h('div', { key: 'meso', className: 'panel meso is-ed' },
+          h('div', { className: 'meso__head' }, h('h2', { className: 'h2', style: { margin: 0 } }, 'Mesociclo'), h('span', { className: 'muted small' }, ed0.semanas.length + ' semanas · hasta ' + fc(lunK(ed0.inicio, ed0.semanas.length - 1)))),
+          h('div', { className: 'meso__cfg' },
+            h(G.TextField, { label: 'Empieza la semana del', type: 'date', value: ed0.inicio, onChange: function (v) { if (v) upM(function (x) { x.inicio = ST.semanaDe(v); }); } }),
+            h('div', { className: 'meso__n' }, h('span', { className: 'meso__nl' }, 'Semanas'),
+              h('div', { className: 'rowline' },
+                h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Quitar semana', disabled: ed0.semanas.length <= 1, onClick: function () { upM(function (x) { x.semanas.pop(); }); } }, h(G.Icon, { name: 'menos', size: 16 })),
+                h('b', null, ed0.semanas.length),
+                h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Añadir semana', disabled: ed0.semanas.length >= 26, onClick: function () { upM(function (x) { var u = x.semanas[x.semanas.length - 1]; x.semanas.push(JSON.parse(JSON.stringify(u))); }); } }, h(G.Icon, { name: 'mas', size: 16 }))))),
+          h('div', { className: 'meso__rows' },
+            h('div', { className: 'meso__row meso__row--head', 'aria-hidden': 'true' }, h('span', null, 'Semana'), h('span', null, 'Objetivo'), h('span', null, 'Reps'), h('span', null, 'RPE'), h('span', null, 'Volumen'), h('span', null, 'Nota')),
+            ed0.semanas.map(function (w, k) { var o = OBJ[w.obj] || OBJ.otro;
+              return h('div', { key: k, className: 'meso__row', style: { '--mc': o.c } },
+                h('span', { className: 'meso__wk' }, h('b', null, 'S' + (k + 1)), ' ' + fc(lunK(ed0.inicio, k))),
+                h('select', { className: 'edx__in meso__obj', value: w.obj, 'aria-label': 'Objetivo semana ' + (k + 1), onChange: function (ev) { var v = ev.target.value; upM(function (x) { var p0 = OBJ[v]; x.semanas[k] = { obj: v, reps: p0.reps, rpe: p0.rpe, vol: p0.vol, nota: x.semanas[k].nota || '' }; }); } }, Object.keys(OBJ).map(function (q) { return h('option', { key: q, value: q }, OBJ[q].n); })),
+                h('input', { className: 'edx__in', value: w.reps || '', placeholder: '8-12', 'aria-label': 'Reps semana ' + (k + 1), onChange: function (ev) { var v = ev.target.value; upM(function (x) { x.semanas[k].reps = v; }); } }),
+                h('input', { className: 'edx__in', value: w.rpe || '', placeholder: '7-8', 'aria-label': 'RPE semana ' + (k + 1), onChange: function (ev) { var v = ev.target.value; upM(function (x) { x.semanas[k].rpe = v; }); } }),
+                h('select', { className: 'edx__in', value: w.vol || 'medio', 'aria-label': 'Volumen semana ' + (k + 1), onChange: function (ev) { var v = ev.target.value; upM(function (x) { x.semanas[k].vol = v; }); } }, ['alto', 'medio', 'bajo'].map(function (q) { return h('option', { key: q, value: q }, q.charAt(0).toUpperCase() + q.slice(1)); })),
+                h('input', { className: 'edx__in meso__nt', value: w.nota || '', placeholder: 'Idea de la semana (opcional)', 'aria-label': 'Nota semana ' + (k + 1), onChange: function (ev) { var v = ev.target.value; upM(function (x) { x.semanas[k].nota = v; }); } }));
+            })),
+          h('div', { className: 'rowline', style: { flexWrap: 'wrap', justifyContent: 'flex-start' } },
+            h(G.Button, { size: 'md', icon: 'check', onClick: function () { var m0 = { inicio: ed0.inicio, semanas: ed0.semanas.map(function (w) { var o = { obj: w.obj, reps: String(w.reps || '').trim(), rpe: String(w.rpe || '').trim(), vol: w.vol || 'medio' }; if (String(w.nota || '').trim()) o.nota = String(w.nota).trim(); return o; }) };
+              commit(function (st) { var x = st.clientes.filter(function (q) { return q.id === c.id; })[0]; if (x) x.meso = m0; }); setMesoEd(null); } }, 'Guardar mesociclo'),
+            h(G.Button, { size: 'md', variant: 'secondary', onClick: function () { setMesoEd(null); } }, 'Cancelar'),
+            c.meso ? h(G.Button, { size: 'md', variant: 'ghost', icon: 'borrar', onClick: function () { if (conf !== 'meso-del') { setConf('meso-del'); return; } commit(function (st) { var x = st.clientes.filter(function (q) { return q.id === c.id; })[0]; if (x) delete x.meso; }); setConf(''); setMesoEd(null); } }, conf === 'meso-del' ? 'Confirmar: borrar mesociclo' : 'Borrar mesociclo') : null));
+      }
+      if (!c.meso) return h('div', { key: 'meso', className: 'panel meso is-vacio' },
+        h('div', null, h('b', null, 'Mesociclo'), h('p', { className: 'muted small', style: { margin: '2px 0 0' } }, 'Planifica qué quieres cada semana (hipertrofia, fuerza, descarga…) antes de bajar a las sesiones.')),
+        h(G.Button, { size: 'md', icon: 'calendario', onClick: function () { var p0 = OBJ.hipertrofia, d0 = OBJ.descarga; var sem = [0, 1, 2].map(function () { return { obj: 'hipertrofia', reps: p0.reps, rpe: p0.rpe, vol: p0.vol, nota: '' }; }).concat([{ obj: 'descarga', reps: d0.reps, rpe: d0.rpe, vol: d0.vol, nota: '' }]); setMesoEd({ cid: c.id, inicio: lunHoy, semanas: sem }); } }, 'Planificar mesociclo'));
+      var m = c.meso; var fin = lunK(m.inicio, m.semanas.length - 1); var kHoy = Math.round((new Date(lunHoy + 'T12:00:00') - new Date(m.inicio + 'T12:00:00')) / (7 * 86400000));
+      var otros = state.clientes.filter(function (q) { return q.id !== c.id && !q.baja; });
+      return h('div', { key: 'meso', className: 'panel meso' },
+        h('div', { className: 'meso__head' },
+          h('div', null, h('h2', { className: 'h2', style: { margin: 0 } }, 'Mesociclo'), h('span', { className: 'muted small' }, m.semanas.length + ' semanas · ' + fc(m.inicio) + ' – ' + fc(ST.iso(ST.addDays(new Date(fin + 'T12:00:00'), 6))) + (kHoy >= 0 && kHoy < m.semanas.length ? ' · vas por la semana ' + (kHoy + 1) : (kHoy >= m.semanas.length ? ' · terminado' : ' · aún no ha empezado')))),
+          h('div', { className: 'rowline', style: { flexWrap: 'wrap' } },
+            otros.length ? h('select', { className: 'edx__in meso__copy', value: '', 'aria-label': 'Copiar mesociclo a otro cliente', onChange: function (ev) { var id = ev.target.value; if (!id) return; var nm = (otros.filter(function (q) { return q.id === id; })[0] || {}).nombre; commit(function (st) { var x = st.clientes.filter(function (q) { return q.id === id; })[0]; if (x) x.meso = JSON.parse(JSON.stringify(m)); }); setAviso('Mesociclo copiado a ' + nm); } }, h('option', { value: '' }, 'Copiar a…'), otros.map(function (q) { return h('option', { key: q.id, value: q.id }, q.nombre + (q.meso ? ' (ya tiene uno)' : '')); })) : null,
+            h(G.Button, { size: 'md', variant: 'secondary', icon: 'editar', onClick: function () { setConf(''); setMesoEd({ cid: c.id, inicio: m.inicio, semanas: JSON.parse(JSON.stringify(m.semanas)) }); } }, 'Editar'))),
+        h('div', { className: 'meso__strip' }, m.semanas.map(function (w, k) { var sm = semMeso(w);
+          return h('div', { key: k, className: 'meso__w' + (k === kHoy ? ' is-hoy' : '') + (k < kHoy ? ' is-past' : ''), style: { '--mc': sm.color } },
+            h('span', { className: 'meso__wd' }, 'S' + (k + 1) + ' · ' + fc(lunK(m.inicio, k)) + (k === kHoy ? ' · ahora' : '')),
+            h('b', { className: 'meso__wn' }, sm.nombre),
+            h('span', { className: 'meso__wr' }, [w.reps ? w.reps + ' reps' : null, w.rpe ? 'RPE ' + w.rpe : null].filter(Boolean).join(' · ') || '—'),
+            h('span', { className: 'meso__wv' }, VOLS[w.vol] || ''),
+            w.nota ? h('span', { className: 'meso__wnt' }, w.nota) : null); })),
+        aviso && /^Mesociclo copiado/.test(aviso) ? h('p', { className: 'muted small', style: { margin: 0 } }, '✓ ' + aviso) : null);
+    }
     // 1.42 · HIIT de bici: abre el editor con un bloque de intervalos ya montado (3' + 8 × 30/30 + 3')
     function nuevaBici(cid0, fecha) {
       var trs = [ivBorrador({ tipo: 'calentamiento', seg: 180, rpm: 80, res: '3', nota: 'Sentado, suelto' })];
@@ -6797,6 +6899,21 @@ window.GAGOR_reducirFoto = function (file) {
             h('span', null, h('b', null, res.ejercicios), res.ejercicios === 1 ? ' ejercicio' : ' ejercicios'),
             h('span', null, h('b', null, res.series), ' series'),
             h('span', null, h('b', null, '~' + res.minutos), ' min'))),
+        (function () { if (!esSesion || !cli || !d.fecha) return null; var sm = mesoSemana(cli, d.fecha); if (!sm) return null; var o = semMeso(sm);
+          var rR = rangoNum(sm.reps), rP = rangoNum(sm.rpe); var fuera = [];
+          d.bloques.forEach(function (b) { if (b.intervalos || /calent|movil|activa/i.test(b.titulo || '')) return; b.ejercicios.forEach(function (e) { if (!e.ejId || e.seg) return;
+            var x = ST.ejercicio(state, e.ejId) || {}; if (/^(Movilidad|Core|Prevención|Condición)/.test(x.patron || '')) return; var nm = x.nombre || 'Ejercicio';
+            var rv = numTxt(e.lado ? (e.repsIzq || e.reps) : e.reps); if (rR && rv !== null && rv !== undefined && rv > 0 && (rv < rR[0] || rv > rR[1])) fuera.push(nm + ': ' + rv + ' reps');
+            var pv = numTxt(e.rpe); if (rP && pv && (pv < rP[0] || pv > rP[1])) fuera.push(nm + ': RPE ' + String(pv).replace('.', ',')); }); });
+          var lun = ST.semanaDe(d.fecha); var serS = seriesSemana(cli.id, lun, d.id) + res.series; var med = mediaSeries(cli.id, lun);
+          var volMal = sm.vol === 'bajo' && med && serS > med * 0.85;
+          return h('div', { key: 'meso', className: 'mesoed', style: { '--mc': o.color } },
+            h('p', { className: 'mesoed__t' }, h('b', null, 'Semana ' + (sm.k + 1) + ' de ' + sm.n + ' · ' + o.nombre), [sm.reps ? sm.reps + ' reps' : null, sm.rpe ? 'RPE ' + sm.rpe : null, VOLS[sm.vol] ? VOLS[sm.vol].toLowerCase() : null].filter(Boolean).map(function (q) { return ' · ' + q; }).join('')),
+            sm.nota ? h('p', { className: 'mesoed__n' }, sm.nota) : null,
+            h('p', { className: 'mesoed__n' }, 'Series de la semana con esta sesión: ' + serS + (med ? ' · media de las 4 anteriores: ' + med : '')),
+            volMal ? h('p', { className: 'mesoed__w' }, '▲ Semana de volumen bajo y ya va por ' + serS + ' series (' + Math.round(serS / med * 100) + ' % de su media).') : null,
+            fuera.length ? h('p', { className: 'mesoed__w' }, '▲ Fuera de lo planificado: ' + fuera.join(' · ') + '.') : null);
+        })(),
         esSesion && regsHechos.length ? h('p', { key: 'rg', className: 'muted small', style: { margin: 0 } }, 'Ya ha registrado ' + regsHechos.length + (regsHechos.length === 1 ? ' ejercicio' : ' ejercicios') + '. Lo registrado se conserva aunque cambies el orden.') : null,
         h('div', { key: 'bl', className: 'stack' }, d.bloques.map(function (b, bi) {
           if (b.intervalos) return BloqueIv(b, bi);
