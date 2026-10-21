@@ -3206,7 +3206,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.45";
+<script>window.GAGOR_VERSION = "1.46";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6236,6 +6236,7 @@ window.GAGOR_reducirFoto = function (file) {
           })(),
           h('div', { className: 'dses__pie' },
             h(G.Button, { size: 'md', variant: 'secondary', icon: 'editar', onClick: function () { setVerSes(null); editarSesion(s); } }, 'Editar sesión'),
+            h(G.Button, { size: 'md', variant: 'secondary', icon: 'exportar', title: 'Descarga la sesión en una tabla Excel (se abre en Google Sheets)', onClick: function () { exportarTabla(s); } }, 'Tabla Excel'),
             h(G.Button, { size: 'md', variant: 'ghost', onClick: function () { setVerSes(null); } }, 'Cerrar'))));
     }
     function shell(content) { return h('div', { className: 'app' }, Nav(), h('div', { className: 'main' }, content), DetalleSesion(), probarIv ? h('div', { className: 'ivover', role: 'dialog', 'aria-modal': 'true' }, h(G.IntervalPlayer, { bloque: probarIv.bloque, titulo: 'Vista previa · ' + probarIv.titulo, finLabel: 'Cerrar', onExit: function () { setProbarIv(null); }, onFinish: function () { setProbarIv(null); } })) : null); }
@@ -6762,6 +6763,78 @@ window.GAGOR_reducirFoto = function (file) {
             h('span', { className: 'meso__wv' }, VOLS[w.vol] || ''),
             w.nota ? h('span', { className: 'meso__wnt' }, w.nota) : null); })),
         aviso && /^Mesociclo copiado/.test(aviso) ? h('p', { className: 'muted small', style: { margin: 0 } }, '✓ ' + aviso) : null);
+    }
+    /* 1.46 · TABLA EXCEL de una sesión (formato de las hojas del entrenador). Se genera aquí mismo, sin librerías: un .xlsx es un zip de XML. */
+    function zipStore(files) {
+      var T = []; for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; T[n] = c >>> 0; }
+      function crc(b) { var c = 0xFFFFFFFF; for (var i = 0; i < b.length; i++) c = T[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+      var enc = new TextEncoder(), partes = [], central = [], off = 0;
+      function u16(v) { return [v & 255, (v >>> 8) & 255]; } function u32(v) { return [v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255]; }
+      files.forEach(function (f) {
+        var nm = enc.encode(f.n), dat = enc.encode(f.d), cr = crc(dat);
+        var loc = [].concat(u32(0x04034b50), u16(20), u16(0x0800), u16(0), u16(0), u16(0x21), u32(cr), u32(dat.length), u32(dat.length), u16(nm.length), u16(0));
+        partes.push(new Uint8Array(loc), nm, dat);
+        central.push(new Uint8Array([].concat(u32(0x02014b50), u16(20), u16(20), u16(0x0800), u16(0), u16(0), u16(0x21), u32(cr), u32(dat.length), u32(dat.length), u16(nm.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(off))), nm);
+        off += loc.length + nm.length + dat.length;
+      });
+      var tamC = central.reduce(function (a, b) { return a + b.length; }, 0);
+      var fin = new Uint8Array([].concat(u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length), u32(tamC), u32(off), u16(0)));
+      return new Blob(partes.concat(central, [fin]), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    }
+    function xlsxTabla(titulo, filas, hoja) {
+      function esc(v) { return String(v === null || v === undefined ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+      function celda(ref, v, st) { return '<c r="' + ref + '" s="' + st + '" t="inlineStr"><is><t xml:space="preserve">' + esc(v) + '</t></is></c>'; }
+      var rows = ['<row r="1" ht="30" customHeight="1">' + celda('A1', titulo, 1) + celda('B1', '', 1) + celda('C1', '', 1) + celda('D1', '', 1) + '</row>',
+        '<row r="2" ht="26" customHeight="1">' + celda('A2', 'EJERCICIO', 2) + celda('B2', 'SERIES', 2) + celda('C2', 'REPS', 2) + celda('D2', 'PESOS', 2) + '</row>'];
+      filas.forEach(function (f, i) { var r = i + 3, a = f.fin ? 4 : 3, b = f.fin ? 6 : 5;
+        rows.push('<row r="' + r + '" ht="24" customHeight="1">' + celda('A' + r, f.ej, a) + celda('B' + r, f.series, b) + celda('C' + r, f.reps, b) + celda('D' + r, f.pesos, b) + '</row>'); });
+      var sheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView workbookViewId="0" showGridLines="0"/></sheetViews><sheetFormatPr defaultRowHeight="20"/><cols><col min="1" max="1" width="46" customWidth="1"/><col min="2" max="3" width="11" customWidth="1"/><col min="4" max="4" width="24" customWidth="1"/></cols><sheetData>' + rows.join('') + '</sheetData><mergeCells count="1"><mergeCell ref="A1:D1"/></mergeCells><pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.2" footer="0.2"/><pageSetup orientation="portrait" fitToWidth="1" fitToHeight="0"/></worksheet>';
+      var styles = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+        '<fonts count="4"><font><sz val="11"/><name val="Arial"/></font><font><b/><sz val="16"/><color rgb="FF111111"/><name val="Arial"/></font><font><b/><sz val="14"/><color rgb="FFFFFFFF"/><name val="Arial"/></font><font><sz val="12"/><color rgb="FF111111"/><name val="Arial"/></font></fonts>' +
+        '<fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFC3F53C"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF111111"/><bgColor indexed="64"/></patternFill></fill></fills>' +
+        '<borders count="3"><border><left/><right/><top/><bottom/><diagonal/></border>' +
+        '<border><left style="thin"><color rgb="FFC8C8C8"/></left><right style="thin"><color rgb="FFC8C8C8"/></right><top style="thin"><color rgb="FFC8C8C8"/></top><bottom style="thin"><color rgb="FFC8C8C8"/></bottom><diagonal/></border>' +
+        '<border><left style="thin"><color rgb="FFC8C8C8"/></left><right style="thin"><color rgb="FFC8C8C8"/></right><top style="thin"><color rgb="FFC8C8C8"/></top><bottom style="medium"><color rgb="FF111111"/></bottom><diagonal/></border></borders>' +
+        '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="7">' +
+        '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+        '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+        '<xf numFmtId="0" fontId="2" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+        '<xf numFmtId="0" fontId="3" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>' +
+        '<xf numFmtId="0" fontId="3" fillId="0" borderId="2" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>' +
+        '<xf numFmtId="0" fontId="3" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+        '<xf numFmtId="0" fontId="3" fillId="0" borderId="2" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+        '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+      var nombreHoja = esc(String(hoja || 'Sesión').replace(/[\\\/\?\*\[\]:]/g, ' ').slice(0, 31));
+      return zipStore([
+        { n: '[Content_Types].xml', d: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>' },
+        { n: '_rels/.rels', d: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>' },
+        { n: 'xl/workbook.xml', d: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="' + nombreHoja + '" sheetId="1" r:id="rId1"/></sheets></workbook>' },
+        { n: 'xl/_rels/workbook.xml.rels', d: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>' },
+        { n: 'xl/worksheets/sheet1.xml', d: sheet },
+        { n: 'xl/styles.xml', d: styles }
+      ]);
+    }
+    function exportarTabla(s) {
+      function nn(v) { return String(v).replace('.', ','); }
+      function repsTxt(e) { var u = function (n) { n = Number(n) || 0; return e.seg ? (n > 1 ? n + 'X' : '') + e.seg + '"' : String(n); };
+        if (!e.lado) return u(e.reps); var r = ST.ladoReps(e); return u(r[0]) + '/' + u(r[1]); }
+      var filas = [];
+      s.bloques.forEach(function (b, bi) {
+        if (b.intervalos) { var tt = G.intTotal(b.intervalos); filas.push({ ej: String(b.titulo || 'Bici').toUpperCase(), series: '', reps: Math.floor(tt / 60) + ':' + ('0' + tt % 60).slice(-2) + ' min', pesos: b.intervalos.length + ' tramos', fin: true }); return; }
+        b.ejercicios.forEach(function (e, ei) {
+          var reg = ((s.registros || {})[bi + '-' + ei] || []).filter(function (r) { return r && r.done && r.carga !== null && r.carga !== undefined && r.carga !== ''; });
+          var vals = reg.map(function (r) { return nn(r.carga); }); var pesos = reg.length ? (vals.every(function (v) { return v === vals[0]; }) ? vals[0] : vals.join(' / ')) + ' kg' : (e.carga !== null && e.carga !== undefined && e.carga !== '' ? (e.cargaX === 2 ? '2 × ' : '') + nn(e.carga) + ' kg' : '');
+          if (reg.length && e.cargaX === 2) pesos = '2 × ' + pesos;
+          filas.push({ ej: String(ST.nombreEj(state, e.ejId) || '').toUpperCase(), series: e.series, reps: repsTxt(e), pesos: pesos, fin: ei === b.ejercicios.length - 1 });
+        });
+      });
+      var mismos = state.sesiones.filter(function (q) { return q.fecha === s.fecha && (q.titulo || '') === (s.titulo || ''); }).map(function (q) { return (state.clientes.filter(function (c) { return c.id === q.clienteId; })[0] || {}).nombre; }).filter(Boolean);
+      var yo = (state.clientes.filter(function (c) { return c.id === s.clienteId; })[0] || {}).nombre; mismos = [yo].concat(mismos.filter(function (x) { return x !== yo; }));
+      var titulo = mismos.map(function (x) { return String(x).split(' ')[0].toUpperCase(); }).join(' // ');
+      var blob = xlsxTabla(titulo, filas, (s.titulo || 'Sesión') + ' ' + s.fecha.slice(8) + '-' + s.fecha.slice(5, 7));
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = ('GAGOR ' + (s.titulo || 'sesion') + ' ' + s.fecha).replace(/[\\\/:*?"<>|]/g, ' ') + '.xlsx';
+      document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+      return mismos.length;
     }
     // 1.42 · HIIT de bici: abre el editor con un bloque de intervalos ya montado (3' + 8 × 30/30 + 3')
     function nuevaBici(cid0, fecha) {
