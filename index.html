@@ -3206,7 +3206,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.46";
+<script>window.GAGOR_VERSION = "1.47";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6432,8 +6432,12 @@ window.GAGOR_reducirFoto = function (file) {
           h(G.StatTile, { label: 'Sesiones · 4 semanas', value: semTot.d + '/' + semTot.p, detail: 'Hechas sobre planificadas' }),
           h(G.StatTile, { label: 'Avisos abiertos', value: todosAvisos.length, detail: 'Tronco y Basket' }),
           h(G.StatTile, { label: 'Ejercicios', value: state.ejercicios.length, detail: 'En la biblioteca' })),
-        h('div', { key: 'l', className: 'frame' }, state.clientes.map(function (c) {
-          var ad = adherencia(c); var av = todosAvisos.filter(function (a) { return a.clienteId === c.id; });
+        // 1.47 · orden: más sesiones hechas en las 4 últimas semanas primero; empate → mejor % de lo programado; luego por nombre
+        h('div', { key: 'l', className: 'frame' }, state.clientes.map(function (c) { return { c: c, ad: adherencia(c) }; }).sort(function (x, y) {
+            if (y.ad.done !== x.ad.done) return y.ad.done - x.ad.done;
+            var px = x.ad.planned ? x.ad.done / x.ad.planned : 0, py = y.ad.planned ? y.ad.done / y.ad.planned : 0; if (py !== px) return py - px;
+            return String(x.c.nombre || '').localeCompare(String(y.c.nombre || ''), 'es'); }).map(function (o) {
+          var c = o.c; var ad = o.ad; var av = todosAvisos.filter(function (a) { return a.clienteId === c.id; });
           return h(G.ClientRow, { key: c.id, photo: c.prefs && c.prefs.foto, name: c.nombre, group: c.grupo + ' · código ' + c.codigo, done: ad.done, planned: ad.planned, last: ultimo(c), alerts: av.length ? (av.length === 1 ? (av[0].label || { rpe: 'RPE alto', carga: 'Carga anómala', sesion: 'Sesión no hecha' }[av[0].kind] || 'Aviso') : av.length + ' avisos') : '', onOpen: function () { setCid(c.id); setView('cliente'); } });
         })),
         h('div', { key: 'n', className: 'panel', style: { display: 'grid', gap: '12px', maxWidth: '720px' } },
