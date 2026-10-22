@@ -3228,7 +3228,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.51";
+<script>window.GAGOR_VERSION = "1.52";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6227,6 +6227,18 @@ window.GAGOR_reducirFoto = function (file) {
             h('div', null, h('p', { className: 'dses__q' }, c.nombre + ' · ' + ST.fmtFecha(s.fecha)), h('h2', { className: 'dses__t' }, s.titulo), h('p', { className: 'dses__e is-' + (s.estado === 'hecha' ? 'ok' : (hechas ? 'curso' : (s.fecha < hoyIso ? 'mal' : 'pend'))) }, est)),
             h('button', { type: 'button', className: 'dses__x', 'aria-label': 'Cerrar', onClick: function () { setVerSes(null); } }, '×')),
           s.comentario ? h('p', { className: 'dses__com' }, '«' + s.comentario + '»') : null,
+          // 1.52 · también sin series marcadas (lo hizo sin apuntar en la app), siempre que sea de hoy o de antes
+          s.estado !== 'hecha' && (hechas > 0 || s.fecha <= hoyIso) ? (conf === 'cerrar-' + s.id
+            ? h('div', { className: 'confirm', style: { margin: '0 0 12px' } },
+                h('p', { className: 'small', style: { margin: 0 } }, hechas ? 'Quedará como hecha con las ' + hechas + ' de ' + tot + ' series que marcó. Lo que no marcó no se guarda.' : 'No marcó ninguna serie en la app. Quedará como hecha, sin pesos ni repeticiones apuntadas.'),
+                h('label', { className: 'rowline', style: { justifyContent: 'flex-start', gap: '8px', flexWrap: 'wrap' } }, h('span', { className: 'small' }, 'RPE de la sesión (si lo sabes):'),
+                  h('select', { className: 'edx__in', style: { width: 'auto' }, value: cierreRpe, onChange: function (ev) { setCierreRpe(ev.target.value); } }, h('option', { value: '' }, 'Sin RPE'), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (q) { return h('option', { key: q, value: String(q) }, q); }))),
+                h('div', { className: 'rowline' },
+                  h(G.Button, { size: 'md', variant: 'secondary', onClick: function () { setConf(''); } }, 'Cancelar'),
+                  h(G.Button, { size: 'md', icon: 'check', onClick: function () { var id = s.id; var rp = cierreRpe ? Number(cierreRpe) : null;
+                    commit(function (st) { var x = st.sesiones.filter(function (q) { return q.id === id; })[0]; if (!x) return; x.estado = 'hecha'; x.rpe = rp; x.cerrada = new Date().toISOString(); x.cerradaPor = 'entrenador'; if (!x.duracion) x.duracion = ST.resumenBloques(x.bloques).minutos || null; });
+                    setConf(''); setCierreRpe(''); } }, 'Cerrar sesión')))
+            : h('div', { className: 'rowline', style: { justifyContent: 'flex-start', margin: '0 0 12px' } }, h(G.Button, { size: 'md', icon: 'check', onClick: function () { setCierreRpe(''); setConf('cerrar-' + s.id); } }, hechas ? 'Cerrar sesión (no la terminó)' : 'Marcar como hecha'))) : null,
           s.bloques.filter(function (b) { return b.intervalos; }).map(function (b, k) { var bi = s.bloques.indexOf(b); var hecho = ((s.registros || {})['iv' + bi] || []).some(function (r) { return r.done; }); var tt = G.intTotal(b.intervalos);
             return h('div', { key: 'iv' + k, style: { display: 'grid', gap: '6px', margin: '8px 0' } }, h('p', { className: 'dses__bl', style: { margin: 0 } }, b.titulo + ' · ' + Math.floor(tt / 60) + ':' + ('0' + tt % 60).slice(-2) + ' min · ' + b.intervalos.length + ' tramos' + (hecho ? ' · ✓ hecho' : '')), h(G.IntervalProfile, { tramos: b.intervalos })); }),
           h('div', { className: 'dses__list' }, fl.map(function (fx) {
@@ -6259,17 +6271,6 @@ window.GAGOR_reducirFoto = function (file) {
               avisoMov ? h('p', { className: 'dses__ok', role: 'status' }, '✓ ' + avisoMov) : null);
           })(),
           // 1.48 · el entrenador puede cerrar una sesión empezada que el cliente no terminó: queda hecha con lo que marcó
-          s.estado !== 'hecha' && hechas > 0 ? (conf === 'cerrar-' + s.id
-            ? h('div', { className: 'confirm', style: { marginTop: '12px' } },
-                h('p', { className: 'small', style: { margin: 0 } }, 'Quedará como hecha con las ' + hechas + ' de ' + tot + ' series que marcó. Lo que no marcó no se guarda.'),
-                h('label', { className: 'rowline', style: { justifyContent: 'flex-start', gap: '8px', flexWrap: 'wrap' } }, h('span', { className: 'small' }, 'RPE de la sesión (si lo sabes):'),
-                  h('select', { className: 'edx__in', style: { width: 'auto' }, value: cierreRpe, onChange: function (ev) { setCierreRpe(ev.target.value); } }, h('option', { value: '' }, 'Sin RPE'), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (q) { return h('option', { key: q, value: String(q) }, q); }))),
-                h('div', { className: 'rowline' },
-                  h(G.Button, { size: 'md', variant: 'secondary', onClick: function () { setConf(''); } }, 'Cancelar'),
-                  h(G.Button, { size: 'md', icon: 'check', onClick: function () { var id = s.id; var rp = cierreRpe ? Number(cierreRpe) : null;
-                    commit(function (st) { var x = st.sesiones.filter(function (q) { return q.id === id; })[0]; if (!x) return; x.estado = 'hecha'; x.rpe = rp; x.cerrada = new Date().toISOString(); x.cerradaPor = 'entrenador'; if (!x.duracion) x.duracion = ST.resumenBloques(x.bloques).minutos || null; });
-                    setConf(''); setCierreRpe(''); } }, 'Cerrar sesión')))
-            : h('div', { className: 'rowline', style: { justifyContent: 'flex-start', marginTop: '12px' } }, h(G.Button, { size: 'md', icon: 'check', onClick: function () { setCierreRpe(''); setConf('cerrar-' + s.id); } }, 'Cerrar sesión (no la terminó)'))) : null,
           h('div', { className: 'dses__pie' },
             h(G.Button, { size: 'md', variant: 'secondary', icon: 'editar', onClick: function () { setVerSes(null); editarSesion(s); } }, 'Editar sesión'),
             h(G.Button, { size: 'md', variant: 'secondary', icon: 'exportar', title: 'Descarga la sesión en una tabla Excel (se abre en Google Sheets)', onClick: function () { exportarTabla(s); } }, 'Tabla Excel'),
