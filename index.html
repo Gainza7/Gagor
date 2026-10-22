@@ -589,9 +589,12 @@
 .pk__top { display: flex; gap: 8px; align-items: center; }
 .pk__q { flex: 1; min-width: 0; font: inherit; font-size: 17px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface-card); color: var(--ink); }
 .pk__q:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-.pk__list { overflow-y: auto; display: grid; align-content: start; gap: 4px; }
+.pk__list { overflow-y: auto; display: grid; align-content: start; gap: 8px; }
 .pk__it { display: grid; gap: 2px; text-align: left; padding: 10px 12px; border-radius: 10px; border: 1px solid transparent; background: transparent; font: inherit; color: inherit; cursor: pointer; }
 .pk__it:hover, .pk__it:focus-visible, .pk__it.is-first { background: color-mix(in srgb, var(--accent) 12%, transparent); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.pk__grp { display: grid; gap: 2px; }
+.pk__gh { position: sticky; top: 0; z-index: 1; display: flex; justify-content: space-between; margin: 6px 0 2px; padding: 6px 12px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); background: var(--surface-card); border-bottom: 1px solid var(--line); }
+.pk__gh span { font-weight: 600; }
 .pk__it b { font-size: 15px; } .pk__it small { font-size: 12px; color: var(--ink-muted); }
 
 /* ---------- BrandBackdrop ---------- */
@@ -3222,7 +3225,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.49";
+<script>window.GAGOR_VERSION = "1.50";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -7041,16 +7044,20 @@ window.GAGOR_reducirFoto = function (file) {
       function elegirEj(id) { var pk = pickEj; setPickEj(null); if (!pk || !id) return;
         if (pk.ei === null) up(function (x) { x.bloques[pk.bi].ejercicios.push({ _u: ST.uid(), _k: null, ejId: id, series: '3', reps: '8', lado: ST.esUnilateral(state, id), repsIzq: ST.esUnilateral(state, id) ? '8' : '', repsDer: ST.esUnilateral(state, id) ? '8' : '', seg: '', carga: '', descanso: '90', tempo: '', rpe: '', ss: '', nota: '' }); });
         else up(function (x) { var q = x.bloques[pk.bi].ejercicios[pk.ei]; q.ejId = id; q.lado = ST.esUnilateral(state, id); if (q.lado) { q.repsIzq = q.repsIzq || q.reps; q.repsDer = q.repsDer || q.reps; } }); }
-      var pickModal = pickEj ? (function () { var res0 = buscarEj(pickEj.q); var tot0 = res0.length; res0 = res0.slice(0, 80);
+      var pickModal = pickEj ? (function () { var res0 = buscarEj(pickEj.q); var tot0 = res0.length; var mejor = res0[0];
+        // 1.50 · todos los ejercicios, agrupados como en la Biblioteca; con búsqueda, dentro de cada grupo van por relevancia
+        var grp = PATRONES.concat(['Otros']).map(function (g) { return { g: g, items: res0.filter(function (x) { return grupoDe(x) === g; }) }; }).filter(function (o) { return o.items.length; });
         return h('div', { key: 'pk', className: 'dses', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Buscar ejercicio', onClick: function (ev) { if (ev.target === ev.currentTarget) setPickEj(null); } },
           h('div', { className: 'dses__box pkbox' },
             h('div', { className: 'pk__top' },
               h('input', { className: 'pk__q', autoFocus: true, value: pickEj.q, placeholder: 'Busca: banca, squat, hip, foam, copenhague…', 'aria-label': 'Buscar ejercicio', onChange: function (ev) { setPickEj(Object.assign({}, pickEj, { q: ev.target.value })); }, onKeyDown: function (ev) { if (ev.key === 'Enter' && res0[0]) elegirEj(res0[0].id); if (ev.key === 'Escape') setPickEj(null); } }),
               h('button', { type: 'button', className: 'dses__x', 'aria-label': 'Cerrar', onClick: function () { setPickEj(null); } }, '×')),
-            h('p', { className: 'muted small', style: { margin: '0 0 6px' } }, pickEj.q.trim() ? (tot0 ? tot0 + (tot0 === 1 ? ' ejercicio' : ' ejercicios') + (tot0 > 80 ? ' · se muestran 80, afina la búsqueda' : '') : 'Nada con «' + pickEj.q.trim() + '». Prueba con otra palabra o en inglés.') : state.ejercicios.length + ' ejercicios · escribe cualquier palabra del nombre'),
-            h('div', { className: 'pk__list' }, res0.map(function (x, k) {
-              return h('button', { key: x.id, type: 'button', className: 'pk__it' + (k === 0 && pickEj.q.trim() ? ' is-first' : ''), onClick: function () { elegirEj(x.id); } },
-                h('b', null, x.nombre), h('small', null, [x.patron, (x.material || []).join(', ')].filter(Boolean).join(' · '))); }))));
+            h('p', { className: 'muted small', style: { margin: '0 0 6px' } }, pickEj.q.trim() ? (tot0 ? tot0 + (tot0 === 1 ? ' ejercicio' : ' ejercicios') + ' · Enter elige el marcado' : 'Nada con «' + pickEj.q.trim() + '». Prueba con otra palabra o en inglés.') : state.ejercicios.length + ' ejercicios · escribe cualquier palabra del nombre'),
+            h('div', { className: 'pk__list' }, grp.map(function (o) {
+              return h('div', { key: o.g, className: 'pk__grp' }, h('p', { className: 'pk__gh' }, o.g, h('span', null, o.items.length)),
+                o.items.map(function (x) {
+                  return h('button', { key: x.id, type: 'button', className: 'pk__it' + (mejor && x.id === mejor.id && pickEj.q.trim() ? ' is-first' : ''), onClick: function () { elegirEj(x.id); } },
+                    h('b', null, x.nombre), (x.material || []).length ? h('small', null, (x.material || []).join(', ')) : null); })); }))));
       })() : null;
       return shell([pickModal,
         h(G.AppHeader, { key: 'h', title: titulo, subtitle: subt, onBack: function () { if (d.sucio) setConf('salir-editor'); else salirSin(); },
