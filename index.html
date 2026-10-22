@@ -578,6 +578,22 @@
 .mesoed p { margin: 0; } .mesoed__t { font-size: 15px; } .mesoed__n { font-size: 13px; color: var(--ink-muted); }
 .mesoed__w { font-size: 14px; font-weight: 600; color: var(--alert, #b45309); }
 
+
+/* ---------- Buscador de ejercicios (1.49) ---------- */
+.edx__pick { display: flex; align-items: center; justify-content: space-between; gap: 6px; text-align: left; cursor: pointer; overflow: hidden; }
+.edx__pick span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.edx__pick .g-icon { flex: none; opacity: .55; }
+.edx__pick.is-vacio span { color: var(--ink-muted); font-weight: 500; }
+.edx__add.edx__pick { justify-content: flex-start; font-weight: 600; }
+.dses__box.pkbox { max-width: 620px; display: grid; grid-template-rows: auto auto 1fr; gap: 8px; height: min(640px, calc(100dvh - 32px)); }
+.pk__top { display: flex; gap: 8px; align-items: center; }
+.pk__q { flex: 1; min-width: 0; font: inherit; font-size: 17px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface-card); color: var(--ink); }
+.pk__q:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.pk__list { overflow-y: auto; display: grid; align-content: start; gap: 4px; }
+.pk__it { display: grid; gap: 2px; text-align: left; padding: 10px 12px; border-radius: 10px; border: 1px solid transparent; background: transparent; font: inherit; color: inherit; cursor: pointer; }
+.pk__it:hover, .pk__it:focus-visible, .pk__it.is-first { background: color-mix(in srgb, var(--accent) 12%, transparent); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.pk__it b { font-size: 15px; } .pk__it small { font-size: 12px; color: var(--ink-muted); }
+
 /* ---------- BrandBackdrop ---------- */
 .g-backdrop { position: absolute; inset: 0; overflow: hidden; pointer-events: none; color: var(--ink); }
 .g-backdrop__art { position: absolute; top: 0; left: 50%; height: 100%; aspect-ratio: 788 / 1024; transform: translateX(-50%); }
@@ -3206,7 +3222,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.48";
+<script>window.GAGOR_VERSION = "1.49";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6118,6 +6134,7 @@ window.GAGOR_reducirFoto = function (file) {
     var piv = useState(null); var probarIv = piv[0], setProbarIv = piv[1];
     var mze = useState(null); var mesoEd = mze[0], setMesoEd = mze[1];
     var crp = useState(''); var cierreRpe = crp[0], setCierreRpe = crp[1];
+    var pke = useState(null); var pickEj = pke[0], setPickEj = pke[1];
     var gnv = useState([]); var gruposNuevos = gnv[0], setGruposNuevos = gnv[1]; var gtx = useState(''); var grupoTxt = gtx[0], setGrupoTxt = gtx[1];
     var mc = useState(null); var mesCal = mc[0], setMesCal = mc[1];
     var ta = useState(false); var show = ta[0], setShow = ta[1];
@@ -6703,6 +6720,27 @@ window.GAGOR_reducirFoto = function (file) {
       setConf(''); setAviso(''); setView('editor');
     }
     function editarSesion(s) { abrirEditor('sesion', s, { fecha: s.fecha, clienteId: s.clienteId }); }
+    /* 1.49 · BUSCADOR DE EJERCICIOS: cualquier palabra, sin tildes, y términos habituales en español e inglés */
+    var SINON = [['sentadilla', 'squat'], ['zancada', 'lunge', 'estocada'], ['peso muerto', 'deadlift', 'rdl'], ['press banca', 'bench press', 'banca', 'bench'], ['remo', 'row'], ['dominada', 'pull up', 'pullup', 'chin up'],
+      ['flexion', 'push up', 'pushup'], ['hombro', 'shoulder'], ['cadera', 'hip'], ['rodilla', 'knee'], ['tobillo', 'ankle'], ['gluteo', 'glute'], ['isquio', 'hamstring', 'femoral'], ['cuadriceps', 'quad'],
+      ['gemelo', 'calf', 'pantorrilla', 'soleo'], ['plancha', 'plank'], ['puente', 'bridge'], ['salto', 'jump'], ['rotacion', 'rotation'], ['movilidad', 'mobility'], ['respiracion', 'breathing', 'breath'],
+      ['traccion', 'pull'], ['empuje', 'push'], ['mancuerna', 'dumbbell', 'db', 'mnc'], ['barra', 'barbell', 'bar'], ['polea', 'cable'], ['goma', 'band', 'banda', 'elastic'], ['pesa rusa', 'kettlebell', 'kb'],
+      ['elevacion', 'raise'], ['extension', 'extension'], ['aductor', 'adductor', 'copenhague', 'copenhagen'], ['abductor', 'abduction'], ['espalda', 'back'], ['pecho', 'chest', 'pectoral'], ['una pierna', 'single leg', 'unilateral'],
+      ['un brazo', 'single arm'], ['isometrico', 'isometric', 'iso'], ['carrera', 'run', 'sprint'], ['bici', 'bike', 'cycle'], ['nordico', 'nordic'], ['lateral', 'side'], ['frontal', 'front'], ['trasero', 'back', 'posterior'],
+      ['inclinado', 'incline'], ['declinado', 'decline'], ['sentado', 'seated'], ['tumbado', 'lying'], ['de pie', 'standing'], ['caja', 'box', 'cajon'], ['balon medicinal', 'med ball', 'medicine ball'], ['lanzamiento', 'throw'],
+      ['zancada atras', 'reverse lunge'], ['subida', 'step up'], ['bulgara', 'bulgarian', 'split squat'], ['giro', 'twist'], ['abdominal', 'crunch', 'abs'], ['trx', 'suspension'], ['foam', 'rodillo', 'roller'], ['pared', 'wall'], ['disco', 'plate']];
+    function ntx(x) { return sinTildes(String(x || '')).toLowerCase().replace(/[^a-z0-9ñ ]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+    function variantes(tok) { var out = [tok]; SINON.forEach(function (g) { var gs = g.map(ntx); if (gs.some(function (w) { return w.indexOf(tok) === 0 || tok.indexOf(w) === 0; })) out = out.concat(gs); }); return out; }
+    function buscarEj(q) {
+      var nq = ntx(q); var lista = state.ejercicios.map(function (x) { return { x: x, nom: ntx(x.nombre), resto: ntx((x.patron || '') + ' ' + (x.material || []).join(' ')) }; });
+      if (!nq) return lista.sort(function (a, b) { return a.x.nombre.localeCompare(b.x.nombre, 'es'); }).map(function (o) { return o.x; });
+      var toks = nq.split(' ').filter(Boolean).map(variantes);
+      return lista.map(function (o) { var hay = o.nom + ' | ' + o.resto, pts = 0;
+          for (var i = 0; i < toks.length; i++) { var ok = false; for (var j = 0; j < toks[i].length; j++) { var v = toks[i][j]; var k = hay.indexOf(v); if (k < 0) continue; ok = true;
+              var enNom = o.nom.indexOf(v) >= 0; pts += (j === 0 ? 3 : 2) + (enNom ? 3 : 0) + (enNom && (o.nom.indexOf(v) === 0 || o.nom.indexOf(' ' + v) >= 0) ? 2 : 0); break; } if (!ok) return null; }
+          if (o.nom.indexOf(nq) === 0) pts += 10; else if (o.nom.indexOf(nq) >= 0) pts += 5;
+          return { x: o.x, p: pts }; }).filter(Boolean).sort(function (a, b) { return b.p - a.p || a.x.nombre.localeCompare(b.x.nombre, 'es'); }).map(function (o) { return o.x; });
+    }
     /* 1.44 · MESOCICLO: objetivo y rangos por semana para cada cliente (c.meso = { inicio: lunes, semanas: [{ obj, reps, rpe, vol, nota }] }) */
     var OBJ = {
       adaptacion: { n: 'Adaptación', c: '#14B8A6', reps: '12-15', rpe: '6-7', vol: 'medio' },
@@ -7000,7 +7038,21 @@ window.GAGOR_reducirFoto = function (file) {
       var titulo = esSesion ? (d.id ? 'Editar sesión' : 'Nueva sesión') : (d.id ? 'Editar plantilla' : 'Nueva plantilla');
       var subt = esSesion ? (cli ? cli.nombre : '—') + ' · ' + ST.fmtFecha(d.fecha) : (d.id ? (usos ? 'Programada en ' + usos + (usos === 1 ? ' sesión' : ' sesiones') : 'Aún sin programar') : 'Bloques, ejercicios y cargas de partida');
       var sal = conf === 'salir-editor';
-      return shell([
+      function elegirEj(id) { var pk = pickEj; setPickEj(null); if (!pk || !id) return;
+        if (pk.ei === null) up(function (x) { x.bloques[pk.bi].ejercicios.push({ _u: ST.uid(), _k: null, ejId: id, series: '3', reps: '8', lado: ST.esUnilateral(state, id), repsIzq: ST.esUnilateral(state, id) ? '8' : '', repsDer: ST.esUnilateral(state, id) ? '8' : '', seg: '', carga: '', descanso: '90', tempo: '', rpe: '', ss: '', nota: '' }); });
+        else up(function (x) { var q = x.bloques[pk.bi].ejercicios[pk.ei]; q.ejId = id; q.lado = ST.esUnilateral(state, id); if (q.lado) { q.repsIzq = q.repsIzq || q.reps; q.repsDer = q.repsDer || q.reps; } }); }
+      var pickModal = pickEj ? (function () { var res0 = buscarEj(pickEj.q); var tot0 = res0.length; res0 = res0.slice(0, 80);
+        return h('div', { key: 'pk', className: 'dses', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Buscar ejercicio', onClick: function (ev) { if (ev.target === ev.currentTarget) setPickEj(null); } },
+          h('div', { className: 'dses__box pkbox' },
+            h('div', { className: 'pk__top' },
+              h('input', { className: 'pk__q', autoFocus: true, value: pickEj.q, placeholder: 'Busca: banca, squat, hip, foam, copenhague…', 'aria-label': 'Buscar ejercicio', onChange: function (ev) { setPickEj(Object.assign({}, pickEj, { q: ev.target.value })); }, onKeyDown: function (ev) { if (ev.key === 'Enter' && res0[0]) elegirEj(res0[0].id); if (ev.key === 'Escape') setPickEj(null); } }),
+              h('button', { type: 'button', className: 'dses__x', 'aria-label': 'Cerrar', onClick: function () { setPickEj(null); } }, '×')),
+            h('p', { className: 'muted small', style: { margin: '0 0 6px' } }, pickEj.q.trim() ? (tot0 ? tot0 + (tot0 === 1 ? ' ejercicio' : ' ejercicios') + (tot0 > 80 ? ' · se muestran 80, afina la búsqueda' : '') : 'Nada con «' + pickEj.q.trim() + '». Prueba con otra palabra o en inglés.') : state.ejercicios.length + ' ejercicios · escribe cualquier palabra del nombre'),
+            h('div', { className: 'pk__list' }, res0.map(function (x, k) {
+              return h('button', { key: x.id, type: 'button', className: 'pk__it' + (k === 0 && pickEj.q.trim() ? ' is-first' : ''), onClick: function () { elegirEj(x.id); } },
+                h('b', null, x.nombre), h('small', null, [x.patron, (x.material || []).join(', ')].filter(Boolean).join(' · '))); }))));
+      })() : null;
+      return shell([pickModal,
         h(G.AppHeader, { key: 'h', title: titulo, subtitle: subt, onBack: function () { if (d.sucio) setConf('salir-editor'); else salirSin(); },
           action: h(G.Button, { size: 'md', icon: 'check', onClick: guardar }, 'Guardar') }),
         sal ? h('div', { key: 'sal', className: 'confirm' }, h('p', { className: 'small', style: { margin: 0 } }, 'Tienes cambios sin guardar.'),
@@ -7052,7 +7104,7 @@ window.GAGOR_reducirFoto = function (file) {
                 return h('div', { key: e._u, className: 'edx__ex' + (lab ? ' is-ss' : '') },
                   h('div', { className: 'edx__row' },
                     h('span', { className: 'edx__n' + (reg ? ' is-reg' : ''), title: reg ? 'Ya registrado' : undefined }, reg ? h(G.Icon, { name: 'check', size: 14 }) : (lab || flat + ei + 1)),
-                    h('select', { className: 'edx__in edx__sel', value: e.ejId || '', 'aria-label': 'Ejercicio', onChange: function (ev) { var id = ev.target.value; up(function (x) { var q = x.bloques[bi].ejercicios[ei]; q.ejId = id; q.lado = ST.esUnilateral(state, id); if (q.lado) { q.repsIzq = q.repsIzq || q.reps; q.repsDer = q.repsDer || q.reps; } }); } }, opcionesEj(e.ejId, e.ejId ? null : 'Elige ejercicio…')),
+                    h('button', { type: 'button', className: 'edx__in edx__sel edx__pick' + (e.ejId ? '' : ' is-vacio'), 'aria-label': 'Ejercicio: ' + (ST.nombreEj(state, e.ejId) || 'elegir'), title: 'Buscar ejercicio', onClick: function () { setPickEj({ bi: bi, ei: ei, q: '' }); } }, h('span', null, e.ejId ? (ST.nombreEj(state, e.ejId) || 'Ejercicio que ya no está') : 'Elige ejercicio…'), h(G.Icon, { name: 'buscar', size: 15 })),
                     inp('series', '3'), h('label', { className: 'edx__f' }, h('span', { className: 'edx__fl' }, 'Reps'),
                       h('div', { className: 'edx__rw' + (e.lado ? ' is-2' : '') },
                         h('select', { className: 'edx__in edx__rsel', value: e.lado ? '2' : '1', 'aria-label': 'Un número (bilateral) o dos (izquierda y derecha)', title: '1: bilateral · 2: unilateral (izquierda y derecha)', onChange: function (ev) { var dos = ev.target.value === '2'; up(function (x) { var q = x.bloques[bi].ejercicios[ei]; q.lado = dos; if (dos) { q.repsIzq = q.repsIzq || q.reps; q.repsDer = q.repsDer || q.reps; } else if (q.repsIzq) { q.reps = q.repsIzq; } }); } },
@@ -7081,7 +7133,7 @@ window.GAGOR_reducirFoto = function (file) {
                     e.ejId && repSem[e.ejId] ? h('p', { className: 'edx__rep', role: 'note' }, '▲ Ya lo tiene esta semana: ' + repSem[e.ejId].join(', ')) : null,
                     h('input', { className: 'edx__nota', value: e.nota, placeholder: 'Nota para el jugador (opcional)', 'aria-label': 'Nota', onChange: function (ev) { campoEj(bi, ei, 'nota', ev.target.value); } })));
               })) : h('p', { className: 'muted small', style: { margin: '4px 0 0' } }, 'Bloque vacío. Añade el primer ejercicio.'),
-            h('select', { className: 'g-import__select edx__add', value: '', 'aria-label': 'Añadir ejercicio a ' + b.titulo, onChange: function (ev) { var id = ev.target.value; if (!id) return; up(function (x) { x.bloques[bi].ejercicios.push({ _u: ST.uid(), _k: null, ejId: id, series: '3', reps: '8', lado: ST.esUnilateral(state, id), repsIzq: ST.esUnilateral(state, id) ? '8' : '', repsDer: ST.esUnilateral(state, id) ? '8' : '', seg: '', carga: '', descanso: '90', tempo: '', rpe: '', ss: '', nota: '' }); }); } }, opcionesEj('', '+ Añadir ejercicio…')));
+            h('button', { type: 'button', className: 'g-import__select edx__add edx__pick', 'aria-label': 'Añadir ejercicio a ' + b.titulo, onClick: function () { setPickEj({ bi: bi, ei: null, q: '' }); } }, h(G.Icon, { name: 'buscar', size: 16 }), h('span', null, 'Añadir ejercicio…')));
         })),
         h('div', { key: 'nb', className: 'rowline', style: { flexWrap: 'wrap' } }, h(G.Button, { size: 'md', variant: 'secondary', icon: 'mas', onClick: function () { up(function (x) { x.bloques.push({ _u: ST.uid(), titulo: 'Bloque ' + (x.bloques.length + 1), ejercicios: [] }); }); } }, 'Añadir bloque'),
           h(G.Button, { size: 'md', variant: 'secondary', icon: 'cronometro', onClick: function () { up(function (x) { x.bloques.push({ _u: ST.uid(), titulo: 'Bici · intervalos', ejercicios: [], _iv: null, intervalos: [ivBorrador({ tipo: 'calentamiento', seg: 120, rpm: 80, res: '3' }), ivBorrador({ tipo: 'trabajo', seg: 30, rpm: 100, res: '6' }), ivBorrador({ tipo: 'descanso', seg: 30, rpm: 70 })] }); }); } }, 'Añadir bici por intervalos')),
