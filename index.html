@@ -3242,7 +3242,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.53";
+<script>window.GAGOR_VERSION = "1.54";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -5564,7 +5564,6 @@ window.GAGOR_reducirFoto = function (file) {
                 onClick: function () { setSesId(sesHoy.id); if (hecha) { setView('cierre'); } else { setView('resumen'); } },
                 secundario: hecha ? null : { label: t('Modo entrenamiento guiado'), onClick: function () { startGuided(sesHoy); } } }); })()
             : Portada({ tipo: 'descanso', etiqueta: t('Descanso'), titulo: t('Hoy toca descansar'), desc: t(DESC.descanso), boton: t('Ver mi semana'), icon: 'calendario', onClick: function () { setMesSel(hoyIso.slice(0, 7)); setDiaSel(hoyIso); setView('calendario'); } })),
-          otroDia || !sesHoy || sesHoy.estado === 'hecha' ? null : NotasSesion(sesHoy, 'notasHoy'),
           otroDia ? null : h('div', null,
             partidoAyer ? h(G.Disclosure, { icon: 'partido', title: t('Último partido'), meta: ST.relativo(partidoAyer.fecha) + (partidoAyer.rpe === null ? t(' · RPE pendiente') : t(' · RPE ') + partidoAyer.rpe) },
               h(G.TeamSessionCard, { title: partidoAyer.titulo, meta: ST.relativo(partidoAyer.fecha), minutes: partidoAyer.minutos, loadWord: t(partidoAyer.cargaPalabra), detail: partidoAyer.detalle, rpe: partidoAyer.rpe, onRpe: function () { setView('rpePartido'); } })) : null,
@@ -5595,7 +5594,6 @@ window.GAGOR_reducirFoto = function (file) {
           !tot.all ? null : h('div', { className: 'progress', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': tot.all, 'aria-valuenow': tot.done, 'aria-label': t('Series hechas') },
             h('div', { className: 'progress__bar' }, h('span', { style: { width: pct + '%' } })),
             h('p', { className: 'progress__txt' }, tot.done ? tot.done + t(' de ') + tot.all + t(' series hechas') : tot.all + t(' series en total'))),
-          ses.estado === 'hecha' ? null : NotasSesion(ses, 'notasRes'),
           ses.bloques.map(function (b, bi) {
             if (b.intervalos) { var ivHecho = ivDone(ses, bi); var tt = G.intTotal(b.intervalos);
               return h(G.ListGroup, { key: bi, title: t(b.titulo), meta: t('Bici · ') + fmtS(tt) + ' min' },
@@ -5610,7 +5608,7 @@ window.GAGOR_reducirFoto = function (file) {
                 var notaR = String(e.nota || '').trim();
                 return [h(G.ExerciseRow, { key: key, index: ST.etiquetas(ses.bloques)[key] || fi + 1, name: ST.nombreEj(state, e.ejId), sets: e.series, reps: ST.repTxt(e), load: e.carga, loadX: e.cargaX, rpe: e.rpe,
                   state: exDone(ses, fx) ? 'done' : 'pending', current: fi === primero && tot.done > 0 && !exDone(ses, fx), progress: hechas && hechas < rr.length ? hechas + '/' + rr.length : null,
-                  onOpen: function () { setIdx(fi); setView('sesion'); } }), notaR ? h('div', { key: key + 'n', className: 'cnote cnote--mini' }, h(G.Icon, { name: 'mensaje', size: 15 }), h('span', null, notaR)) : null];
+                  onOpen: function () { setIdx(fi); setView('sesion'); } })];
               }));
           }),
           botonChat()
