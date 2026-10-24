@@ -600,6 +600,20 @@
 .pk__gh span { margin-left: auto; font-weight: 700; font-size: 11px; padding: 2px 8px; border-radius: 99px; color: #fff; background: var(--gc, var(--ink)); }
 .pk__it b { font-size: 15px; } .pk__it small { font-size: 12px; color: var(--ink-muted); }
 
+
+/* ---------- Notas del entrenador (1.53) ---------- */
+.cnote { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 14px; background: var(--alert-soft); border: 2px solid var(--alert); box-shadow: 0 2px 0 color-mix(in srgb, var(--alert) 35%, transparent); }
+.cnote__ic { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--alert); color: #fff; }
+.cnote__tx { display: grid; gap: 2px; min-width: 0; }
+.cnote__l { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--alert); }
+.cnote__tx p { margin: 0; font-size: 17px; line-height: 24px; font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
+.cnote--mini { gap: 8px; align-items: center; margin: -4px 14px 10px; padding: 8px 12px; border-width: 1px; border-left-width: 4px; border-radius: 10px; box-shadow: none; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink); }
+.cnote--mini .g-icon { flex: none; color: var(--alert); }
+.cnotes { display: grid; gap: 8px; padding: 14px 16px; border-radius: 16px; background: var(--alert-soft); border: 2px solid var(--alert); }
+.cnotes__t { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; color: var(--alert); }
+.cnotes__i { display: grid; gap: 1px; padding: 8px 10px; border-radius: 10px; background: var(--surface-card); }
+.cnotes__i b { font-size: 13px; color: var(--ink-muted); } .cnotes__i span { font-size: 16px; line-height: 22px; font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
+
 /* ---------- BrandBackdrop ---------- */
 .g-backdrop { position: absolute; inset: 0; overflow: hidden; pointer-events: none; color: var(--ink); }
 .g-backdrop__art { position: absolute; top: 0; left: 50%; height: 100%; aspect-ratio: 788 / 1024; transform: translateX(-50%); }
@@ -3228,7 +3242,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.52";
+<script>window.GAGOR_VERSION = "1.53";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -5345,6 +5359,13 @@ window.GAGOR_reducirFoto = function (file) {
       return function () { clearInterval(id); document.removeEventListener('visibilitychange', vis); };
     }, [enSesion, ses ? ses.id : null, idx, view]);
     function flat(s) { return ST.ejerciciosPlanos(s); }
+    /* 1.53 · NOTAS DEL ENTRENADOR bien visibles para el jugador */
+    function notasDe(s) { return s ? flat(s).filter(function (fx) { return String(fx.e.nota || '').trim(); }).map(function (fx) { return { key: fx.key, nombre: ST.nombreEj(state, fx.e.ejId), nota: String(fx.e.nota).trim() }; }) : []; }
+    function NotaEnt(texto, extra) { return h('div', Object.assign({ className: 'cnote', role: 'note' }, extra || {}), h('span', { className: 'cnote__ic' }, h(G.Icon, { name: 'mensaje', size: 18 })), h('div', { className: 'cnote__tx' }, h('span', { className: 'cnote__l' }, t('Nota de tu entrenador')), h('p', null, texto))); }
+    function NotasSesion(s, k) { var ns = notasDe(s); if (!ns.length) return null;
+      return h('div', { key: k || 'notas', className: 'cnotes', role: 'note' },
+        h('p', { className: 'cnotes__t' }, h(G.Icon, { name: 'mensaje', size: 18 }), ns.length === 1 ? t('Tu entrenador te ha dejado 1 nota') : t('Tu entrenador te ha dejado ') + ns.length + t(' notas')),
+        ns.map(function (x) { return h('div', { key: x.key, className: 'cnotes__i' }, h('b', null, x.nombre), h('span', null, x.nota)); })); }
     function corto(tt) { var w = (tt || '').replace(/^Fuerza\s+/i, '').replace(/^Potencia y descarga$/i, 'Potencia').split(' ')[0]; return w.charAt(0).toUpperCase() + w.slice(1); }
     function marcas() {
       var marks = {}, labels = {};
@@ -5543,6 +5564,7 @@ window.GAGOR_reducirFoto = function (file) {
                 onClick: function () { setSesId(sesHoy.id); if (hecha) { setView('cierre'); } else { setView('resumen'); } },
                 secundario: hecha ? null : { label: t('Modo entrenamiento guiado'), onClick: function () { startGuided(sesHoy); } } }); })()
             : Portada({ tipo: 'descanso', etiqueta: t('Descanso'), titulo: t('Hoy toca descansar'), desc: t(DESC.descanso), boton: t('Ver mi semana'), icon: 'calendario', onClick: function () { setMesSel(hoyIso.slice(0, 7)); setDiaSel(hoyIso); setView('calendario'); } })),
+          otroDia || !sesHoy || sesHoy.estado === 'hecha' ? null : NotasSesion(sesHoy, 'notasHoy'),
           otroDia ? null : h('div', null,
             partidoAyer ? h(G.Disclosure, { icon: 'partido', title: t('Último partido'), meta: ST.relativo(partidoAyer.fecha) + (partidoAyer.rpe === null ? t(' · RPE pendiente') : t(' · RPE ') + partidoAyer.rpe) },
               h(G.TeamSessionCard, { title: partidoAyer.titulo, meta: ST.relativo(partidoAyer.fecha), minutes: partidoAyer.minutos, loadWord: t(partidoAyer.cargaPalabra), detail: partidoAyer.detalle, rpe: partidoAyer.rpe, onRpe: function () { setView('rpePartido'); } })) : null,
@@ -5573,6 +5595,7 @@ window.GAGOR_reducirFoto = function (file) {
           !tot.all ? null : h('div', { className: 'progress', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': tot.all, 'aria-valuenow': tot.done, 'aria-label': t('Series hechas') },
             h('div', { className: 'progress__bar' }, h('span', { style: { width: pct + '%' } })),
             h('p', { className: 'progress__txt' }, tot.done ? tot.done + t(' de ') + tot.all + t(' series hechas') : tot.all + t(' series en total'))),
+          ses.estado === 'hecha' ? null : NotasSesion(ses, 'notasRes'),
           ses.bloques.map(function (b, bi) {
             if (b.intervalos) { var ivHecho = ivDone(ses, bi); var tt = G.intTotal(b.intervalos);
               return h(G.ListGroup, { key: bi, title: t(b.titulo), meta: t('Bici · ') + fmtS(tt) + ' min' },
@@ -5584,9 +5607,10 @@ window.GAGOR_reducirFoto = function (file) {
               b.ejercicios.map(function (e, ei) {
                 var key = bi + '-' + ei; var fi = fl.findIndex(function (x) { return x.key === key; }); var fx = fl[fi];
                 var rr = regs(ses, key, e); var hechas = rr.filter(function (r) { return r.done; }).length;
-                return h(G.ExerciseRow, { key: key, index: ST.etiquetas(ses.bloques)[key] || fi + 1, name: ST.nombreEj(state, e.ejId), sets: e.series, reps: ST.repTxt(e), load: e.carga, loadX: e.cargaX, rpe: e.rpe,
+                var notaR = String(e.nota || '').trim();
+                return [h(G.ExerciseRow, { key: key, index: ST.etiquetas(ses.bloques)[key] || fi + 1, name: ST.nombreEj(state, e.ejId), sets: e.series, reps: ST.repTxt(e), load: e.carga, loadX: e.cargaX, rpe: e.rpe,
                   state: exDone(ses, fx) ? 'done' : 'pending', current: fi === primero && tot.done > 0 && !exDone(ses, fx), progress: hechas && hechas < rr.length ? hechas + '/' + rr.length : null,
-                  onOpen: function () { setIdx(fi); setView('sesion'); } });
+                  onOpen: function () { setIdx(fi); setView('sesion'); } }), notaR ? h('div', { key: key + 'n', className: 'cnote cnote--mini' }, h(G.Icon, { name: 'mensaje', size: 15 }), h('span', null, notaR)) : null];
               }));
           }),
           botonChat()
@@ -5675,12 +5699,13 @@ window.GAGOR_reducirFoto = function (file) {
             return h('li', { key: fx.key, className: 'steps__i' + (exDone(ses, fx) ? ' is-done' : '') + (i === idx ? ' is-on' : '') },
               h('button', { type: 'button', 'aria-label': ST.nombreEj(state, fx.e.ejId), 'aria-current': i === idx ? 'step' : undefined, onClick: function () { setIdx(i); setRonda(null); } }));
           })),
+          String(e.nota || '').trim() ? NotaEnt(String(e.nota).trim(), { key: 'cn' + cur.key }) : null,
           ex.videoUrl ? h(G.ExerciseVideo, { title: ex.nombre, url: ex.videoUrl }) : null,
           h('div', { className: 'target' },
             cur.circ ? null : h('p', { className: 'target__big' }, e.series + ' \u00d7 ' + ST.repTxt(e), e.carga ? (e.cargaX === 2 ? h('span', { style: { display: 'block', fontSize: '0.55em', marginTop: '4px' } }, t('2 mancuernas de ') + n(e.carga) + t(' kg')) : h('span', null, ' · ' + n(e.carga) + t(' kg'))) : null),
             h('ul', { className: 'chips' }, chips.map(function (c, i) { return h('li', { key: i }, c); })),
             ssCon.length ? h('p', { className: 'target__note' }, t('Alterna con ') + ssCon.map(function (f) { return ST.nombreEj(state, f.e.ejId); }).join(t(' y ')) + t(': una serie de cada y luego descansa.')) : null,
-            e.nota ? h('p', { className: 'target__note' }, e.nota) : null),
+            null),
           h('div', { className: 'frame' }, rows.map(function (r, k) {
             if (cur.circ && k !== r0) return null;
             return h(G.SetLogRow, { key: k, set: cur.circ ? (k + 1) + t(' de ') + rows.length : serieTxt(e, k), targetReps: objReps(e, k), dual: !!e.lado, targetRepsD: e.lado ? ST.ladoReps(e)[1] : undefined, repsD: r.repsD, targetLoad: e.carga === null ? undefined : e.carga, loadX: e.cargaX, reps: r.reps, load: r.carga, done: r.done, last: ultimaVez(ses, e.ejId, k),
@@ -5735,7 +5760,8 @@ window.GAGOR_reducirFoto = function (file) {
       if (guide.phase === 'work') body = [
         h(G.PhaseTimer, { key: 'w' + guide.key, phase: 'work', resetKey: guide.key, countdown: e.seg ? (Number(objReps(e, guide.si)) || 1) * e.seg : 0, detail: (e.lado ? ST.repTxt(e) : (e.seg ? ST.repTxt(e) : e.reps + t(' reps'))) + cargaTxt(e) + (e.tempo ? t(' · tempo ') + e.tempo : ''), onDone: function (secs) { setRow(ses, cur.key, e, guide.si, Object.assign({}, row, { tWork: secs })); setGuide(Object.assign({}, guide, { phase: 'confirm' })); } }),
         h(G.ExerciseVideo, { key: 'v', title: ex.nombre, url: ex.videoUrl }),
-        e.nota ? h('p', { key: 'nt', style: { margin: 0, fontSize: '16px', lineHeight: '24px', color: 'var(--ink-muted)' } }, e.nota) : null];
+        null];
+      if (guide.phase === 'work' && String(e.nota || '').trim()) body.unshift(NotaEnt(String(e.nota).trim(), { key: 'nt' }));
       else if (guide.phase === 'confirm') body = [
         h('div', { key: 'c', style: { padding: '16px', background: 'var(--surface-card)', border: '1px solid var(--line)', borderRadius: 'var(--radius-md)', display: 'grid', gap: '12px' } },
           h('p', { style: { margin: 0, fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 700 } }, t('¿Qué has hecho?')),
