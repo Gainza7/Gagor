@@ -591,6 +591,12 @@
 .pk__q:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .pk__list { overflow-y: auto; display: grid; align-content: start; gap: 8px; }
 .pk__it { position: relative; display: grid; gap: 2px; text-align: left; padding: 10px 12px 10px 18px; border-radius: 10px; border: 1px solid transparent; background: transparent; font: inherit; color: inherit; cursor: pointer; }
+.pk__it { grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 10px; }
+.pk__tx { display: grid; gap: 2px; min-width: 0; }
+.pk__vid { position: relative; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-muted); background: color-mix(in srgb, var(--ink) 6%, transparent); opacity: .55; }
+.pk__vid::after { content: ''; position: absolute; width: 22px; height: 2px; background: currentColor; transform: rotate(-45deg); border-radius: 1px; }
+.pk__vid.is-on { color: #fff; background: var(--accent); opacity: 1; }
+.pk__vid.is-on::after { display: none; }
 .pk__it::before { content: ''; position: absolute; left: 6px; top: 10px; bottom: 10px; width: 4px; border-radius: 2px; background: var(--gc, var(--accent)); opacity: .75; }
 .pk__it:hover, .pk__it:focus-visible, .pk__it.is-first { background: color-mix(in srgb, var(--gc, var(--accent)) 12%, transparent); border-color: color-mix(in srgb, var(--gc, var(--accent)) 40%, transparent); }
 .pk__grp { display: grid; gap: 2px; }
@@ -3242,7 +3248,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.54";
+<script>window.GAGOR_VERSION = "1.55";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -7089,7 +7095,9 @@ window.GAGOR_reducirFoto = function (file) {
               return h('div', { key: o.g, className: 'pk__grp', style: { '--gc': colorGrupo(o.g) } }, h('p', { className: 'pk__gh' }, h('i', null), h('b', null, o.g), h('span', null, o.items.length)),
                 o.items.map(function (x) {
                   return h('button', { key: x.id, type: 'button', className: 'pk__it' + (mejor && x.id === mejor.id && pickEj.q.trim() ? ' is-first' : ''), onClick: function () { elegirEj(x.id); } },
-                    h('b', null, x.nombre), (x.material || []).length ? h('small', null, (x.material || []).join(', ')) : null); })); }))));
+                    h('span', { className: 'pk__tx' }, h('b', null, x.nombre), (x.material || []).length ? h('small', null, (x.material || []).join(', ')) : null),
+                    // 1.55 · a la derecha: si el ejercicio tiene vídeo o no
+                    h('span', { className: 'pk__vid' + (x.videoUrl ? ' is-on' : ''), title: x.videoUrl ? 'Tiene vídeo' : 'Sin vídeo', 'aria-label': x.videoUrl ? 'Tiene vídeo' : 'Sin vídeo' }, h(G.Icon, { name: 'video', size: 16 }))); })); }))));
       })() : null;
       return shell([pickModal,
         h(G.AppHeader, { key: 'h', title: titulo, subtitle: subt, onBack: function () { if (d.sucio) setConf('salir-editor'); else salirSin(); },
