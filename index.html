@@ -637,6 +637,35 @@
 .genav { display: grid; gap: 4px; padding: 12px 14px; border-radius: var(--radius-md); background: var(--alert-soft); border: 1px solid var(--alert); }
 .genav p { margin: 0; } .genav__t { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--alert); } .genav__a { font-size: 14px; }
 
+
+/* ---------- Aprendizaje del generador (1.58) ---------- */
+.genfb { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 2px 0 4px; font-size: 12px; color: var(--ink-muted); }
+.genfb span { font-weight: 600; margin-right: 4px; }
+.genfb__b { padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line-strong); background: var(--surface-card); color: var(--ink); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.genfb__b.is-on { background: color-mix(in srgb, var(--accent) 20%, var(--surface-card)); border-color: var(--accent); }
+.genfb__b.is-no:hover { border-color: var(--alert); color: var(--alert); }
+.dses__box.aprbox { max-width: 680px; display: grid; gap: 14px; }
+.apr__sec { display: grid; gap: 6px; }
+.apr__h { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); }
+.apr__it { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--ink) 4%, var(--surface-card)); border-left: 4px solid var(--line-strong); }
+.apr__it.is-fav { border-left-color: var(--accent); } .apr__it.is-veto { border-left-color: var(--alert); }
+.apr__it > div { display: grid; gap: 2px; min-width: 0; } .apr__it b { font-size: 14px; } .apr__it small { font-size: 12px; color: var(--ink-muted); }
+.apr__undo { flex: none; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.etq { display: grid; gap: 8px; }
+.etq__row { border: 1px solid var(--line); border-radius: 12px; background: var(--surface-card); }
+.etq__hd { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; background: none; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.etq__hd b { font-size: 15px; } .etq__sum { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+.etq__sum i { font-style: normal; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 99px; background: color-mix(in srgb, var(--ink) 7%, transparent); color: var(--ink-muted); }
+.etq__sum i.is-z { background: var(--alert-soft); color: var(--alert); }
+.etq__badge { flex: none; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 99px; background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink-muted); }
+.etq__badge.is-man { background: var(--accent); color: #fff; }
+.etq__body { display: grid; gap: 8px; padding: 0 12px 12px; }
+.etq__l { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); }
+.etq__chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.etq__chip { padding: 6px 10px; border-radius: 99px; border: 1px solid var(--line-strong); background: var(--surface-card); color: var(--ink); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.etq__chip.is-on { background: var(--ink); color: var(--surface-card); border-color: var(--ink); }
+.etq__chip.is-z.is-on { background: var(--alert); border-color: var(--alert); color: #fff; }
+
 /* ---------- BrandBackdrop ---------- */
 .g-backdrop { position: absolute; inset: 0; overflow: hidden; pointer-events: none; color: var(--ink); }
 .g-backdrop__art { position: absolute; top: 0; left: 50%; height: 100%; aspect-ratio: 788 / 1024; transform: translateX(-50%); }
@@ -3265,7 +3294,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.57";
+<script>window.GAGOR_VERSION = "1.58";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6189,6 +6218,8 @@ window.GAGOR_reducirFoto = function (file) {
     var crp = useState(''); var cierreRpe = crp[0], setCierreRpe = crp[1];
     var pke = useState(null); var pickEj = pke[0], setPickEj = pke[1];
     var gnq = useState(null); var genQ = gnq[0], setGenQ = gnq[1];
+    var apo = useState(false); var aprOpen = apo[0], setAprOpen = apo[1];
+    var mte = useState(false); var modoEtiq = mte[0], setModoEtiq = mte[1]; var ete = useState(null); var etiqAbierto = ete[0], setEtiqAbierto = ete[1];
     var gnv = useState([]); var gruposNuevos = gnv[0], setGruposNuevos = gnv[1]; var gtx = useState(''); var grupoTxt = gtx[0], setGrupoTxt = gtx[1];
     var mc = useState(null); var mesCal = mc[0], setMesCal = mc[1];
     var ta = useState(false); var show = ta[0], setShow = ta[1];
@@ -6324,7 +6355,7 @@ window.GAGOR_reducirFoto = function (file) {
             h(G.Button, { size: 'md', variant: 'secondary', icon: 'exportar', title: 'Descarga la sesión en una tabla Excel (se abre en Google Sheets)', onClick: function () { exportarTabla(s); } }, 'Tabla Excel'),
             h(G.Button, { size: 'md', variant: 'ghost', onClick: function () { setVerSes(null); } }, 'Cerrar'))));
     }
-    function shell(content) { return h('div', { className: 'app' }, Nav(), h('div', { className: 'main' }, content), DetalleSesion(), GenModal(), probarIv ? h('div', { className: 'ivover', role: 'dialog', 'aria-modal': 'true' }, h(G.IntervalPlayer, { bloque: probarIv.bloque, titulo: 'Vista previa · ' + probarIv.titulo, finLabel: 'Cerrar', onExit: function () { setProbarIv(null); }, onFinish: function () { setProbarIv(null); } })) : null); }
+    function shell(content) { return h('div', { className: 'app' }, Nav(), h('div', { className: 'main' }, content), DetalleSesion(), GenModal(), AprModal(), probarIv ? h('div', { className: 'ivover', role: 'dialog', 'aria-modal': 'true' }, h(G.IntervalPlayer, { bloque: probarIv.bloque, titulo: 'Vista previa · ' + probarIv.titulo, finLabel: 'Cerrar', onExit: function () { setProbarIv(null); }, onFinish: function () { setProbarIv(null); } })) : null); }
     function adherencia(c) {
       var ses = state.sesiones.filter(function (s) { return s.clienteId === c.id && s.fecha <= hoyIso && s.fecha >= ST.iso(ST.addDays(ST.hoy, -28)); });
       return { done: ses.filter(function (s) { return s.estado === 'hecha'; }).length, planned: ses.length };
@@ -6971,7 +7002,7 @@ window.GAGOR_reducirFoto = function (file) {
       'Cervical': /press militar|encogimiento|sentadilla trasera|buenos d|pullover|colgado|shrug/
     };
     var GEN_PREV = { 'Rodilla': /isom[eé]trica en pared|tibial|aducci[oó]n isom|puente de isquios isom/, 'Tobillo': /tobillo|gemelo|s[oó]leo|tibial/, 'Cadera': /cadera 90|movilidad de cadera|flexor de cadera|paso lateral/, 'Lumbar': /bird dog|dead bug|gato/, 'Hombro': /rotaci[oó]n externa|y-t-w|deslizamientos en pared|face pull/, 'Codo/muñeca': /^$/, 'Cervical': /tor[aá]cica|gato/ };
-    function genTags(x) {
+    function genTagsAuto(x) {
       var n = ntx(x.nombre), p = x.patron || '', mat = ntx((x.material || []).join(' ')), t = {};
       var isom = /isom|pared|plancha|hold|mantenid|copenhag|wall sit|paseo|granjero|carry/.test(n);
       var impacto = /salto|saltad|jump|pogo|valla|drop|bound|pliom|comba|sprint|carrera|aterrizaje/.test(n);
@@ -7000,35 +7031,70 @@ window.GAGOR_reducirFoto = function (file) {
       t.isom = isom; t.impacto = impacto; t.uni = ST.esUnilateral(state, x.id) || /una pierna|un brazo|a una mano|lateral|copenhag|skater|cosaca/.test(n);
       return t;
     }
+    /* 1.58 · APRENDIZAJE DEL GENERADOR
+       · Cada sesión generada guarda al guardarla lo que propuso y lo que cambiaste (s.genLog).
+       · De esos registros (y de lo que hacen los clientes) salen preferencias por ejercicio y contexto, y ajustes de series/reps/RPE.
+       · 👍/👎 y etiquetas manuales se guardan en el propio ejercicio (x.gen), que se sincroniza. Deshacer = olvidar lo aprendido hasta hoy. */
+    var GEN_ROL = { ini: 'Inicio', 'main:rodilla': 'Básico de rodilla', 'main:cadera': 'Básico de cadera', 'main:empuje': 'Básico de empuje', 'main:traccion': 'Básico de tracción', 'acc:inf': 'Abductores / aductores', 'acc:sup': 'Hombro (en superserie)', core: 'Core', pot: 'Potencia', fin: 'Final' };
+    var GEN_PAPEL = [['rodilla', 'Rodilla'], ['cadera', 'Cadera (posterior)'], ['abd', 'Abd. / aductores'], ['empuje', 'Empuje'], ['traccion', 'Tracción'], ['hombro', 'Hombro'], ['brazo', 'Brazo'], ['core', 'Core'], ['prevInf', 'Prev. inferior'], ['prevSup', 'Prev. superior'], ['movil', 'Movilidad'], ['potRodilla', 'Pot. rodilla'], ['potCadera', 'Pot. cadera'], ['potEmpuje', 'Pot. empuje'], ['potTraccion', 'Pot. tracción']];
+    function ctxLabel(ctx) { var p = String(ctx).split('|'); return (GEN_ROL[p[0]] || p[0]) + (p[1] === '55' ? ' · mayores de 55' : ''); }
+    function genAuto(x) { var t = genTagsAuto(x), n = ntx(x.nombre); return { roles: GEN_PAPEL.map(function (q) { return q[0]; }).filter(function (k) { return t[k]; }), carga: GEN_ZONAS.filter(function (z) { return GEN_EXCL[z].test(n); }), impacto: !!t.impacto }; }
+    function genTags(x) { var t = genTagsAuto(x); var g = x.gen && x.gen.tags; if (!g || !g.manual) return t;
+      var o = { isom: t.isom, uni: t.uni, compuesto: t.compuesto, aislado: t.aislado, impacto: !!g.impacto }; (g.roles || []).forEach(function (k) { o[k] = 1; }); return o; }
+    function cargaZonas(x, n) { var g = x.gen && x.gen.tags; if (g && g.manual) return g.carga || []; return GEN_ZONAS.filter(function (z) { return GEN_EXCL[z].test(n); }); }
+    function genAprendizaje() {
+      var ej = {}; state.ejercicios.forEach(function (x) { ej[x.id] = x; });
+      var A = { pen: {}, bonus: {}, params: {}, sesiones: 0, conCambios: 0, logs: [], señales: { hechas: 0, total: 0, rpe: {}, cambiadas: {}, sinHacer: 0 } };
+      function ign(id, ctx, fecha) { var x = ej[id]; var t = x && x.gen && x.gen.ignorar && x.gen.ignorar[ctx]; return t && fecha && fecha <= t; }
+      var P = {};
+      state.sesiones.forEach(function (s) { var L = s.genLog; if (!L || !L.prop) return; A.sesiones++; A.logs.push(s);
+        if ((L.quitados || []).length || (L.añadidos || []).length || (L.params || []).some(function (q) { return q.ds || q.dr || q.drpe; })) A.conCambios++;
+        (L.prop || []).forEach(function (q) { var k = q.ejId + '|' + q.ctx; var o = A.pen[k] = A.pen[k] || { ejId: q.ejId, ctx: q.ctx, quit: 0, keep: 0, cli: 0 };
+          if (ign(q.ejId, q.ctx, L.fecha)) return; if ((L.quitados || []).some(function (z) { return z.ejId === q.ejId; })) o.quit++; else o.keep++; });
+        (L.añadidos || []).forEach(function (z) { if (ign(z.ejId, '*', L.fecha)) return; var b = A.bonus[z.ejId] = A.bonus[z.ejId] || { ejId: z.ejId, n: 0 }; b.n++; });
+        if (!L.ignorarParams) (L.params || []).forEach(function (q) { var p = P[q.exp] = P[q.exp] || { n: 0, ds: 0, dr: 0, drpe: 0, ses: {} }; p.n++; p.ds += q.ds || 0; p.dr += q.dr || 0; p.drpe += q.drpe || 0; p.ses[s.id] = 1; });
+        // 6 · lo que hacen los clientes con las sesiones generadas
+        if (s.fecha <= hoyIso) { A.señales.total++; if (s.estado === 'hecha') A.señales.hechas++; else A.señales.sinHacer++;
+          if (s.estado === 'hecha' && s.rpe && L.rpeProg) { var ex = (L.resp && L.resp.exp) || 'intermedio'; var rr = A.señales.rpe[ex] = A.señales.rpe[ex] || { n: 0, d: 0 }; rr.n++; rr.d += s.rpe - L.rpeProg; }
+          (s.cambios || []).forEach(function (cb) { var q = (L.prop || []).filter(function (z) { return z.ejId === cb.de; })[0]; if (!q || ign(cb.de, q.ctx, L.fecha)) return; var k2 = cb.de + '|' + q.ctx; var o2 = A.pen[k2] = A.pen[k2] || { ejId: cb.de, ctx: q.ctx, quit: 0, keep: 0, cli: 0 }; o2.cli++; A.señales.cambiadas[cb.de] = (A.señales.cambiadas[cb.de] || 0) + 1; }); }
+      });
+      Object.keys(A.pen).forEach(function (k) { var o = A.pen[k]; var neg = o.quit + o.cli * 0.5; o.score = neg >= 2 && neg > o.keep ? -Math.min(6, (neg - o.keep) * 1.5) : 0; if (!o.score) delete A.pen[k]; });
+      Object.keys(A.bonus).forEach(function (k) { var b = A.bonus[k]; if (b.n < 2) delete A.bonus[k]; else b.score = Math.min(4, b.n) * 0.8; });
+      Object.keys(P).forEach(function (e) { var p = P[e]; if (p.n < 3) return; var o = { n: p.n, ses: Object.keys(p.ses) }, ds = p.ds / p.n, dr = p.dr / p.n, dp = p.drpe / p.n;
+        if (Math.abs(ds) >= 0.6) o.ds = Math.round(ds); if (Math.abs(dr) >= 1.5) o.dr = Math.round(dr); if (Math.abs(dp) >= 0.6) o.drpe = Math.round(dp); if (o.ds || o.dr || o.drpe) A.params[e] = o; });
+      return A;
+    }
     function generarSesion(c, r) {
       var avisos = [], usados = {}, lun = ST.semanaDe(r.fecha), dom = ST.iso(ST.addDays(new Date(lun + 'T12:00:00'), 6)), semana = {};
       state.sesiones.forEach(function (q) { if (q.clienteId === c.id && q.fecha >= lun && q.fecha <= dom) ST.ejerciciosPlanos(q).forEach(function (fx) { semana[fx.e.ejId] = 1; }); });
-      var zonas = r.dolor || [], mayor = Number(r.edad) >= 55, quitados = 0;
-      var pool = state.ejercicios.map(function (x) { return { x: x, t: genTags(x), n: ntx(x.nombre) }; }).filter(function (o) {
-        var malo = zonas.some(function (z) { return GEN_EXCL[z] && GEN_EXCL[z].test(o.n); }); if (malo) quitados++; return !malo; });
+      var zonas = r.dolor || [], mayor = Number(r.edad) >= 55, quitados = 0, AP = genAprendizaje(), usoAp = 0;
+      var pool = state.ejercicios.map(function (x) { var n = ntx(x.nombre); return { x: x, t: genTags(x), n: n, z: cargaZonas(x, n) }; }).filter(function (o) {
+        var malo = zonas.some(function (z) { return o.z.indexOf(z) >= 0; }); if (malo) quitados++; return !malo; });
       if (zonas.length) avisos.push('Dolor o lesión en ' + zonas.join(', ').toLowerCase() + ': quitados ' + quitados + ' ejercicios que cargan esa zona. Revísala antes de mandarla.');
-      function elegir(fn, extra) { var cand = pool.filter(function (o) { return !usados[o.x.id] && fn(o.t, o); }); if (!cand.length) return null;
-        cand.forEach(function (o) { o.p = Math.random() + (semana[o.x.id] ? 0 : 1.2) + (o.x.videoUrl ? 0.4 : 0) + (extra ? extra(o.t, o) : 0); }); cand.sort(function (a, b) { return b.p - a.p; });
-        usados[cand[0].x.id] = 1; return cand[0]; }
-      // series, reps y RPE (escala A) + actividad + mesociclo
+      function ctxDe(rol) { return rol + (mayor ? '|55' : ''); }
+      function elegir(fn, extra, rol) { var ctx = rol ? ctxDe(rol) : null;
+        var cand = pool.filter(function (o) { var g = o.x.gen || {}; return !usados[o.x.id] && fn(o.t, o) && !(ctx && g.veto && g.veto[ctx]); }); if (!cand.length) return null;
+        cand.forEach(function (o) { var g = o.x.gen || {}, ap = 0; if (ctx) { if (g.fav && g.fav[ctx]) ap += 2.5; var pe = AP.pen[o.x.id + '|' + ctx]; if (pe) ap += pe.score; } if (AP.bonus[o.x.id]) ap += AP.bonus[o.x.id].score;
+          o.ap = ap; o.p = Math.random() + (semana[o.x.id] ? 0 : 1.2) + (o.x.videoUrl ? 0.4 : 0) + (extra ? extra(o.t, o) : 0) + ap; });
+        cand.sort(function (a, b) { return b.p - a.p; }); if (cand[0].ap) usoAp++; usados[cand[0].x.id] = 1; return cand[0]; }
       var exp = r.exp || 'intermedio';
       var S0 = exp === 'principiante' ? { s: 3, reps: 10, rpe: 6 } : (exp === 'avanzado' ? { s: 4, reps: 6, rpe: 8 } : { s: r.tiempo >= 45 ? 4 : 3, reps: 8, rpe: 7 });
+      var PA = AP.params[exp]; if (PA && r.tipo === 'fuerza') { S0.s = Math.max(1, S0.s + (PA.ds || 0)); S0.reps = Math.max(1, S0.reps + (PA.dr || 0)); S0.rpe = Math.max(4, Math.min(10, S0.rpe + (PA.drpe || 0)));
+        avisos.push('Ajustada a tus correcciones en ' + exp + 's: ' + [PA.ds ? (PA.ds > 0 ? '+' : '') + PA.ds + ' serie' : null, PA.dr ? (PA.dr > 0 ? '+' : '') + PA.dr + ' reps' : null, PA.drpe ? (PA.drpe > 0 ? '+' : '') + PA.drpe + ' RPE' : null].filter(Boolean).join(', ') + '.'); }
       if (r.act === 'baja') { S0.s = Math.max(2, S0.s - 1); S0.rpe = Math.max(5, S0.rpe - 1); avisos.push('Poca actividad semanal: una serie menos y RPE un punto más bajo.'); }
       var sm = mesoSemana(c, r.fecha);
       if (sm && r.tipo === 'fuerza') { var rr = rangoNum(sm.reps), rp = rangoNum(sm.rpe); if (rr) S0.reps = Math.round((rr[0] + rr[1]) / 2); if (rp) S0.rpe = rp[0]; avisos.push('Ajustada al mesociclo: semana ' + (sm.k + 1) + ' · ' + semMeso(sm).nombre + (sm.reps ? ' · ' + sm.reps + ' reps' : '') + (sm.rpe ? ' · RPE ' + sm.rpe : '') + '.'); }
       if (mayor) avisos.push('Mayor de 55: sin saltos ni impacto y un ejercicio más de movilidad.');
       function ej(o, cfg) { var x = o.x, lado = !!o.t.uni, seg = cfg.seg || (o.t.isom ? (lado ? 20 : 30) : 0), reps = seg ? 1 : cfg.reps;
-        return { _u: ST.uid(), _k: null, ejId: x.id, series: String(cfg.s), reps: String(reps), lado: lado, repsIzq: lado ? String(reps) : '', repsDer: lado ? String(reps) : '', seg: seg ? String(seg) : '', carga: '', descanso: String(cfg.desc || 60), tempo: '', rpe: cfg.rpe ? String(cfg.rpe) : '', ss: cfg.ss || '', nota: '' }; }
+        return { _u: ST.uid(), _k: null, _rol: cfg.rol, _ctx: ctxDe(cfg.rol), _prop: x.id, ejId: x.id, series: String(cfg.s), reps: String(reps), lado: lado, repsIzq: lado ? String(reps) : '', repsDer: lado ? String(reps) : '', seg: seg ? String(seg) : '', carga: '', descanso: String(cfg.desc || 60), tempo: '', rpe: cfg.rpe ? String(cfg.rpe) : '', ss: cfg.ss || '', nota: '' }; }
       var foco = r.foco || 'inferior', inf = foco !== 'superior', sup = foco !== 'inferior';
-      // INICIO
       var ini = [], o;
-      if ((o = elegir(function (t, oo) { return t.core && (t.isom || !/rueda|colgado|granjero/.test(oo.n)); }))) ini.push(ej(o, { s: 2, reps: 10, desc: 30 }));
-      zonas.forEach(function (z) { var re = GEN_PREV[z]; if (re && ini.length < 4 && (o = elegir(function (t, oo) { return re.test(oo.n); }))) ini.push(ej(o, { s: 2, reps: 10, desc: 30 })); });
-      if (inf && (o = elegir(function (t) { return t.prevInf && !(mayor && t.impacto); }))) ini.push(ej(o, { s: 2, reps: 10, desc: 30 }));
-      if (sup && (o = elegir(function (t) { return t.prevSup; }))) ini.push(ej(o, { s: 2, reps: 10, desc: 30 }));
-      if (mayor && (o = elegir(function (t) { return t.movil; }))) ini.push(ej(o, { s: 2, reps: 8, desc: 30 }));
+      if ((o = elegir(function (t, oo) { return t.core && (t.isom || !/rueda|colgado|granjero/.test(oo.n)); }, null, 'ini'))) ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' }));
+      zonas.forEach(function (z) { var re = GEN_PREV[z]; if (re && ini.length < 4 && (o = elegir(function (t, oo) { return re.test(oo.n); }, null, 'ini'))) ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' })); });
+      if (inf && (o = elegir(function (t) { return t.prevInf && !(mayor && t.impacto); }, null, 'ini'))) ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' }));
+      if (sup && (o = elegir(function (t) { return t.prevSup; }, null, 'ini'))) ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' }));
+      if (mayor && (o = elegir(function (t) { return t.movil; }, null, 'ini'))) ini.push(ej(o, { s: 2, reps: 8, desc: 30, rol: 'ini' }));
       var maxIni = mayor ? 4 : 3; if (ini.length > maxIni) { if (mayor) { var mv = ini.pop(); ini = ini.slice(0, maxIni - 1).concat([mv]); } else ini = ini.slice(0, maxIni); }
-      // PRINCIPAL
       var N = r.tiempo >= 60 ? 9 : (r.tiempo >= 45 ? 7 : 5), F = r.tiempo >= 45 ? 2 : 1, M = N - F;
       var aero = r.obj === 'salud' || r.obj === 'grasa';
       var grupos = r.tipo === 'potencia' ? (M === 4 ? [2, 2] : (M === 5 ? [2, 3] : [2, 2, 3])) : (M === 4 ? [2, 2] : (M === 5 ? [3, 2] : [3, 2, 2]));
@@ -7039,39 +7105,104 @@ window.GAGOR_reducirFoto = function (file) {
         var tipoM = ordenMain[gi % ordenMain.length], L = letras[gi], grupo = [];
         var ALT = { rodilla: 'cadera', cadera: 'rodilla', empuje: 'traccion', traccion: 'empuje' };
         var pesoMain = function (t) { return (t.compuesto ? 3 : 0) - (t.aislado ? 3 : 0) + (gi === 2 && t.uni ? 1 : 0); };
-        var main = elegir(function (t) { return t[tipoM] && !t.isom; }, pesoMain);
-        if (!main && (main = elegir(function (t) { return t[ALT[tipoM]] && !t.isom; }, pesoMain))) tipoM = ALT[tipoM];
-        if (!main) main = elegir(function (t) { return t[tipoM] || t[ALT[tipoM]]; });
+        var main = elegir(function (t) { return t[tipoM] && !t.isom; }, pesoMain, 'main:' + tipoM);
+        if (!main && (main = elegir(function (t) { return t[ALT[tipoM]] && !t.isom; }, pesoMain, 'main:' + ALT[tipoM]))) tipoM = ALT[tipoM];
+        if (!main) main = elegir(function (t) { return t[tipoM] || t[ALT[tipoM]]; }, null, 'main:' + tipoM);
         if (r.tipo === 'potencia') {
-          if (main) grupo.push(ej(main, { s: r.act === 'baja' ? 3 : 4, reps: 4, rpe: r.act === 'baja' ? 7 : 8, desc: 30, ss: L }));
-          var pot = elegir(function (t) { return t[potDe[tipoM]] && !(mayor && t.impacto); }) || elegir(function (t) { return (t.potRodilla || t.potCadera || t.potEmpuje || t.potTraccion) && !(mayor && t.impacto); });
-          if (pot) grupo.push(ej(pot, { s: r.act === 'baja' ? 3 : 4, reps: 4, desc: 120, ss: L })); else sinPot++;
-          if (tam === 3 && (o = elegir(function (t) { return t.core; }))) grupo.push(ej(o, { s: 3, reps: 10, desc: 60, ss: L }));
+          if (main) grupo.push(ej(main, { s: r.act === 'baja' ? 3 : 4, reps: 4, rpe: r.act === 'baja' ? 7 : 8, desc: 30, ss: L, rol: 'main:' + tipoM }));
+          var pot = elegir(function (t) { return t[potDe[tipoM]] && !(mayor && t.impacto); }, null, 'pot') || elegir(function (t) { return (t.potRodilla || t.potCadera || t.potEmpuje || t.potTraccion) && !(mayor && t.impacto); }, null, 'pot');
+          if (pot) grupo.push(ej(pot, { s: r.act === 'baja' ? 3 : 4, reps: 4, desc: 120, ss: L, rol: 'pot' })); else sinPot++;
+          if (tam === 3 && (o = elegir(function (t) { return t.core; }, null, 'core'))) grupo.push(ej(o, { s: 3, reps: 10, desc: 60, ss: L, rol: 'core' }));
         } else {
-          var esInf = tipoM === 'rodilla' || tipoM === 'cadera';
-          if (main) grupo.push(ej(main, { s: S0.s, reps: S0.reps, rpe: S0.rpe, desc: exp === 'avanzado' ? 120 : 90, ss: L }));
-          var acc = elegir(function (t) { return esInf ? t.abd : t.hombro && !t.empuje && !t.traccion; }) || elegir(function (t) { return esInf ? t.prevInf : t.prevSup || t.hombro; });
-          if (acc) grupo.push(ej(acc, { s: S0.s, reps: 12, desc: 60, ss: L }));
-          if (tam === 3 && (o = elegir(function (t) { return t.core; }))) grupo.push(ej(o, { s: S0.s, reps: 12, desc: 60, ss: L }));
+          var esInf = tipoM === 'rodilla' || tipoM === 'cadera', rolAcc = esInf ? 'acc:inf' : 'acc:sup';
+          if (main) grupo.push(ej(main, { s: S0.s, reps: S0.reps, rpe: S0.rpe, desc: exp === 'avanzado' ? 120 : 90, ss: L, rol: 'main:' + tipoM }));
+          var acc = elegir(function (t) { return esInf ? t.abd : t.hombro && !t.empuje && !t.traccion; }, null, rolAcc) || elegir(function (t) { return esInf ? t.prevInf : t.prevSup || t.hombro; }, null, rolAcc);
+          if (acc) grupo.push(ej(acc, { s: S0.s, reps: 12, desc: 60, ss: L, rol: rolAcc }));
+          if (tam === 3 && (o = elegir(function (t) { return t.core; }, null, 'core'))) grupo.push(ej(o, { s: S0.s, reps: 12, desc: 60, ss: L, rol: 'core' }));
         }
         if (grupo.length === 1) grupo[0].ss = '';
         princ = princ.concat(grupo);
       });
       if (sinPot) avisos.push(mayor ? 'No hay ejercicios de potencia sin impacto suficientes: revisa los huecos.' : 'Faltan ejercicios de potencia en la Biblioteca para algún vector.');
-      // FINAL
       var bloques = [{ _u: ST.uid(), titulo: 'Inicio · core y prevención', circuito: false, ejercicios: ini }, { _u: ST.uid(), titulo: r.tipo === 'potencia' ? 'Principal · potencia' : 'Principal · fuerza', circuito: false, ejercicios: princ }];
+      var finN = 0;
       if (aero) bloques.push({ _u: ST.uid(), titulo: 'Final · aeróbico', ejercicios: [], _iv: null, intervalos: [ivBorrador({ tipo: 'calentamiento', seg: 120, rpm: 80, res: '3' }), ivBorrador({ tipo: 'trabajo', seg: F === 2 ? 600 : 360, rpm: 85, res: '4', nota: 'Ritmo cómodo: puedes hablar' })] });
       else { var fin = [];
         for (var k = 0; k < F; k++) { var pref = foco === 'superior' ? ['brazo', 'core', 'hombro'] : (foco === 'inferior' ? ['core', 'hombro', 'brazo'] : ['hombro', 'core', 'brazo']);
-          o = elegir(function (t) { return t[pref[k % 3]] && !t.empuje && !t.traccion; }) || elegir(function (t) { return t.core || t.brazo || t.hombro; }); if (o) fin.push(ej(o, { s: 3, reps: 12, desc: 45, ss: F > 1 ? 'F' : '' })); }
-        if (fin.length < 2) fin.forEach(function (e) { e.ss = ''; });
+          o = elegir(function (t) { return t[pref[k % 3]] && !t.empuje && !t.traccion; }, null, 'fin') || elegir(function (t) { return t.core || t.brazo || t.hombro; }, null, 'fin'); if (o) fin.push(ej(o, { s: 3, reps: 12, desc: 45, ss: F > 1 ? 'F' : '', rol: 'fin' })); }
+        if (fin.length < 2) fin.forEach(function (e) { e.ss = ''; }); finN = fin.length;
         bloques.push({ _u: ST.uid(), titulo: 'Final', circuito: false, ejercicios: fin }); }
-      var huecos = N + 0 - princ.length - (aero ? 0 : bloques[2].ejercicios.length) - (aero ? F : 0); if (huecos > 0) avisos.push('Quedan ' + huecos + ' huecos sin ejercicio (no hay candidatos en la Biblioteca con esas condiciones).');
+      var huecos = N - princ.length - (aero ? F : finN); if (huecos > 0) avisos.push('Quedan ' + huecos + ' huecos sin ejercicio (no hay candidatos en la Biblioteca con esas condiciones).');
+      if (usoAp) avisos.push('Ha tenido en cuenta lo aprendido de tus correcciones en ' + usoAp + (usoAp === 1 ? ' ejercicio.' : ' ejercicios.'));
       var nombreFoco = { inferior: 'Tren inferior', superior: 'Tren superior', completo: 'Cuerpo completo' }[foco];
-      return { titulo: nombreFoco + ' · ' + (r.tipo === 'potencia' ? 'potencia' : 'fuerza'), bloques: bloques, avisos: avisos };
+      var prop = []; bloques.forEach(function (b) { (b.ejercicios || []).forEach(function (e) { prop.push({ ejId: e.ejId, rol: e._rol, ctx: e._ctx, s: Number(e.series) || 0, r: Number(e.lado ? e.repsIzq : e.reps) || 0, rpe: Number(e.rpe) || 0 }); }); });
+      var rpes = prop.filter(function (q) { return q.rpe; }).map(function (q) { return q.rpe; });
+      return { titulo: nombreFoco + ' · ' + (r.tipo === 'potencia' ? 'potencia' : 'fuerza'), bloques: bloques, avisos: avisos, prop: prop, rpeProg: rpes.length ? Math.round(rpes.reduce(function (a, b) { return a + b; }, 0) / rpes.length * 10) / 10 : null };
     }
     function abrirGenerada(c, r) { var g = generarSesion(c, r);
-      setEd({ tipo: 'sesion', id: null, nombre: g.titulo, fecha: r.fecha, clienteId: c.id, volver: view === 'editor' && ed ? ed.volver : view, sucio: true, error: '', bloques: g.bloques, auto: { avisos: g.avisos, resp: r } }); setConf(''); setAviso(''); setView('editor'); }
+      setEd({ tipo: 'sesion', id: null, nombre: g.titulo, fecha: r.fecha, clienteId: c.id, volver: view === 'editor' && ed ? ed.volver : view, sucio: true, error: '', bloques: g.bloques, auto: { avisos: g.avisos, resp: r, prop: g.prop, rpeProg: g.rpeProg, fecha: new Date().toISOString() } }); setConf(''); setAviso(''); setView('editor'); }
+    // 1 · al guardar una sesión generada: qué propuso y qué cambiaste
+    function genLogDe(d) { var A = d.auto; if (!A || !A.prop) return null; var fin = []; d.bloques.forEach(function (b) { (b.ejercicios || []).forEach(function (e) { if (e.ejId) fin.push(e); }); });
+      var finIds = fin.map(function (e) { return e.ejId; }), propIds = A.prop.map(function (q) { return q.ejId; });
+      var quit = A.prop.filter(function (q) { return finIds.indexOf(q.ejId) < 0; }).map(function (q) { return { ejId: q.ejId, ctx: q.ctx }; });
+      var añad = fin.filter(function (e) { return propIds.indexOf(e.ejId) < 0; }).map(function (e) { return { ejId: e.ejId }; });
+      var params = []; if (A.resp && A.resp.tipo === 'fuerza') A.prop.forEach(function (q) { if (!/^main:/.test(q.rol || '')) return; var e = fin.filter(function (z) { return z.ejId === q.ejId; })[0]; if (!e) return;
+        var s1 = Math.round(numTxt(e.series) || 0), r1 = Math.round(numTxt(e.lado ? (e.repsIzq || e.reps) : e.reps) || 0), p1 = numTxt(e.rpe) || 0;
+        params.push({ exp: A.resp.exp || 'intermedio', ds: s1 - q.s, dr: q.r && r1 ? r1 - q.r : 0, drpe: q.rpe && p1 ? Math.round((p1 - q.rpe) * 10) / 10 : 0 }); });
+      return { v: 1, fecha: new Date().toISOString(), resp: A.resp, prop: A.prop, rpeProg: A.rpeProg, quitados: quit, añadidos: añad, params: params }; }
+    // 3 · 👍 / 👎 en una sesión generada
+    function genVoto(e, tipo) { var id = e.ejId, ctx = e._ctx; if (!id || !ctx) return;
+      commit(function (st) { var x = st.ejercicios.filter(function (q) { return q.id === id; })[0]; if (!x) return; x.gen = x.gen || {}; var k = tipo === 'fav' ? 'fav' : 'veto', otro = tipo === 'fav' ? 'veto' : 'fav';
+        x.gen[k] = Object.assign({}, x.gen[k] || {}); x.gen[k][ctx] = new Date().toISOString(); if (x.gen[otro]) { x.gen[otro] = Object.assign({}, x.gen[otro]); delete x.gen[otro][ctx]; } }); }
+    function genReemplazo(d, e) { var c = state.clientes.filter(function (q) { return q.id === d.clienteId; })[0]; if (!c || !d.auto) return null; var ya = {};
+      d.bloques.forEach(function (b) { (b.ejercicios || []).forEach(function (q) { ya[q.ejId] = 1; }); });
+      for (var i = 0; i < 25; i++) { var g = generarSesion(c, d.auto.resp); var hit = null; g.bloques.forEach(function (b) { (b.ejercicios || []).forEach(function (q) { if (!hit && q._ctx === e._ctx && !ya[q.ejId] && q.ejId !== e.ejId) hit = q; }); }); if (hit) return hit; }
+      return null; }
+    // 5 · exportar para revisarlo con Claude
+    function genExportar() { var A = genAprendizaje(); var nom = function (id) { return ST.nombreEj(state, id) || id; }; var L = [];
+      L.push('GAGOR · aprendizaje del generador de sesiones · ' + hoyIso, '', 'Sesiones generadas y guardadas: ' + A.sesiones + ' · con cambios tuyos: ' + A.conCambios, '');
+      L.push('== CAMBIOS POR SESIÓN ==');
+      A.logs.slice().sort(function (a, b) { return a.fecha < b.fecha ? -1 : 1; }).forEach(function (s) { var g = s.genLog, r = g.resp || {}, cli = (state.clientes.filter(function (q) { return q.id === s.clienteId; })[0] || {}).nombre || '';
+        L.push('- ' + s.fecha + ' · ' + cli + ' · ' + s.titulo + ' · ' + [r.foco, r.tipo, r.tiempo + "'", r.exp, 'act ' + r.act, 'edad ' + (r.edad || '?'), (r.dolor || []).length ? 'dolor ' + r.dolor.join('/') : null, r.obj].filter(Boolean).join(', ') + ' · estado: ' + (s.estado || '') + (s.rpe ? ' RPE ' + s.rpe + ' (programado ' + (g.rpeProg || '?') + ')' : ''));
+        (g.quitados || []).forEach(function (q) { L.push('    quitaste: ' + nom(q.ejId) + ' [' + ctxLabel(q.ctx) + ']'); });
+        (g.añadidos || []).forEach(function (q) { L.push('    añadiste: ' + nom(q.ejId)); });
+        (g.params || []).forEach(function (q) { if (q.ds || q.dr || q.drpe) L.push('    series/reps/RPE: ' + [q.ds ? 'series ' + (q.ds > 0 ? '+' : '') + q.ds : '', q.dr ? 'reps ' + (q.dr > 0 ? '+' : '') + q.dr : '', q.drpe ? 'RPE ' + (q.drpe > 0 ? '+' : '') + q.drpe : ''].filter(Boolean).join(', ') + ' (' + q.exp + ')'); });
+        (s.cambios || []).forEach(function (cb) { L.push('    el cliente cambió ' + nom(cb.de) + ' por ' + nom(cb.a)); }); });
+      L.push('', '== 👍 / 👎 ==');
+      state.ejercicios.forEach(function (x) { var g = x.gen || {}; Object.keys(g.fav || {}).forEach(function (k) { L.push('👍 ' + x.nombre + ' [' + ctxLabel(k) + ']'); }); Object.keys(g.veto || {}).forEach(function (k) { L.push('👎 ' + x.nombre + ' [' + ctxLabel(k) + ']'); }); });
+      L.push('', '== APRENDIDO ==');
+      Object.keys(A.pen).forEach(function (k) { var o = A.pen[k]; L.push('evita ' + nom(o.ejId) + ' [' + ctxLabel(o.ctx) + '] quitado ' + o.quit + ', mantenido ' + o.keep + (o.cli ? ', cambiado por clientes ' + o.cli : '')); });
+      Object.keys(A.bonus).forEach(function (k) { L.push('prefiere ' + nom(k) + ' (añadido ' + A.bonus[k].n + ' veces)'); });
+      Object.keys(A.params).forEach(function (e) { var p = A.params[e]; L.push('ajuste ' + e + ': ' + JSON.stringify({ series: p.ds || 0, reps: p.dr || 0, rpe: p.drpe || 0, muestras: p.n })); });
+      L.push('', '== ETIQUETAS MANUALES ==');
+      state.ejercicios.forEach(function (x) { var g = x.gen && x.gen.tags; if (g && g.manual) L.push(x.nombre + ' · papel: ' + (g.roles || []).join(', ') + ' · carga: ' + ((g.carga || []).join(', ') || '—') + (g.impacto ? ' · impacto' : '')); });
+      var txt = L.join('\n'); var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' }); var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'GAGOR aprendizaje generador ' + hoyIso + '.txt'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+      try { if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(function () {}); } catch (x) {} }
+    // pantalla «Lo que ha aprendido»
+    function AprModal() {
+      if (!aprOpen) return null; var A = genAprendizaje(); var nom = function (id) { return ST.nombreEj(state, id) || '—'; };
+      function olvidar(id, ctx) { var now = new Date().toISOString(); commit(function (st) { var x = st.ejercicios.filter(function (q) { return q.id === id; })[0]; if (!x) return; x.gen = x.gen || {}; x.gen.ignorar = Object.assign({}, x.gen.ignorar || {}); x.gen.ignorar[ctx] = now;
+        ['veto', 'fav'].forEach(function (k) { if (x.gen[k] && ctx !== '*') { x.gen[k] = Object.assign({}, x.gen[k]); delete x.gen[k][ctx]; } }); }); }
+      var evita = Object.keys(A.pen).map(function (k) { return A.pen[k]; }), votos = [];
+      state.ejercicios.forEach(function (x) { var g = x.gen || {}; Object.keys(g.veto || {}).forEach(function (k) { votos.push({ id: x.id, ctx: k, t: 'veto' }); }); Object.keys(g.fav || {}).forEach(function (k) { votos.push({ id: x.id, ctx: k, t: 'fav' }); }); });
+      var etiq = state.ejercicios.filter(function (x) { return x.gen && x.gen.tags && x.gen.tags.manual; }).length; var sg = A.señales;
+      function sec(t, hijos, vacio) { return h('div', { className: 'apr__sec' }, h('p', { className: 'apr__h' }, t), hijos && hijos.length ? hijos : h('p', { className: 'muted small', style: { margin: 0 } }, vacio)); }
+      function item(txt, sub, onUndo, cls) { return h('div', { className: 'apr__it ' + (cls || '') }, h('div', null, h('b', null, txt), sub ? h('small', null, sub) : null), onUndo ? h('button', { type: 'button', className: 'apr__undo', onClick: onUndo }, 'Deshacer') : null); }
+      return h('div', { className: 'dses', role: 'dialog', 'aria-modal': 'true', onClick: function (ev) { if (ev.target === ev.currentTarget) setAprOpen(false); } },
+        h('div', { className: 'dses__box aprbox' },
+          h('div', { className: 'dses__cab' }, h('div', null, h('p', { className: 'dses__q' }, A.sesiones + ' sesiones generadas · ' + A.conCambios + ' con cambios tuyos'), h('h2', { className: 'dses__t' }, 'Lo que ha aprendido el generador')), h('button', { type: 'button', className: 'dses__x', 'aria-label': 'Cerrar', onClick: function () { setAprOpen(false); } }, '×')),
+          sec('Tus 👍 y 👎', votos.map(function (v) { return item((v.t === 'fav' ? '👍 ' : '👎 ') + nom(v.id), ctxLabel(v.ctx), function () { olvidar(v.id, v.ctx); }, v.t === 'fav' ? 'is-fav' : 'is-veto'); }), 'Aún no has votado ningún ejercicio. Los botones salen en las sesiones generadas.'),
+          sec('Evita (porque lo quitas o los clientes lo cambian)', evita.map(function (o) { return item(nom(o.ejId), ctxLabel(o.ctx) + ' · lo quitaste ' + o.quit + (o.quit === 1 ? ' vez' : ' veces') + (o.cli ? ' · cambiado por clientes ' + o.cli : '') + ' · lo dejaste ' + o.keep, function () { olvidar(o.ejId, o.ctx); }, 'is-veto'); }), 'Nada todavía: hace falta que quites el mismo ejercicio al menos 2 veces en el mismo papel.'),
+          sec('Prefiere (porque lo añades tú)', Object.keys(A.bonus).map(function (k) { return item(nom(k), 'Lo añadiste ' + A.bonus[k].n + ' veces a sesiones generadas', function () { olvidar(k, '*'); }, 'is-fav'); }), 'Nada todavía: hace falta añadir el mismo ejercicio al menos 2 veces.'),
+          sec('Series, reps y RPE', Object.keys(A.params).map(function (e) { var p = A.params[e]; return item(e.charAt(0).toUpperCase() + e.slice(1) + 's: ' + [p.ds ? (p.ds > 0 ? '+' : '') + p.ds + ' serie' : null, p.dr ? (p.dr > 0 ? '+' : '') + p.dr + ' reps' : null, p.drpe ? (p.drpe > 0 ? '+' : '') + p.drpe + ' RPE' : null].filter(Boolean).join(' · '), 'De ' + p.n + ' ejercicios básicos que corregiste', function () { var ids = p.ses; commit(function (st) { st.sesiones.forEach(function (s) { if (ids.indexOf(s.id) >= 0 && s.genLog) s.genLog.ignorarParams = true; }); }); }); }), 'Sin ajustes: hacen falta al menos 3 correcciones parecidas en el mismo nivel.'),
+          sec('Lo que hacen los clientes', sg.total ? [item(sg.hechas + ' de ' + sg.total + ' sesiones generadas hechas', sg.sinHacer ? sg.sinHacer + ' sin hacer' : null)].concat(Object.keys(sg.rpe).map(function (e) { var q = sg.rpe[e], d0 = Math.round(q.d / q.n * 10) / 10; return item(e.charAt(0).toUpperCase() + e.slice(1) + 's: RPE real ' + (d0 > 0 ? '+' : '') + String(d0).replace('.', ',') + ' sobre lo programado', 'Media de ' + q.n + (q.n === 1 ? ' sesión' : ' sesiones') + (Math.abs(d0) >= 1.5 && q.n >= 3 ? ' · ' + (d0 > 0 ? 'les resultan más duras de lo previsto' : 'les resultan más fáciles de lo previsto') : ''), null, Math.abs(d0) >= 1.5 && q.n >= 3 ? 'is-veto' : ''); }))
+            .concat(Object.keys(sg.cambiadas).map(function (id) { return item(nom(id), 'Los clientes lo cambiaron por otro ' + sg.cambiadas[id] + (sg.cambiadas[id] === 1 ? ' vez' : ' veces')); })) : [], 'Todavía no hay sesiones generadas de días pasados.'),
+          sec('Etiquetas de la Biblioteca', [item(etiq + ' de ' + state.ejercicios.length + ' ejercicios etiquetados a mano', 'El resto se clasifica por grupo y nombre (automático).')]),
+          h('div', { className: 'rowline', style: { flexWrap: 'wrap', justifyContent: 'flex-start' } },
+            h(G.Button, { size: 'md', icon: 'exportar', onClick: genExportar }, 'Exportar para revisar con Claude'),
+            h(G.Button, { size: 'md', variant: 'secondary', icon: 'editar', onClick: function () { setAprOpen(false); setModoEtiq(true); setModoGrupos(false); setView('biblioteca'); } }, 'Etiquetar ejercicios')),
+          h('p', { className: 'muted small', style: { margin: 0 } }, 'El archivo se descarga y además se copia. Tráemelo a la conversación y lo convierto en reglas nuevas.')));
+    }
     function GenModal() {
       if (!genQ) return null; var c = state.clientes.filter(function (q) { return q.id === genQ.cid; })[0]; if (!c) return null; var r = genQ;
       function set(k, v) { var x = Object.assign({}, genQ); x[k] = v; setGenQ(x); }
@@ -7229,6 +7360,7 @@ window.GAGOR_reducirFoto = function (file) {
             var s = d.id ? st.sesiones.filter(function (q) { return q.id === d.id; })[0] : null;
             if (!s) { s = ST.sesionEnBlanco(d.clienteId, d.fecha); st.sesiones.push(s); }
             ST.aplicarEdicion(s, bl); s.titulo = nombre; s.fecha = d.fecha || s.fecha;
+            if (d.auto && d.auto.prop) s.genLog = genLogDe(d);
           });
           setWeek(Math.round((new Date(ST.semanaDe(d.fecha) + 'T12:00:00') - new Date(ST.semanaDe(hoyIso) + 'T12:00:00')) / (7 * 86400000)));
           setAviso('Guardada: ' + nombre + ' · ' + ST.fmtCorta(d.fecha));
@@ -7286,7 +7418,8 @@ window.GAGOR_reducirFoto = function (file) {
           (d.auto.avisos || []).map(function (a, i) { return h('p', { key: i, className: 'genav__a' }, '· ' + a); }),
           h('div', { className: 'rowline', style: { justifyContent: 'flex-start', flexWrap: 'wrap' } },
             h(G.Button, { size: 'sm', variant: 'secondary', icon: 'copiar', onClick: function () { if (cli) abrirGenerada(cli, d.auto.resp); } }, 'Generar otra'),
-            h(G.Button, { size: 'sm', variant: 'ghost', icon: 'editar', onClick: function () { if (cli) preguntarGen(cli, d.fecha); } }, 'Cambiar respuestas'))) : null,
+            h(G.Button, { size: 'sm', variant: 'ghost', icon: 'editar', onClick: function () { if (cli) preguntarGen(cli, d.fecha); } }, 'Cambiar respuestas'),
+            h(G.Button, { size: 'sm', variant: 'ghost', icon: 'informe', onClick: function () { setAprOpen(true); } }, 'Lo que ha aprendido'))) : null,
         (function () { if (!esSesion || !cli || !d.fecha) return null; var sm = mesoSemana(cli, d.fecha); if (!sm) return null; var o = semMeso(sm);
           var rR = rangoNum(sm.reps), rP = rangoNum(sm.rpe); var fuera = [];
           d.bloques.forEach(function (b) { if (b.intervalos || /calent|movil|activa/i.test(b.titulo || '')) return; b.ejercicios.forEach(function (e) { if (!e.ejId || e.seg) return;
@@ -7346,6 +7479,11 @@ window.GAGOR_reducirFoto = function (file) {
                       h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Duplicar', onClick: function () { up(function (x) { var c = JSON.parse(JSON.stringify(x.bloques[bi].ejercicios[ei])); c._u = ST.uid(); c._k = null; x.bloques[bi].ejercicios.splice(ei + 1, 0, c); }); } }, h(G.Icon, { name: 'copiar', size: 16 })),
                       h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Quitar', onClick: function () { up(function (x) { x.bloques[bi].ejercicios.splice(ei, 1); }); } }, h(G.Icon, { name: 'cerrar', size: 16 })))),
                   h('div', { className: 'edx__sub' },
+                    d.auto && e._ctx && e.ejId === e._prop ? h('div', { className: 'genfb' }, h('span', null, 'Propuesto para ' + ctxLabel(e._ctx).toLowerCase()),
+                      h('button', { type: 'button', className: 'genfb__b' + (((ST.ejercicio(state, e.ejId) || {}).gen || {}).fav && ((ST.ejercicio(state, e.ejId) || {}).gen.fav || {})[e._ctx] ? ' is-on' : ''), onClick: function () { genVoto(e, 'fav'); } }, '👍 Bueno para esto'),
+                      h('button', { type: 'button', className: 'genfb__b is-no', onClick: function () { genVoto(e, 'veto'); var nuevo = genReemplazo(d, e); up(function (x) { var arr = x.bloques[bi].ejercicios; if (nuevo) { var n2 = Object.assign({}, nuevo, { _u: ST.uid(), ss: arr[ei].ss, series: arr[ei].series }); arr[ei] = n2; } else arr.splice(ei, 1);
+                        // el vetado no cuenta como «quitado» (ya lo recuerda el 👎) y el sustituto cuenta como propuesto, no como añadido por ti
+                        if (x.auto && x.auto.prop) { x.auto.prop = x.auto.prop.filter(function (q) { return !(q.ejId === e.ejId && q.ctx === e._ctx); }); if (nuevo) x.auto.prop.push({ ejId: nuevo.ejId, rol: nuevo._rol, ctx: nuevo._ctx, s: Number(arr[ei].series) || 0, r: Number(nuevo.lado ? nuevo.repsIzq : nuevo.reps) || 0, rpe: Number(nuevo.rpe) || 0 }); } }); setAviso(nuevo ? 'Cambiado. No volverá a proponerlo como ' + ctxLabel(e._ctx).toLowerCase() + '.' : 'Quitado. No hay otro candidato para ese papel.'); } }, '👎 No proponer aquí')) : null,
                     e.ejId && histEj[e.ejId] && histEj[e.ejId].ult ? (function () { var hx = histEj[e.ejId];
                       return h('div', { className: 'edx__hist' },
                         h('span', null, h('b', null, 'Última vez: '), txtHist(hx.ult)),
@@ -7528,7 +7666,9 @@ window.GAGOR_reducirFoto = function (file) {
           h('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } },
             h(G.Button, { size: 'md', icon: 'check', onClick: function () { commit(function (st) { mover.forEach(function (m) { var x = st.ejercicios.filter(function (q) { return q.id === m.id; })[0]; if (x) x.patron = m.a; }); }); setAviso('Movidos ' + mover.length + ' ejercicios a Hombros y Brazos.'); } }, 'Moverlos'),
             h(G.Button, { size: 'md', variant: 'ghost', onClick: function () { try { localStorage.setItem('gagor_grupos_17', 'no'); } catch (e) {} setAviso('Vale, se quedan donde estaban. Puedes cambiar el grupo de cualquiera al editarlo.'); } }, 'Dejarlos como están'))) : null,
-        h(G.AppHeader, { key: 'h', title: 'Biblioteca', subtitle: state.ejercicios.length + (modoGrupos ? ' ejercicios · elige el grupo de cada uno' : ' ejercicios · toca uno para editarlo'), action: h('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } }, h(G.Button, { size: 'md', variant: modoGrupos ? 'primary' : 'secondary', icon: modoGrupos ? 'check' : 'editar', onClick: function () { setModoGrupos(!modoGrupos); } }, modoGrupos ? 'Listo' : 'Cambiar grupos'), editando && !modoGrupos ? h(G.Button, { size: 'md', variant: 'secondary', icon: 'mas', onClick: limpiar }, 'Nuevo ejercicio') : null) }),
+        h(G.AppHeader, { key: 'h', title: 'Biblioteca', subtitle: state.ejercicios.length + (modoEtiq ? ' ejercicios · di qué papel tiene cada uno y qué zonas carga' : (modoGrupos ? ' ejercicios · elige el grupo de cada uno' : ' ejercicios · toca uno para editarlo')), action: h('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } }, modoEtiq ? null : h(G.Button, { size: 'md', variant: modoGrupos ? 'primary' : 'secondary', icon: modoGrupos ? 'check' : 'editar', onClick: function () { setModoGrupos(!modoGrupos); } }, modoGrupos ? 'Listo' : 'Cambiar grupos'),
+          modoGrupos ? null : h(G.Button, { size: 'md', variant: modoEtiq ? 'primary' : 'secondary', icon: modoEtiq ? 'check' : 'plantilla', onClick: function () { setModoEtiq(!modoEtiq); setEtiqAbierto(null); } }, modoEtiq ? 'Listo' : 'Etiquetar para el generador'),
+          modoEtiq ? null : h(G.Button, { size: 'md', variant: 'ghost', icon: 'informe', onClick: function () { setAprOpen(true); } }, 'Generador: lo aprendido'), editando && !modoGrupos && !modoEtiq ? h(G.Button, { size: 'md', variant: 'secondary', icon: 'mas', onClick: limpiar }, 'Nuevo ejercicio') : null) }),
         nuevos.length ? h('div', { key: 'nv', className: 'panel rowline', style: { flexWrap: 'wrap' } }, h('p', { style: { margin: 0 } }, h('b', null, nuevos.length + ' ejercicios nuevos'), ' en la biblioteca de GAGOR, con su técnica explicada. Los tuyos no se tocan.'),
           h(G.Button, { size: 'md', icon: 'mas', onClick: function () { var add = nuevos.map(function (x) { return JSON.parse(JSON.stringify(x)); }); commit(function (st) { add.forEach(function (x) { if (!st.ejercicios.some(function (q) { return q.id === x.id; })) st.ejercicios.push(x); }); }); setAviso('Añadidos ' + add.length + ' ejercicios.'); } }, 'Añadirlos')) : null,
         modoGrupos ? h('div', { key: 'ng', className: 'panel', style: { display: 'grid', gap: '10px', maxWidth: '720px' } },
@@ -7541,7 +7681,26 @@ window.GAGOR_reducirFoto = function (file) {
           aviso ? h('p', { style: { margin: 0, fontSize: '13px', fontWeight: 600 } }, aviso) : null) : null,
         h('div', { key: 'q', className: 'libsearch' }, h(G.TextField, { label: 'Buscar', value: filters.q || '', placeholder: 'Sentadilla, polea, isquios…', onChange: function (v) { setFilters(Object.assign({}, filters, { q: v })); } })),
         h(G.FilterBar, { key: 'f', value: filters, onChange: setFilters, groups: [{ id: 'patron', label: 'Patrón', options: ['Rodilla', 'Cadera', 'Unilateral', 'Empuje', 'Tracción', 'Hombros', 'Brazos', 'Potencia', 'Core', 'Movilidad', 'Prevención', 'Condición', 'A. Exposito'].concat(PATRONES.slice(PATRONES_BASE.length)) }, { id: 'material', label: 'Material', options: ['Barra', 'Mancuernas', 'Máquina', 'Polea', 'Gomas', 'Sin material'] }, { id: 'video', label: 'Vídeo', options: ['Con vídeo', 'Sin vídeo'] }] }),
-        h('div', { key: 'c', className: 'cols' },
+        // 1.58 · 4 · etiquetar ejercicios para el generador (papel y zonas que carga); lo manual manda sobre lo automático
+        modoEtiq ? h('div', { key: 'etq', className: 'etq' }, h('p', { className: 'muted small', style: { margin: 0 } }, 'Lo que sale marcado al abrir uno es lo que la app deduce sola. Cámbialo y queda como tuyo («a mano»). Usa el buscador y los filtros de arriba para ir más rápido.'),
+          grupos.map(function (g) { return h(G.ListGroup, { key: g.pt, title: g.pt, meta: g.items.length + (g.items.length === 1 ? ' ejercicio' : ' ejercicios') }, g.items.map(function (x) {
+            var man = !!(x.gen && x.gen.tags && x.gen.tags.manual); var T = man ? x.gen.tags : genAuto(x); var abierto = etiqAbierto === x.id;
+            function guardarT(nt) { var id = x.id; commit(function (st) { var y = st.ejercicios.filter(function (q) { return q.id === id; })[0]; if (!y) return; y.gen = Object.assign({}, y.gen || {}); y.gen.tags = Object.assign({ roles: [], carga: [], impacto: false }, nt, { manual: true }); }); }
+            function tog(k, v) { var nt = { roles: (T.roles || []).slice(), carga: (T.carga || []).slice(), impacto: !!T.impacto }; if (k === 'impacto') nt.impacto = !nt.impacto; else { var a = nt[k], ix = a.indexOf(v); if (ix >= 0) a.splice(ix, 1); else a.push(v); } guardarT(nt); }
+            var nomP = {}; GEN_PAPEL.forEach(function (q) { nomP[q[0]] = q[1]; });
+            return h('div', { key: x.id, className: 'etq__row' },
+              h('button', { type: 'button', className: 'etq__hd', 'aria-expanded': abierto ? 'true' : 'false', onClick: function () { setEtiqAbierto(abierto ? null : x.id); } },
+                h('span', null, h('b', null, x.nombre), h('span', { className: 'etq__sum' }, (T.roles || []).map(function (k) { return h('i', { key: k }, nomP[k] || k); }), (T.carga || []).map(function (z) { return h('i', { key: 'z' + z, className: 'is-z' }, 'Carga ' + z.toLowerCase()); }), T.impacto ? h('i', { key: 'imp', className: 'is-z' }, 'Impacto') : null, !(T.roles || []).length ? h('i', { key: 'none' }, 'Sin papel: no lo usará') : null)),
+                h('span', { className: 'etq__badge' + (man ? ' is-man' : '') }, man ? 'a mano' : 'auto')),
+              abierto ? h('div', { className: 'etq__body' },
+                h('span', { className: 'etq__l' }, 'Papel en la sesión'),
+                h('div', { className: 'etq__chips' }, GEN_PAPEL.map(function (q) { var on = (T.roles || []).indexOf(q[0]) >= 0; return h('button', { key: q[0], type: 'button', className: 'etq__chip' + (on ? ' is-on' : ''), 'aria-pressed': on ? 'true' : 'false', onClick: function () { tog('roles', q[0]); } }, q[1]); })),
+                h('span', { className: 'etq__l' }, 'Zonas que carga (se quita si el cliente tiene dolor ahí)'),
+                h('div', { className: 'etq__chips' }, GEN_ZONAS.map(function (z) { var on = (T.carga || []).indexOf(z) >= 0; return h('button', { key: z, type: 'button', className: 'etq__chip is-z' + (on ? ' is-on' : ''), 'aria-pressed': on ? 'true' : 'false', onClick: function () { tog('carga', z); } }, z); }),
+                  h('button', { type: 'button', className: 'etq__chip is-z' + (T.impacto ? ' is-on' : ''), 'aria-pressed': T.impacto ? 'true' : 'false', onClick: function () { tog('impacto'); } }, 'Impacto / saltos')),
+                man ? h('button', { type: 'button', className: 'apr__undo', style: { justifySelf: 'start' }, onClick: function () { var id = x.id; commit(function (st) { var y = st.ejercicios.filter(function (q) { return q.id === id; })[0]; if (y && y.gen) { y.gen = Object.assign({}, y.gen); delete y.gen.tags; } }); } }, 'Volver a automático') : null) : null);
+          })); })) : null,
+        modoEtiq ? null : h('div', { key: 'c', className: 'cols' },
           h('div', { className: 'stack' }, grupos.length ? grupos.map(function (g) { return h(G.ListGroup, { key: g.pt, title: g.pt, meta: g.items.length + (g.items.length === 1 ? ' ejercicio' : ' ejercicios') }, g.items.map(function (x) { if (modoGrupos) { var ops = PATRONES.indexOf(x.patron) >= 0 ? PATRONES : [x.patron].concat(PATRONES); return h('div', { key: x.id, className: 'gmov' }, h('span', null, x.nombre), h('select', { value: x.patron, 'aria-label': 'Grupo de ' + x.nombre, onChange: function (ev) { var nv = ev.target.value; commit(function (st) { var y = st.ejercicios.filter(function (q) { return q.id === x.id; })[0]; if (y) y.patron = nv; }); setAviso(x.nombre + ' → ' + nv); } }, ops.map(function (o) { return h('option', { key: o, value: o }, o); }))); }
               return h(G.LibraryItem, { key: x.id, name: x.nombre, equipment: x.material, difficulty: x.dificultad, duration: x.videoUrl ? 'Vídeo' : 'Sin vídeo', posterUrl: ytPoster(x.videoUrl), onOpen: function () { abrir(x); } }); })); })
             : h(G.EmptyState, { title: 'Nada con esos filtros', detail: 'Quita algún filtro o busca otra palabra.' })),
