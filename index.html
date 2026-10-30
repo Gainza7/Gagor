@@ -3294,7 +3294,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.59";
+<script>window.GAGOR_VERSION = "1.60";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -7013,6 +7013,7 @@ window.GAGOR_reducirFoto = function (file) {
       if (/^Cadera/.test(p)) { if (/puente de gluteo$|isom/.test(n)) t.prevInf = 1; else t.cadera = 1; }
       if (/copenhag|aducci|aductor|abducci|abductor|paso lateral|monster|clamshell|almeja|plancha lateral|side plank|lateral walk|band walk|hip airplane/.test(n)) t.abd = 1;
       if (/^Core/.test(p)) t.core = 1;
+      if (/^Condici/.test(p) || /bici|bike|remoerg|rower|skierg|ski erg|comba|carrera|sprint|trineo|sled|cinta|eliptica|assault/.test(n)) t.cond = 1;
       if (/^Empuje/.test(p) && !/elevaciones laterales|triceps/.test(n)) t.empuje = 1;
       if (/^Tracci/.test(p) && !/face pull|curl|biceps|pullover/.test(n)) t.traccion = 1;
       if (/^Hombros/.test(p) || /face pull|rotacion externa|y t w|ytw|elevaciones laterales|elevacion lateral|pajaro|posterior fly|shoulder|hallo|halo|escapul/.test(n)) t.hombro = 1;
@@ -7038,7 +7039,7 @@ window.GAGOR_reducirFoto = function (file) {
        · De esos registros (y de lo que hacen los clientes) salen preferencias por ejercicio y contexto, y ajustes de series/reps/RPE.
        · 👍/👎 y etiquetas manuales se guardan en el propio ejercicio (x.gen), que se sincroniza. Deshacer = olvidar lo aprendido hasta hoy. */
     var GEN_ROL = { ini: 'Inicio', 'main:rodilla': 'Básico de rodilla', 'main:cadera': 'Básico de cadera', 'main:empuje': 'Básico de empuje', 'main:traccion': 'Básico de tracción', 'acc:inf': 'Abductores / aductores', 'acc:sup': 'Hombro (en superserie)', core: 'Core', pot: 'Potencia', fin: 'Final' };
-    var GEN_PAPEL = [['rodilla', 'Rodilla'], ['cadera', 'Cadera (posterior)'], ['abd', 'Abd. / aductores'], ['empuje', 'Empuje'], ['traccion', 'Tracción'], ['hombro', 'Hombro'], ['brazo', 'Brazo'], ['core', 'Core'], ['prevInf', 'Prev. inferior'], ['prevSup', 'Prev. superior'], ['movil', 'Movilidad'], ['potRodilla', 'Pot. rodilla'], ['potCadera', 'Pot. cadera'], ['potEmpuje', 'Pot. empuje'], ['potTraccion', 'Pot. tracción']];
+    var GEN_PAPEL = [['rodilla', 'Rodilla'], ['cadera', 'Cadera (posterior)'], ['abd', 'Abd. / aductores'], ['empuje', 'Empuje'], ['traccion', 'Tracción'], ['hombro', 'Hombro'], ['brazo', 'Brazo'], ['core', 'Core'], ['prevInf', 'Prev. inferior'], ['prevSup', 'Prev. superior'], ['movil', 'Movilidad'], ['potRodilla', 'Pot. rodilla'], ['potCadera', 'Pot. cadera'], ['potEmpuje', 'Pot. empuje'], ['potTraccion', 'Pot. tracción'], ['cond', 'Condición']];
     function ctxLabel(ctx) { var p = String(ctx).split('|'); return (GEN_ROL[p[0]] || p[0]) + (p[1] === '55' ? ' · mayores de 55' : ''); }
     function genAuto(x) { var t = genTagsAuto(x), n = ntx(x.nombre); return { roles: GEN_PAPEL.map(function (q) { return q[0]; }).filter(function (k) { return t[k]; }), carga: GEN_ZONAS.filter(function (z) { return GEN_EXCL[z].test(n); }), impacto: !!t.impacto }; }
     function genTags(x) { var t = genTagsAuto(x); var g = x.gen && x.gen.tags; if (!g || !g.manual) return t;
@@ -7130,7 +7131,17 @@ window.GAGOR_reducirFoto = function (file) {
       var finN = 0;
       if (aero) bloques.push({ _u: ST.uid(), titulo: 'Final · aeróbico', ejercicios: [], _iv: null, intervalos: [ivBorrador({ tipo: 'calentamiento', seg: 120, rpm: 80, res: '3' }), ivBorrador({ tipo: 'trabajo', seg: F === 2 ? 600 : 360, rpm: 85, res: '4', nota: 'Ritmo cómodo: puedes hablar' })] });
       else { var fin = [];
-        for (var k = 0; k < F; k++) { var pref = foco === 'superior' ? ['brazo', 'core', 'hombro'] : (foco === 'inferior' ? ['core', 'hombro', 'brazo'] : ['hombro', 'core', 'brazo']);
+        // 1.60 · tren inferior: el final es potencia de tren inferior (rodilla o cadera) o core; nunca brazos ni hombros
+        var potInf = function (t) { return (t.potRodilla || t.potCadera) && !(mayor && t.impacto); };
+        for (var k = 0; k < F; k++) {
+          if (foco === 'inferior') {
+            var quiere = k === 0 ? 'pot' : 'core';
+            o = quiere === 'pot' ? elegir(potInf, null, 'fin') : elegir(function (t) { return t.core; }, null, 'fin');
+            if (!o) o = quiere === 'pot' ? elegir(function (t) { return t.core; }, null, 'fin') : elegir(potInf, null, 'fin');
+            if (o) fin.push(ej(o, o.t.potRodilla || o.t.potCadera ? { s: 3, reps: 5, desc: 60, ss: F > 1 ? 'F' : '', rol: 'fin' } : { s: 3, reps: 12, desc: 45, ss: F > 1 ? 'F' : '', rol: 'fin' }));
+            continue;
+          }
+          var pref = foco === 'superior' ? ['brazo', 'core', 'hombro'] : ['hombro', 'core', 'brazo'];
           o = elegir(function (t) { return t[pref[k % 3]] && !t.empuje && !t.traccion; }, null, 'fin') || elegir(function (t) { return t.core || t.brazo || t.hombro; }, null, 'fin'); if (o) fin.push(ej(o, { s: 3, reps: 12, desc: 45, ss: F > 1 ? 'F' : '', rol: 'fin' })); }
         if (fin.length < 2) fin.forEach(function (e) { e.ss = ''; }); finN = fin.length;
         bloques.push({ _u: ST.uid(), titulo: 'Final', circuito: false, ejercicios: fin }); }
