@@ -3294,7 +3294,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.62";
+<script>window.GAGOR_VERSION = "1.63";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -7057,6 +7057,21 @@ window.GAGOR_reducirFoto = function (file) {
     function genTags(x) { var t = genTagsAuto(x); var g = x.gen && x.gen.tags; if (!g || !g.manual) return t;
       var o = { isom: t.isom, uni: t.uni, compuesto: t.compuesto, aislado: t.aislado, impacto: !!g.impacto }; (g.roles || []).forEach(function (k) { o[k] = 1; }); if (o.coreArr || o.coreAb || o.coreRot || o.coreLat) o.core = 1; return o; }
     function cargaZonas(x, n) { var g = x.gen && x.gen.tags; if (g && g.manual) return g.carga || []; return GEN_ZONAS.filter(function (z) { return GEN_EXCL[z].test(n); }); }
+    /* 1.63 · CÓMO PROGRAMA EL ENTRENADOR: se analizan sus sesiones y plantillas (no las generadas sin tocar) para saber qué ejercicios
+       pone al principio, en el principal y al final, y con cuáles los junta en superserie. Cada estructura distinta cuenta una vez. */
+    function genHabitos() {
+      var H = { pos: { ini: {}, main: {}, fin: {} }, total: {}, pares: {}, n: 0 }, vistos = {};
+      function posDe(bi, nb, b) { var t0 = ntx(b.titulo || ''); if (/calent|activ|movil|inicio|prevenc|core y prev/.test(t0)) return 'ini'; if (/final|accesor|brazo|vuelta a la calma/.test(t0)) return 'fin'; if (nb >= 2 && bi === 0) return 'ini'; if (nb >= 3 && bi === nb - 1) return 'fin'; return 'main'; }
+      function anotar(bloques) { var bl = (bloques || []).filter(function (b) { return !b.intervalos && (b.ejercicios || []).length; }); if (!bl.length) return;
+        var firma = bl.map(function (b) { return b.ejercicios.map(function (e) { return e.ejId; }).join(','); }).join('|'); if (vistos[firma]) return; vistos[firma] = 1; H.n++;
+        bl.forEach(function (b, bi) { var ps = posDe(bi, bl.length, b), grupos = {};
+          b.ejercicios.forEach(function (e) { if (!e.ejId) return; H.pos[ps][e.ejId] = (H.pos[ps][e.ejId] || 0) + 1; H.total[e.ejId] = (H.total[e.ejId] || 0) + 1; if (e.ss) (grupos[e.ss] = grupos[e.ss] || []).push(e.ejId); });
+          if (b.circuito) grupos._c = b.ejercicios.map(function (e) { return e.ejId; });
+          Object.keys(grupos).forEach(function (g) { var a = grupos[g]; for (var i = 0; i < a.length; i++) for (var j = 0; j < a.length; j++) if (i !== j) { var k = a[i] + '>' + a[j]; H.pares[k] = (H.pares[k] || 0) + 1; } }); }); }
+      state.sesiones.forEach(function (q) { if (q.genLog && !(q.genLog.quitados || []).length && !(q.genLog.añadidos || []).length) return; anotar(q.bloques); });
+      (state.plantillas || []).forEach(function (p) { anotar(p.bloques); });
+      return H;
+    }
     function genAprendizaje() {
       var ej = {}; state.ejercicios.forEach(function (x) { ej[x.id] = x; });
       var A = { pen: {}, bonus: {}, params: {}, sesiones: 0, conCambios: 0, logs: [], señales: { hechas: 0, total: 0, rpe: {}, cambiadas: {}, sinHacer: 0 } };
@@ -7089,11 +7104,16 @@ window.GAGOR_reducirFoto = function (file) {
       var coreUsado = {}; function tipoCore(t) { return t.coreArr ? 'arr' : (t.coreAb ? 'ab' : (t.coreRot ? 'rot' : (t.coreLat ? 'lat' : 'otro'))); }
       function penCore(t) { return t.core && coreUsado[tipoCore(t)] ? -3 : 0; }
       function ctxDe(rol) { return rol + (mayor ? '|55' : ''); }
+      var HB = genHabitos(), enGrupo = [], usoHab = 0;
+      function posRol(rol) { return rol === 'ini' ? 'ini' : (rol === 'fin' ? 'fin' : 'main'); }
+      function habito(id, rol) { if (!rol) return 0; var c = HB.pos[posRol(rol)][id] || 0, tot = HB.total[id] || 0, par = 0;
+        enGrupo.forEach(function (m) { par += HB.pares[m + '>' + id] || 0; });
+        return Math.min(2, 0.6 * Math.log(1 + c)) + Math.min(0.6, 0.25 * Math.log(1 + tot)) + Math.min(1.5, 0.7 * par); }
       function elegir(fn, extra, rol) { var ctx = rol ? ctxDe(rol) : null;
         var cand = pool.filter(function (o) { var g = o.x.gen || {}; return !usados[o.x.id] && fn(o.t, o) && !(ctx && g.veto && g.veto[ctx]); }); if (!cand.length) return null;
         cand.forEach(function (o) { var g = o.x.gen || {}, ap = 0; if (ctx) { if (g.fav && g.fav[ctx]) ap += 2.5; var pe = AP.pen[o.x.id + '|' + ctx]; if (pe) ap += pe.score; } if (AP.bonus[o.x.id]) ap += AP.bonus[o.x.id].score;
-          o.ap = ap; o.p = Math.random() + (semana[o.x.id] ? 0 : 1.2) + (o.x.videoUrl ? 0.4 : 0) + (extra ? extra(o.t, o) : 0) + ap + penCore(o.t); });
-        cand.sort(function (a, b) { return b.p - a.p; }); if (cand[0].ap) usoAp++; usados[cand[0].x.id] = 1; if (cand[0].t.core) coreUsado[tipoCore(cand[0].t)] = 1; return cand[0]; }
+          o.ap = ap; o.hb = habito(o.x.id, rol); o.p = Math.random() + (semana[o.x.id] ? 0 : 1.2) + (o.x.videoUrl ? 0.4 : 0) + (extra ? extra(o.t, o) : 0) + ap + penCore(o.t) + o.hb; });
+        cand.sort(function (a, b) { return b.p - a.p; }); if (cand[0].ap) usoAp++; if (cand[0].hb >= 0.5) usoHab++; usados[cand[0].x.id] = 1; if (rol && rol !== 'ini' && rol !== 'fin') enGrupo.push(cand[0].x.id); if (cand[0].t.core) coreUsado[tipoCore(cand[0].t)] = 1; return cand[0]; }
       var exp = r.exp || 'intermedio';
       var S0 = exp === 'principiante' ? { s: 3, reps: 10, rpe: 6 } : (exp === 'avanzado' ? { s: 4, reps: 6, rpe: 8 } : { s: r.tiempo >= 45 ? 4 : 3, reps: 8, rpe: 7 });
       var PA = AP.params[exp]; if (PA && r.tipo === 'fuerza') { S0.s = Math.max(1, S0.s + (PA.ds || 0)); S0.reps = Math.max(1, S0.reps + (PA.dr || 0)); S0.rpe = Math.max(4, Math.min(10, S0.rpe + (PA.drpe || 0)));
@@ -7106,12 +7126,30 @@ window.GAGOR_reducirFoto = function (file) {
         return { _u: ST.uid(), _k: null, _rol: cfg.rol, _ctx: ctxDe(cfg.rol), _prop: x.id, ejId: x.id, series: String(cfg.s), reps: String(reps), lado: lado, repsIzq: lado ? String(reps) : '', repsDer: lado ? String(reps) : '', seg: seg ? String(seg) : '', carga: '', descanso: String(cfg.desc || 60), tempo: '', rpe: cfg.rpe ? String(cfg.rpe) : '', ss: cfg.ss || '', nota: '' }; }
       var foco = r.foco || 'inferior', inf = foco !== 'superior', sup = foco !== 'inferior';
       var ini = [], o;
+      // preventivos: de tren inferior, los de rodilla y cadera antes que tobillo/gemelo; de tren superior, los de hombro
+      var prefInf = function (t, oo) { return /rodilla|cuadriceps|isquio|gluteo|cadera|aduct|abduct|puente|tibial|90 90|flexor|knee|hip|glute|hamstring/.test(oo.n) ? 1.5 : (/gemelo|soleo|tobillo|calf|ankle/.test(oo.n) ? -1 : 0); };
+      var prefSup = function (t, oo) { return t.hombro || /hombro|rotacion externa|y t w|escapul|face pull|shoulder|scap/.test(oo.n) ? 1.5 : (/toracica|gato|thoracic/.test(oo.n) ? -0.5 : 0); };
+      var esPrevSup = function (t, oo) { return t.prevSup || (t.hombro && !t.empuje && !t.traccion && !/press|elevaciones laterales/.test(oo.n)); };
+      if (foco === 'completo') {
+        // 1.63 · cuerpo completo (palabras del entrenador): casi siempre 3-4 de core para empezar y luego 2-3 preventivos de tren inferior y superior
+        var nCore = Math.random() < 0.7 ? 4 : 3;
+        for (var ci = 0; ci < nCore; ci++) if ((o = elegir(function (t, oo) { return t.core && (t.isom || !/rueda|colgado|granjero/.test(oo.n)); }, null, 'ini'))) ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' }));
+        coreUsado = {};
+        var nPrev = Math.random() < 0.5 ? 3 : 2, hechosPrev = 0;
+        zonas.forEach(function (z) { var re = GEN_PREV[z]; if (re && hechosPrev < nPrev && (o = elegir(function (t, oo) { return re.test(oo.n); }, null, 'ini'))) { ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' })); hechosPrev++; } });
+        var orden = ['inf', 'sup', Math.random() < 0.5 ? 'inf' : 'sup'];
+        for (var pi = 0; hechosPrev < nPrev && pi < 3; pi++) { var lado0 = orden[pi];
+          o = lado0 === 'inf' ? elegir(function (t) { return t.prevInf && !t.core && !(mayor && t.impacto); }, prefInf, 'ini') : elegir(esPrevSup, prefSup, 'ini');
+          if (o) { ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' })); hechosPrev++; } }
+        if (mayor && (o = elegir(function (t) { return t.movil; }, null, 'ini'))) ini.push(ej(o, { s: 2, reps: 8, desc: 30, rol: 'ini' }));
+      } else {
       if ((o = elegir(function (t, oo) { return t.core && (t.isom || !/rueda|colgado|granjero/.test(oo.n)); }, null, 'ini'))) ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' }));
       zonas.forEach(function (z) { var re = GEN_PREV[z]; if (re && ini.length < 4 && (o = elegir(function (t, oo) { return re.test(oo.n); }, null, 'ini'))) ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' })); });
-      if (inf && (o = elegir(function (t) { return t.prevInf && !(mayor && t.impacto); }, null, 'ini'))) ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' }));
-      if (sup && (o = elegir(function (t) { return t.prevSup; }, null, 'ini'))) ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' }));
+      if (inf && (o = elegir(function (t) { return t.prevInf && !(mayor && t.impacto); }, prefInf, 'ini'))) ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' }));
+      if (sup && (o = elegir(esPrevSup, prefSup, 'ini'))) ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' }));
       if (mayor && (o = elegir(function (t) { return t.movil; }, null, 'ini'))) ini.push(ej(o, { s: 2, reps: 8, desc: 30, rol: 'ini' }));
       var maxIni = mayor ? 4 : 3; if (ini.length > maxIni) { if (mayor) { var mv = ini.pop(); ini = ini.slice(0, maxIni - 1).concat([mv]); } else ini = ini.slice(0, maxIni); }
+      }
       var N = r.tiempo >= 60 ? 9 : (r.tiempo >= 45 ? 7 : 5), F = r.tiempo >= 45 ? 2 : 1, M = N - F;
       var aero = r.obj === 'salud' || r.obj === 'grasa';
       var grupos = r.tipo === 'potencia' ? (M === 4 ? [2, 2] : (M === 5 ? [2, 3] : [2, 2, 3])) : (M === 4 ? [2, 2] : (M === 5 ? [3, 2] : [3, 2, 2]));
@@ -7119,7 +7157,7 @@ window.GAGOR_reducirFoto = function (file) {
       var potDe = { rodilla: 'potRodilla', cadera: 'potCadera', empuje: 'potEmpuje', traccion: 'potTraccion' };
       var princ = [], letras = 'ABCDEF', sinPot = 0;
       grupos.forEach(function (tam, gi) {
-        var tipoM = ordenMain[gi % ordenMain.length], L = letras[gi], grupo = [];
+        var tipoM = ordenMain[gi % ordenMain.length], L = letras[gi], grupo = []; enGrupo = [];
         var ALT = { rodilla: 'cadera', cadera: 'rodilla', empuje: 'traccion', traccion: 'empuje' };
         var pesoMain = function (t) { return (t.compuesto ? 3 : 0) - (t.aislado ? 3 : 0) + (gi === 2 && t.uni ? 1 : 0); };
         var main = elegir(function (t) { return t[tipoM] && !t.isom; }, pesoMain, 'main:' + tipoM);
@@ -7161,6 +7199,7 @@ window.GAGOR_reducirFoto = function (file) {
         bloques.push({ _u: ST.uid(), titulo: 'Final', circuito: false, ejercicios: fin }); }
       var huecos = N - princ.length - (aero ? F : finN); if (huecos > 0) avisos.push('Quedan ' + huecos + ' huecos sin ejercicio (no hay candidatos en la Biblioteca con esas condiciones).');
       if (usoAp) avisos.push('Ha tenido en cuenta lo aprendido de tus correcciones en ' + usoAp + (usoAp === 1 ? ' ejercicio.' : ' ejercicios.'));
+      if (usoHab && HB.n) avisos.push(usoHab + (usoHab === 1 ? ' ejercicio elegido' : ' ejercicios elegidos') + ' por cómo programas tú (' + HB.n + (HB.n === 1 ? ' sesión o plantilla tuya analizada).' : ' sesiones y plantillas tuyas analizadas).'));
       var nombreFoco = { inferior: 'Tren inferior', superior: 'Tren superior', completo: 'Cuerpo completo' }[foco];
       var prop = []; bloques.forEach(function (b) { (b.ejercicios || []).forEach(function (e) { prop.push({ ejId: e.ejId, rol: e._rol, ctx: e._ctx, s: Number(e.series) || 0, r: Number(e.lado ? e.repsIzq : e.reps) || 0, rpe: Number(e.rpe) || 0 }); }); });
       var rpes = prop.filter(function (q) { return q.rpe; }).map(function (q) { return q.rpe; });
@@ -7201,6 +7240,9 @@ window.GAGOR_reducirFoto = function (file) {
       Object.keys(A.pen).forEach(function (k) { var o = A.pen[k]; L.push('evita ' + nom(o.ejId) + ' [' + ctxLabel(o.ctx) + '] quitado ' + o.quit + ', mantenido ' + o.keep + (o.cli ? ', cambiado por clientes ' + o.cli : '')); });
       Object.keys(A.bonus).forEach(function (k) { L.push('prefiere ' + nom(k) + ' (añadido ' + A.bonus[k].n + ' veces)'); });
       Object.keys(A.params).forEach(function (e) { var p = A.params[e]; L.push('ajuste ' + e + ': ' + JSON.stringify({ series: p.ds || 0, reps: p.dr || 0, rpe: p.drpe || 0, muestras: p.n })); });
+      var HB3 = genHabitos(); L.push('', '== CÓMO PROGRAMAS TÚ (' + HB3.n + ' sesiones/plantillas distintas) ==');
+      ['ini', 'main', 'fin'].forEach(function (pos) { var o3 = HB3.pos[pos]; L.push(({ ini: 'Principio', main: 'Principal', fin: 'Final' })[pos] + ': ' + Object.keys(o3).sort(function (a, b) { return o3[b] - o3[a]; }).slice(0, 12).map(function (id) { return nom(id) + ' (' + o3[id] + ')'; }).join(', ')); });
+      L.push('Superseries: ' + Object.keys(HB3.pares).filter(function (k) { var p3 = k.split('>'); return p3[0] < p3[1]; }).sort(function (a, b) { return HB3.pares[b] - HB3.pares[a]; }).slice(0, 15).map(function (k) { var p3 = k.split('>'); return nom(p3[0]) + ' + ' + nom(p3[1]) + ' (' + HB3.pares[k] + ')'; }).join(', '));
       L.push('', '== ETIQUETAS MANUALES ==');
       state.ejercicios.forEach(function (x) { var g = x.gen && x.gen.tags; if (g && g.manual) L.push(x.nombre + ' · papel: ' + (g.roles || []).join(', ') + ' · carga: ' + ((g.carga || []).join(', ') || '—') + (g.impacto ? ' · impacto' : '')); });
       var txt = L.join('\n'); var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' }); var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'GAGOR aprendizaje generador ' + hoyIso + '.txt'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
@@ -7224,6 +7266,9 @@ window.GAGOR_reducirFoto = function (file) {
           sec('Series, reps y RPE', Object.keys(A.params).map(function (e) { var p = A.params[e]; return item(e.charAt(0).toUpperCase() + e.slice(1) + 's: ' + [p.ds ? (p.ds > 0 ? '+' : '') + p.ds + ' serie' : null, p.dr ? (p.dr > 0 ? '+' : '') + p.dr + ' reps' : null, p.drpe ? (p.drpe > 0 ? '+' : '') + p.drpe + ' RPE' : null].filter(Boolean).join(' · '), 'De ' + p.n + ' ejercicios básicos que corregiste', function () { var ids = p.ses; commit(function (st) { st.sesiones.forEach(function (s) { if (ids.indexOf(s.id) >= 0 && s.genLog) s.genLog.ignorarParams = true; }); }); }); }), 'Sin ajustes: hacen falta al menos 3 correcciones parecidas en el mismo nivel.'),
           sec('Lo que hacen los clientes', sg.total ? [item(sg.hechas + ' de ' + sg.total + ' sesiones generadas hechas', sg.sinHacer ? sg.sinHacer + ' sin hacer' : null)].concat(Object.keys(sg.rpe).map(function (e) { var q = sg.rpe[e], d0 = Math.round(q.d / q.n * 10) / 10; return item(e.charAt(0).toUpperCase() + e.slice(1) + 's: RPE real ' + (d0 > 0 ? '+' : '') + String(d0).replace('.', ',') + ' sobre lo programado', 'Media de ' + q.n + (q.n === 1 ? ' sesión' : ' sesiones') + (Math.abs(d0) >= 1.5 && q.n >= 3 ? ' · ' + (d0 > 0 ? 'les resultan más duras de lo previsto' : 'les resultan más fáciles de lo previsto') : ''), null, Math.abs(d0) >= 1.5 && q.n >= 3 ? 'is-veto' : ''); }))
             .concat(Object.keys(sg.cambiadas).map(function (id) { return item(nom(id), 'Los clientes lo cambiaron por otro ' + sg.cambiadas[id] + (sg.cambiadas[id] === 1 ? ' vez' : ' veces')); })) : [], 'Todavía no hay sesiones generadas de días pasados.'),
+          (function () { var HB2 = genHabitos(); function top(pos) { var o2 = HB2.pos[pos]; return Object.keys(o2).sort(function (a, b) { return o2[b] - o2[a]; }).slice(0, 6).map(function (id) { return nom(id) + ' (' + o2[id] + ')'; }).join(' · '); }
+            var pares = Object.keys(HB2.pares).filter(function (k) { var p2 = k.split('>'); return p2[0] < p2[1]; }).sort(function (a, b) { return HB2.pares[b] - HB2.pares[a]; }).slice(0, 5).map(function (k) { var p2 = k.split('>'); return nom(p2[0]) + ' + ' + nom(p2[1]) + ' (' + HB2.pares[k] + ')'; }).join(' · ');
+            return sec('Cómo programas tú (' + HB2.n + ' sesiones y plantillas distintas)', HB2.n ? [item('Al principio', top('ini') || '—'), item('En el principal', top('main') || '—'), item('Al final', top('fin') || '—'), item('Superseries que más repites', pares || '—')] : [], 'Aún no hay sesiones tuyas que analizar.'); })(),
           sec('Etiquetas de la Biblioteca', [item(etiq + ' de ' + state.ejercicios.length + ' ejercicios etiquetados a mano', 'El resto se clasifica por grupo y nombre (automático).')]),
           h('div', { className: 'rowline', style: { flexWrap: 'wrap', justifyContent: 'flex-start' } },
             h(G.Button, { size: 'md', icon: 'exportar', onClick: genExportar }, 'Exportar para revisar con Claude'),
