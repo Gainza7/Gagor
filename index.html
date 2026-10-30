@@ -3294,7 +3294,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.58";
+<script>window.GAGOR_VERSION = "1.59";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6991,17 +6991,19 @@ window.GAGOR_reducirFoto = function (file) {
        Principal (potencia): pareja fuerza + potencia del mismo vector (4×4 pesado + 4×4 explosivo).
        Final: brazos, hombros o core; aeróbico si el objetivo es salud o perder grasa.
        Volumen sin contar el inicio: 30' = 5, 45' = 7, 60' = 9. Escala A de series/reps/RPE. */
-    var GEN_ZONAS = ['Rodilla', 'Tobillo', 'Cadera', 'Lumbar', 'Hombro', 'Codo/muñeca', 'Cervical'];
+    var GEN_ZONAS = ['Rodilla', 'Tobillo', 'Cadera', 'Abd./aductores', 'Lumbar', 'Hombro', 'Codo/muñeca', 'Cervical'];
     var GEN_EXCL = {
       'Rodilla': /extensi[oó]n de cu[aá]driceps|sentadilla|zancada|subida al caj|skater|cosaca|bajada exc|prensa|hack|split|lunge|squat|step|salto|jump|pogo|valla|drop|aterrizaje|pistol/,
       'Tobillo': /salto|jump|pogo|valla|drop|zancada|skater|cosaca|comba|carrera|sprint|trineo|aterrizaje|desplazamiento|bound/,
       'Cadera': /peso muerto|hip thrust|sumo|buenos d|cosaca|zancada lateral|copenhag|sentadilla profunda|swing|cargada|deadlift/,
+      // 1.59 · abductores / aductores
+      'Abd./aductores': /copenhag|plancha lateral|side plank|aducci|aductor|adductor|abducci|abductor|abduction|paso lateral|band walk|lateral walk|monster|clamshell|almeja|zancada lateral|lateral lunge|cosaca|cossack|sumo|skater|desplazamientos defensivos|5-10-5|ida y vuelta/,
       'Lumbar': /peso muerto|buenos d|remo con barra|sentadilla trasera|sentadilla frontal|sentadilla con pausa|sentadilla a caja|hiperextensi|swing|cargada|deadlift|good morning|rueda abdominal|salto con barra/,
       'Hombro': /press militar|press banca|fondos|dominada|jal[oó]n|press inclinado|elevaciones laterales|pullover|colgado|lanzamiento|slam|landmine|press con mancuernas|press de pecho|flexiones|overhead/,
       'Codo/muñeca': /curl|b[ií]ceps|tr[ií]ceps|fondos|flexiones|press banca|dominada|jal[oó]n|rueda abdominal|paseo del granjero|paseo con peso|colgado/,
       'Cervical': /press militar|encogimiento|sentadilla trasera|buenos d|pullover|colgado|shrug/
     };
-    var GEN_PREV = { 'Rodilla': /isom[eé]trica en pared|tibial|aducci[oó]n isom|puente de isquios isom/, 'Tobillo': /tobillo|gemelo|s[oó]leo|tibial/, 'Cadera': /cadera 90|movilidad de cadera|flexor de cadera|paso lateral/, 'Lumbar': /bird dog|dead bug|gato/, 'Hombro': /rotaci[oó]n externa|y-t-w|deslizamientos en pared|face pull/, 'Codo/muñeca': /^$/, 'Cervical': /tor[aá]cica|gato/ };
+    var GEN_PREV = { 'Rodilla': /isom[eé]trica en pared|tibial|aducci[oó]n isom|puente de isquios isom/, 'Tobillo': /tobillo|gemelo|s[oó]leo|tibial/, 'Cadera': /cadera 90|movilidad de cadera|flexor de cadera|paso lateral/, 'Lumbar': /bird dog|dead bug|gato/, 'Hombro': /rotaci[oó]n externa|y-t-w|deslizamientos en pared|face pull/, 'Codo/muñeca': /^$/, 'Cervical': /tor[aá]cica|gato/, 'Abd./aductores': /movilidad de aductores|90\/90|puente de gl[uú]teo$/ };
     function genTagsAuto(x) {
       var n = ntx(x.nombre), p = x.patron || '', mat = ntx((x.material || []).join(' ')), t = {};
       var isom = /isom|pared|plancha|hold|mantenid|copenhag|wall sit|paseo|granjero|carry/.test(n);
