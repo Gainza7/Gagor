@@ -3294,7 +3294,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.60";
+<script>window.GAGOR_VERSION = "1.61";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -7012,7 +7012,13 @@ window.GAGOR_reducirFoto = function (file) {
       if (/^Unilateral/.test(p)) { if (/peso muerto|puente|hip|una pierna al/.test(n) && !/sentadilla/.test(n)) t.cadera = 1; else t.rodilla = 1; }
       if (/^Cadera/.test(p)) { if (/puente de gluteo$|isom/.test(n)) t.prevInf = 1; else t.cadera = 1; }
       if (/copenhag|aducci|aductor|abducci|abductor|paso lateral|monster|clamshell|almeja|plancha lateral|side plank|lateral walk|band walk|hip airplane/.test(n)) t.abd = 1;
-      if (/^Core/.test(p)) t.core = 1;
+      // 1.61 · cuatro tipos de core (palabras del entrenador): Arr = antiextensión, Ab = antiflexión, Rot = antirrotación, Lat = planchas e inclinaciones laterales
+      var esCore = /^Core/.test(p);
+      if (/plancha lateral|side plank|copenhag|inclinacion lateral|inclinaciones laterales|side bend|paseo con peso a una mano|suitcase|maleta/.test(n)) t.coreLat = 1;
+      else if (/pallof|antirrot|anti rot|lenador|woodchop|renegade|chop/.test(n) || (esCore && /rotac|giro|twist/.test(n))) t.coreRot = 1;
+      else if (/bird dog|superman|hiperextension isom|extension lumbar isom|back extension hold|paseo del granjero|farmer/.test(n)) t.coreAb = 1;
+      else if (/plancha frontal|^plancha$|plank|rueda|ab wheel|dead bug|hollow|body saw|rollout|colgado|elevacion de piernas/.test(n) || esCore) t.coreArr = 1;
+      if (t.coreArr || t.coreAb || t.coreRot || t.coreLat) t.core = 1;
       if (/^Condici/.test(p) || /bici|bike|remoerg|rower|skierg|ski erg|comba|carrera|sprint|trineo|sled|cinta|eliptica|assault/.test(n)) t.cond = 1;
       if (/^Empuje/.test(p) && !/elevaciones laterales|triceps/.test(n)) t.empuje = 1;
       if (/^Tracci/.test(p) && !/face pull|curl|biceps|pullover/.test(n)) t.traccion = 1;
@@ -7039,11 +7045,11 @@ window.GAGOR_reducirFoto = function (file) {
        · De esos registros (y de lo que hacen los clientes) salen preferencias por ejercicio y contexto, y ajustes de series/reps/RPE.
        · 👍/👎 y etiquetas manuales se guardan en el propio ejercicio (x.gen), que se sincroniza. Deshacer = olvidar lo aprendido hasta hoy. */
     var GEN_ROL = { ini: 'Inicio', 'main:rodilla': 'Básico de rodilla', 'main:cadera': 'Básico de cadera', 'main:empuje': 'Básico de empuje', 'main:traccion': 'Básico de tracción', 'acc:inf': 'Abductores / aductores', 'acc:sup': 'Hombro (en superserie)', core: 'Core', pot: 'Potencia', fin: 'Final' };
-    var GEN_PAPEL = [['rodilla', 'Rodilla'], ['cadera', 'Cadera (posterior)'], ['abd', 'Abd. / aductores'], ['empuje', 'Empuje'], ['traccion', 'Tracción'], ['hombro', 'Hombro'], ['brazo', 'Brazo'], ['core', 'Core'], ['prevInf', 'Prev. inferior'], ['prevSup', 'Prev. superior'], ['movil', 'Movilidad'], ['potRodilla', 'Pot. rodilla'], ['potCadera', 'Pot. cadera'], ['potEmpuje', 'Pot. empuje'], ['potTraccion', 'Pot. tracción'], ['cond', 'Condición']];
+    var GEN_PAPEL = [['rodilla', 'Rodilla'], ['cadera', 'Cadera (posterior)'], ['abd', 'Abd. / aductores'], ['empuje', 'Empuje'], ['traccion', 'Tracción'], ['hombro', 'Hombro'], ['brazo', 'Brazo'], ['coreArr', 'Core Arr (antiextensión)'], ['coreAb', 'Core Ab (antiflexión)'], ['coreRot', 'Core Rot (antirrotación)'], ['coreLat', 'Core Lat (lateral)'], ['prevInf', 'Prev. inferior'], ['prevSup', 'Prev. superior'], ['movil', 'Movilidad'], ['potRodilla', 'Pot. rodilla'], ['potCadera', 'Pot. cadera'], ['potEmpuje', 'Pot. empuje'], ['potTraccion', 'Pot. tracción'], ['cond', 'Condición']];
     function ctxLabel(ctx) { var p = String(ctx).split('|'); return (GEN_ROL[p[0]] || p[0]) + (p[1] === '55' ? ' · mayores de 55' : ''); }
     function genAuto(x) { var t = genTagsAuto(x), n = ntx(x.nombre); return { roles: GEN_PAPEL.map(function (q) { return q[0]; }).filter(function (k) { return t[k]; }), carga: GEN_ZONAS.filter(function (z) { return GEN_EXCL[z].test(n); }), impacto: !!t.impacto }; }
     function genTags(x) { var t = genTagsAuto(x); var g = x.gen && x.gen.tags; if (!g || !g.manual) return t;
-      var o = { isom: t.isom, uni: t.uni, compuesto: t.compuesto, aislado: t.aislado, impacto: !!g.impacto }; (g.roles || []).forEach(function (k) { o[k] = 1; }); return o; }
+      var o = { isom: t.isom, uni: t.uni, compuesto: t.compuesto, aislado: t.aislado, impacto: !!g.impacto }; (g.roles || []).forEach(function (k) { o[k] = 1; }); if (o.coreArr || o.coreAb || o.coreRot || o.coreLat) o.core = 1; return o; }
     function cargaZonas(x, n) { var g = x.gen && x.gen.tags; if (g && g.manual) return g.carga || []; return GEN_ZONAS.filter(function (z) { return GEN_EXCL[z].test(n); }); }
     function genAprendizaje() {
       var ej = {}; state.ejercicios.forEach(function (x) { ej[x.id] = x; });
@@ -7074,12 +7080,14 @@ window.GAGOR_reducirFoto = function (file) {
       var pool = state.ejercicios.map(function (x) { var n = ntx(x.nombre); return { x: x, t: genTags(x), n: n, z: cargaZonas(x, n) }; }).filter(function (o) {
         var malo = zonas.some(function (z) { return o.z.indexOf(z) >= 0; }); if (malo) quitados++; return !malo; });
       if (zonas.length) avisos.push('Dolor o lesión en ' + zonas.join(', ').toLowerCase() + ': quitados ' + quitados + ' ejercicios que cargan esa zona. Revísala antes de mandarla.');
+      var coreUsado = {}; function tipoCore(t) { return t.coreArr ? 'arr' : (t.coreAb ? 'ab' : (t.coreRot ? 'rot' : (t.coreLat ? 'lat' : 'otro'))); }
+      function penCore(t) { return t.core && coreUsado[tipoCore(t)] ? -3 : 0; }
       function ctxDe(rol) { return rol + (mayor ? '|55' : ''); }
       function elegir(fn, extra, rol) { var ctx = rol ? ctxDe(rol) : null;
         var cand = pool.filter(function (o) { var g = o.x.gen || {}; return !usados[o.x.id] && fn(o.t, o) && !(ctx && g.veto && g.veto[ctx]); }); if (!cand.length) return null;
         cand.forEach(function (o) { var g = o.x.gen || {}, ap = 0; if (ctx) { if (g.fav && g.fav[ctx]) ap += 2.5; var pe = AP.pen[o.x.id + '|' + ctx]; if (pe) ap += pe.score; } if (AP.bonus[o.x.id]) ap += AP.bonus[o.x.id].score;
-          o.ap = ap; o.p = Math.random() + (semana[o.x.id] ? 0 : 1.2) + (o.x.videoUrl ? 0.4 : 0) + (extra ? extra(o.t, o) : 0) + ap; });
-        cand.sort(function (a, b) { return b.p - a.p; }); if (cand[0].ap) usoAp++; usados[cand[0].x.id] = 1; return cand[0]; }
+          o.ap = ap; o.p = Math.random() + (semana[o.x.id] ? 0 : 1.2) + (o.x.videoUrl ? 0.4 : 0) + (extra ? extra(o.t, o) : 0) + ap + penCore(o.t); });
+        cand.sort(function (a, b) { return b.p - a.p; }); if (cand[0].ap) usoAp++; usados[cand[0].x.id] = 1; if (cand[0].t.core) coreUsado[tipoCore(cand[0].t)] = 1; return cand[0]; }
       var exp = r.exp || 'intermedio';
       var S0 = exp === 'principiante' ? { s: 3, reps: 10, rpe: 6 } : (exp === 'avanzado' ? { s: 4, reps: 6, rpe: 8 } : { s: r.tiempo >= 45 ? 4 : 3, reps: 8, rpe: 7 });
       var PA = AP.params[exp]; if (PA && r.tipo === 'fuerza') { S0.s = Math.max(1, S0.s + (PA.ds || 0)); S0.reps = Math.max(1, S0.reps + (PA.dr || 0)); S0.rpe = Math.max(4, Math.min(10, S0.rpe + (PA.drpe || 0)));
