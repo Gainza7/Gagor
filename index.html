@@ -3294,7 +3294,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.61";
+<script>window.GAGOR_VERSION = "1.62";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -5429,11 +5429,16 @@ window.GAGOR_reducirFoto = function (file) {
       var s = props.sesion; if (!s) return h(G.EmptyState, { title: props.fecha === hoyIso ? t('Hoy toca descansar') : t('Sin sesión ese día'), detail: props.fecha > hoyIso ? t('Tu entrenador aún no ha programado nada.') : t('Día de descanso.') });
       var fl = flat(s); var tt = totales(s);
       var meta = s.estado === 'hecha' ? t('Hecha · RPE ') + (s.rpe || '—') : (s.fecha < hoyIso ? t('Sin hacer') : (s.fecha === hoyIso ? tt.done + '/' + tt.all + t(' series') : fl.length + t(' ejercicios')));
-      return h(G.ListGroup, { title: ST.fmtFecha(s.fecha) + ' · ' + t(s.titulo), meta: meta },
-        fl.map(function (fx, i) { var e = fx.e;
-          return h(G.ExerciseRow, { key: fx.key, index: ST.etiquetas(s.bloques)[fx.key] || i + 1, name: ST.nombreEj(state, e.ejId), sets: e.series, reps: ST.repTxt(e), load: e.carga, loadX: e.cargaX, state: exDone(s, fx) && s.estado !== 'pendiente' || (s.estado === 'hecha') ? 'done' : 'pending',
-            onOpen: s.fecha <= hoyIso ? function () { setSesId(s.id); setIdx(i); setView('sesion'); } : undefined });
-        }));
+      // 1.62 · también los bloques de bici (antes solo salían los ejercicios y la bici «desaparecía» al abrir la sesión desde otro día)
+      var filas = []; s.bloques.forEach(function (b, bi) {
+        if (b.intervalos) { var hecho = ivDone(s, bi), tt0 = G.intTotal(b.intervalos);
+          filas.push(h('button', { key: 'iv' + bi, type: 'button', className: 'ivrow' + (hecho ? ' is-done' : ''), disabled: s.fecha > hoyIso, onClick: function () { setSesId(s.id); setIvBi(bi); setView('intervalos'); } },
+            h('span', null, h('b', null, (hecho ? '✓ ' : '') + t(b.titulo)), h('small', null, t('Bici · ') + fmtS(tt0) + ' min · ' + b.intervalos.length + t(' tramos'))), h(G.Icon, { name: 'reproducir', size: 22 }), h(G.IntervalProfile, { tramos: b.intervalos })));
+          return; }
+        fl.forEach(function (fx, i) { if (fx.key.split('-')[0] !== String(bi)) return; var e = fx.e;
+          filas.push(h(G.ExerciseRow, { key: fx.key, index: ST.etiquetas(s.bloques)[fx.key] || i + 1, name: ST.nombreEj(state, e.ejId), sets: e.series, reps: ST.repTxt(e), load: e.carga, loadX: e.cargaX, state: exDone(s, fx) && s.estado !== 'pendiente' || (s.estado === 'hecha') ? 'done' : 'pending',
+            onOpen: s.fecha <= hoyIso ? function () { setSesId(s.id); setIdx(i); setView('sesion'); } : undefined })); }); });
+      return h(G.ListGroup, { title: ST.fmtFecha(s.fecha) + ' · ' + t(s.titulo), meta: meta }, filas);
     }
     function regs(s, key, e) {
       if (!s.registros[key]) { var a = [], lr = ST.ladoReps(e); for (var i = 0; i < e.series; i++) { if (e.lado) a.push({ reps: lr[0], repsD: lr[1], carga: e.carga, done: false }); else a.push({ reps: e.reps, carga: e.carga, done: false }); } return a; }
@@ -5459,6 +5464,7 @@ window.GAGOR_reducirFoto = function (file) {
       return null;
     }
     function totales(s) { var d = 0, a = 0; flat(s).forEach(function (fx) { regs(s, fx.key, fx.e).forEach(function (r) { a++; if (r.done) d++; }); }); return { done: d, all: a }; }
+    function finEjercicios() { var quedaIv = ses && ses.bloques.some(function (b, k) { return b.intervalos && !ivDone(ses, k); }); setView(quedaIv ? 'resumen' : 'cierre'); }
     function ivDone(s, bi) { return ((s.registros || {})['iv' + bi] || []).some(function (r) { return r && r.done; }); }
     function fmtS(sg) { return Math.floor(sg / 60) + ':' + ('0' + (sg % 60)).slice(-2); }
     function Intervalos() {
@@ -5772,7 +5778,7 @@ window.GAGOR_reducirFoto = function (file) {
         ),
         h('div', { className: 'bar bar--stack' }, cur.circ ? (timerKey > 0 && finVuelta && sigC ? h(G.RestTimer, { key: timerKey, className: 'g-timer--bar', label: t('Descanso de la vuelta'), total: e.descanso, seconds: e.descanso, running: true, onEnd: function () { var k = timerKey; setTimeout(function () { setTimerKey(function (v) { return v === k ? 0 : v; }); }, 3000); }, onSkip: function () { setTimerKey(0); } }) : null) : timerKey > 0 && ssSig ? h('div', { className: 'ssnext' }, h('p', null, t('Sin descanso: pasa a ') + ST.nombreEj(state, ssSig.e.ejId) + '.'), h(G.Button, { full: true, variant: 'secondary', icon: 'adelante', onClick: function () { setTimerKey(0); setIdx(fl.findIndex(function (x) { return x.key === ssSig.key; })); } }, t('Ir a ') + ST.etiquetas(ses.bloques)[ssSig.key]))
             : (timerKey > 0 ? h(G.RestTimer, { key: timerKey, className: 'g-timer--bar', total: e.descanso, seconds: e.descanso, running: true, onEnd: function () { var k = timerKey; setTimeout(function () { setTimerKey(function (v) { return v === k ? 0 : v; }); }, 3000); }, onSkip: function () { setTimerKey(0); } }) : null),
-          !cur.circ && timerKey > 0 && !ssSig && ssVuelta ? h(G.Button, { full: true, variant: 'ghost', icon: 'atras', onClick: function () { setTimerKey(0); setIdx(fl.findIndex(function (x) { return x.key === ssVuelta.key; })); } }, t('Después, vuelve a ') + ST.etiquetas(ses.bloques)[ssVuelta.key]) : null, h(G.Button, { full: true, icon: last ? 'check' : 'adelante', onClick: function () { setTimerKey(0); if (cur.circ) { if (!sigC) { setView('cierre'); return; } setIdx(sigC.i); setRonda({ i: sigC.i, r: sigC.r }); return; } last ? setView('cierre') : setIdx(idx + 1); } }, cur.circ ? (sigC ? t('Siguiente: ') + ST.nombreEj(state, fl[sigC.i].e.ejId) : t('Terminar sesión')) : (last ? t('Terminar sesión') : t('Siguiente ejercicio'))))
+          !cur.circ && timerKey > 0 && !ssSig && ssVuelta ? h(G.Button, { full: true, variant: 'ghost', icon: 'atras', onClick: function () { setTimerKey(0); setIdx(fl.findIndex(function (x) { return x.key === ssVuelta.key; })); } }, t('Después, vuelve a ') + ST.etiquetas(ses.bloques)[ssVuelta.key]) : null, h(G.Button, { full: true, icon: last ? 'check' : 'adelante', onClick: function () { setTimerKey(0); if (cur.circ) { if (!sigC) { finEjercicios(); return; } setIdx(sigC.i); setRonda({ i: sigC.i, r: sigC.r }); return; } last ? finEjercicios() : setIdx(idx + 1); } }, cur.circ ? (sigC ? t('Siguiente: ') + ST.nombreEj(state, fl[sigC.i].e.ejId) : t('Terminar sesión')) : (last ? t('Terminar sesión') : t('Siguiente ejercicio'))))
       );
     }
     function cambiarEjercicio(x, y) {
@@ -5801,10 +5807,10 @@ window.GAGOR_reducirFoto = function (file) {
       }
       function advance() {
         if (sigG) { setIdx(sigG.i); setGuide({ si: sigG.r, phase: 'work', key: guide.key + 1 }); return; }
-        if (pG >= 0) { setView('cierre'); return; }
+        if (pG >= 0) { finEjercicios(); return; }
         if (!lastSet) setGuide({ si: guide.si + 1, phase: 'work', key: guide.key + 1 });
         else if (!lastEx) { setIdx(idx + 1); setGuide({ si: 0, phase: 'work', key: guide.key + 1 }); }
-        else setView('cierre');
+        else finEjercicios();
       }
       var body;
       if (guide.phase === 'work') body = [
@@ -5819,7 +5825,7 @@ window.GAGOR_reducirFoto = function (file) {
             onChange: function (val) { setRow(ses, cur.key, e, guide.si, Object.assign({}, row, { reps: val.reps, repsD: val.repsD, carga: val.load, done: true })); } })),
           h(G.Button, { full: true, icon: 'check', onClick: function () {
             var cur2 = regs(ses, cur.key, e)[guide.si]; setRow(ses, cur.key, e, guide.si, Object.assign({}, cur2, { done: true }));
-            if (lastSet && lastEx) { setView('cierre'); return; }
+            if (lastSet && lastEx) { finEjercicios(); return; }
             if (sinDescanso) { advance(); return; } // circuito: sin descanso hasta acabar la vuelta
             setGuide(Object.assign({}, guide, { phase: 'rest', key: guide.key + 1 }));
           } }, sinDescanso ? t('Confirmar y siguiente ejercicio') : t('Confirmar y descansar')))];
