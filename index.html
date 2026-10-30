@@ -625,6 +625,18 @@
 .cnotes__i { display: grid; gap: 1px; padding: 8px 10px; border-radius: 10px; background: var(--surface-card); }
 .cnotes__i b { font-size: 13px; color: var(--ink-muted); } .cnotes__i span { font-size: 16px; line-height: 22px; font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
 
+
+/* ---------- Generador de sesiones (1.57) ---------- */
+.dses__box.gqbox { max-width: 620px; display: grid; gap: 12px; }
+.gq__f { display: grid; gap: 6px; }
+.gq__l { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); }
+.gq__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.gq__chip { padding: 8px 12px; border-radius: 99px; border: 1px solid var(--line-strong); background: var(--surface-card); color: var(--ink); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.gq__chip.is-on { background: var(--ink); color: var(--surface-card); border-color: var(--ink); }
+.gq__edad { width: 90px; }
+.genav { display: grid; gap: 4px; padding: 12px 14px; border-radius: var(--radius-md); background: var(--alert-soft); border: 1px solid var(--alert); }
+.genav p { margin: 0; } .genav__t { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--alert); } .genav__a { font-size: 14px; }
+
 /* ---------- BrandBackdrop ---------- */
 .g-backdrop { position: absolute; inset: 0; overflow: hidden; pointer-events: none; color: var(--ink); }
 .g-backdrop__art { position: absolute; top: 0; left: 50%; height: 100%; aspect-ratio: 788 / 1024; transform: translateX(-50%); }
@@ -3253,7 +3265,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.56";
+<script>window.GAGOR_VERSION = "1.57";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6176,6 +6188,7 @@ window.GAGOR_reducirFoto = function (file) {
     var mze = useState(null); var mesoEd = mze[0], setMesoEd = mze[1];
     var crp = useState(''); var cierreRpe = crp[0], setCierreRpe = crp[1];
     var pke = useState(null); var pickEj = pke[0], setPickEj = pke[1];
+    var gnq = useState(null); var genQ = gnq[0], setGenQ = gnq[1];
     var gnv = useState([]); var gruposNuevos = gnv[0], setGruposNuevos = gnv[1]; var gtx = useState(''); var grupoTxt = gtx[0], setGrupoTxt = gtx[1];
     var mc = useState(null); var mesCal = mc[0], setMesCal = mc[1];
     var ta = useState(false); var show = ta[0], setShow = ta[1];
@@ -6311,7 +6324,7 @@ window.GAGOR_reducirFoto = function (file) {
             h(G.Button, { size: 'md', variant: 'secondary', icon: 'exportar', title: 'Descarga la sesión en una tabla Excel (se abre en Google Sheets)', onClick: function () { exportarTabla(s); } }, 'Tabla Excel'),
             h(G.Button, { size: 'md', variant: 'ghost', onClick: function () { setVerSes(null); } }, 'Cerrar'))));
     }
-    function shell(content) { return h('div', { className: 'app' }, Nav(), h('div', { className: 'main' }, content), DetalleSesion(), probarIv ? h('div', { className: 'ivover', role: 'dialog', 'aria-modal': 'true' }, h(G.IntervalPlayer, { bloque: probarIv.bloque, titulo: 'Vista previa · ' + probarIv.titulo, finLabel: 'Cerrar', onExit: function () { setProbarIv(null); }, onFinish: function () { setProbarIv(null); } })) : null); }
+    function shell(content) { return h('div', { className: 'app' }, Nav(), h('div', { className: 'main' }, content), DetalleSesion(), GenModal(), probarIv ? h('div', { className: 'ivover', role: 'dialog', 'aria-modal': 'true' }, h(G.IntervalPlayer, { bloque: probarIv.bloque, titulo: 'Vista previa · ' + probarIv.titulo, finLabel: 'Cerrar', onExit: function () { setProbarIv(null); }, onFinish: function () { setProbarIv(null); } })) : null); }
     function adherencia(c) {
       var ses = state.sesiones.filter(function (s) { return s.clienteId === c.id && s.fecha <= hoyIso && s.fecha >= ST.iso(ST.addDays(ST.hoy, -28)); });
       return { done: ses.filter(function (s) { return s.estado === 'hecha'; }).length, planned: ses.length };
@@ -6591,9 +6604,11 @@ window.GAGOR_reducirFoto = function (file) {
                       h('select', { className: 'cwk__sel', value: '', 'aria-label': 'Añadir sesión el ' + DSEM[k] + ' ' + Number(d.slice(8)), onChange: function (ev) { var pid = ev.target.value; if (!pid) return; ev.target.value = '';
                           if (pid === '__blanco') { nuevaSesion(c.id, d); return; }
                           if (pid === '__bici') { nuevaBici(c.id, d); return; }
+                          if (pid === '__gen') { preguntarGen(c, d); return; }
                           commit(function (st) { var pl = st.plantillas.filter(function (q) { return q.id === pid; })[0]; if (pl) st.sesiones.push(ST.sesionDesde(pl, c.id, d)); }); } },
                         h('option', { value: '' }, 'Añadir sesión…'),
                         h('option', { value: '__blanco' }, '+ Sesión en blanco'),
+                        h('option', { value: '__gen' }, '+ Generar sesión (preguntas)'),
                         h('option', { value: '__bici' }, '+ HIIT de bici'),
                         state.plantillas.length ? h('optgroup', { label: 'Plantillas' }, state.plantillas.map(function (pl) { return h('option', { key: pl.id, value: pl.id }, pl.nombre); })) : null)));
                 })));
@@ -6719,8 +6734,8 @@ window.GAGOR_reducirFoto = function (file) {
                     s.estado === 'hecha' ? null : h('button', { type: 'button', className: 'link', onClick: function () { setVerSes(s.id); } }, 'Mover'),
                     s.estado === 'hecha' ? null : h('button', { type: 'button', className: 'link', onClick: function () { commit(function (st) { st.sesiones = st.sesiones.filter(function (q) { return q.id !== s.id; }); }); } }, 'Quitar')));
               }) : h('span', { className: 'g-planner__empty' }, 'Descanso'),
-              h('select', { className: 'g-import__select', value: '', style: { marginTop: 'auto' }, onChange: function (e) { var pid = e.target.value; if (!pid) return; if (pid === '__blanco') { nuevaSesion(cliente.id, d.iso); return; } if (pid === '__bici') { nuevaBici(cliente.id, d.iso); return; } commit(function (st) { var pl = st.plantillas.filter(function (q) { return q.id === pid; })[0]; st.sesiones.push(ST.sesionDesde(pl, cliente.id, d.iso)); }); } },
-                h('option', { value: '' }, '+ Añadir…'), state.plantillas.map(function (p) { return h('option', { key: p.id, value: p.id }, p.nombre); }), h('option', { value: '__blanco' }, 'Sesión en blanco'), h('option', { value: '__bici' }, 'HIIT de bici')));
+              h('select', { className: 'g-import__select', value: '', style: { marginTop: 'auto' }, onChange: function (e) { var pid = e.target.value; if (!pid) return; if (pid === '__blanco') { nuevaSesion(cliente.id, d.iso); return; } if (pid === '__bici') { nuevaBici(cliente.id, d.iso); return; } if (pid === '__gen') { preguntarGen(cliente, d.iso); return; } commit(function (st) { var pl = st.plantillas.filter(function (q) { return q.id === pid; })[0]; st.sesiones.push(ST.sesionDesde(pl, cliente.id, d.iso)); }); } },
+                h('option', { value: '' }, '+ Añadir…'), state.plantillas.map(function (p) { return h('option', { key: p.id, value: p.id }, p.nombre); }), h('option', { value: '__blanco' }, 'Sesión en blanco'), h('option', { value: '__gen' }, 'Generar sesión (preguntas)'), h('option', { value: '__bici' }, 'HIIT de bici')));
           }))),
         h('div', { key: 'cp', className: 'rowline', style: { justifyContent: 'flex-start', flexWrap: 'wrap' } },
           h(G.Button, { size: 'md', variant: 'secondary', icon: 'copiar', disabled: !dias.some(function (d) { return sesDia(d.iso).length; }), onClick: function () {
@@ -6937,6 +6952,151 @@ window.GAGOR_reducirFoto = function (file) {
       document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
       return mismos.length;
     }
+    /* 1.57 · GENERADOR DE SESIONES con las reglas del entrenador (solo para él; abre el editor para revisar)
+       Inicio: core + preventivos de poca carga de la extremidad que se trabaja (+ movilidad si > 55 años).
+       Principal (fuerza): superseries/triseries de musculatura distinta —
+         inferior: rodilla o cadera (posterior) + abductores/aductores + core
+         superior: empuje o tracción + hombro + core
+       Principal (potencia): pareja fuerza + potencia del mismo vector (4×4 pesado + 4×4 explosivo).
+       Final: brazos, hombros o core; aeróbico si el objetivo es salud o perder grasa.
+       Volumen sin contar el inicio: 30' = 5, 45' = 7, 60' = 9. Escala A de series/reps/RPE. */
+    var GEN_ZONAS = ['Rodilla', 'Tobillo', 'Cadera', 'Lumbar', 'Hombro', 'Codo/muñeca', 'Cervical'];
+    var GEN_EXCL = {
+      'Rodilla': /extensi[oó]n de cu[aá]driceps|sentadilla|zancada|subida al caj|skater|cosaca|bajada exc|prensa|hack|split|lunge|squat|step|salto|jump|pogo|valla|drop|aterrizaje|pistol/,
+      'Tobillo': /salto|jump|pogo|valla|drop|zancada|skater|cosaca|comba|carrera|sprint|trineo|aterrizaje|desplazamiento|bound/,
+      'Cadera': /peso muerto|hip thrust|sumo|buenos d|cosaca|zancada lateral|copenhag|sentadilla profunda|swing|cargada|deadlift/,
+      'Lumbar': /peso muerto|buenos d|remo con barra|sentadilla trasera|sentadilla frontal|sentadilla con pausa|sentadilla a caja|hiperextensi|swing|cargada|deadlift|good morning|rueda abdominal|salto con barra/,
+      'Hombro': /press militar|press banca|fondos|dominada|jal[oó]n|press inclinado|elevaciones laterales|pullover|colgado|lanzamiento|slam|landmine|press con mancuernas|press de pecho|flexiones|overhead/,
+      'Codo/muñeca': /curl|b[ií]ceps|tr[ií]ceps|fondos|flexiones|press banca|dominada|jal[oó]n|rueda abdominal|paseo del granjero|paseo con peso|colgado/,
+      'Cervical': /press militar|encogimiento|sentadilla trasera|buenos d|pullover|colgado|shrug/
+    };
+    var GEN_PREV = { 'Rodilla': /isom[eé]trica en pared|tibial|aducci[oó]n isom|puente de isquios isom/, 'Tobillo': /tobillo|gemelo|s[oó]leo|tibial/, 'Cadera': /cadera 90|movilidad de cadera|flexor de cadera|paso lateral/, 'Lumbar': /bird dog|dead bug|gato/, 'Hombro': /rotaci[oó]n externa|y-t-w|deslizamientos en pared|face pull/, 'Codo/muñeca': /^$/, 'Cervical': /tor[aá]cica|gato/ };
+    function genTags(x) {
+      var n = ntx(x.nombre), p = x.patron || '', mat = ntx((x.material || []).join(' ')), t = {};
+      var isom = /isom|pared|plancha|hold|mantenid|copenhag|wall sit|paseo|granjero|carry/.test(n);
+      var impacto = /salto|saltad|jump|pogo|valla|drop|bound|pliom|comba|sprint|carrera|aterrizaje/.test(n);
+      if (/^Rodilla/.test(p)) { if (isom || /espanola|inclinado/.test(n)) t.prevInf = 1; else t.rodilla = 1; }
+      if (/^Unilateral/.test(p)) { if (/peso muerto|puente|hip|una pierna al/.test(n) && !/sentadilla/.test(n)) t.cadera = 1; else t.rodilla = 1; }
+      if (/^Cadera/.test(p)) { if (/puente de gluteo$|isom/.test(n)) t.prevInf = 1; else t.cadera = 1; }
+      if (/copenhag|aducci|aductor|abducci|abductor|paso lateral|monster|clamshell|almeja|plancha lateral|side plank|lateral walk|band walk|hip airplane/.test(n)) t.abd = 1;
+      if (/^Core/.test(p)) t.core = 1;
+      if (/^Empuje/.test(p) && !/elevaciones laterales|triceps/.test(n)) t.empuje = 1;
+      if (/^Tracci/.test(p) && !/face pull|curl|biceps|pullover/.test(n)) t.traccion = 1;
+      if (/^Hombros/.test(p) || /face pull|rotacion externa|y t w|ytw|elevaciones laterales|elevacion lateral|pajaro|posterior fly|shoulder|hallo|halo|escapul/.test(n)) t.hombro = 1;
+      if (/^Brazos/.test(p) || (/curl|biceps|triceps|martillo|hammer/.test(n) && !/femoral|nordic|isquio/.test(n))) t.brazo = 1;
+      if (/^Potencia/.test(p) || (/^A\. Exposito/.test(p) && /power|jump|throw/.test(n))) {
+        if (/horizontal|swing|cargada|broad|kettlebell|clean|hip/.test(n)) t.potCadera = 1;
+        else if (/slam|rotacional|rotational|overhead|por encima/.test(n)) t.potTraccion = 1;
+        else if (/lanzamiento|pecho|chest|push press|flexiones pliom/.test(n)) t.potEmpuje = 1;
+        else t.potRodilla = 1;
+      }
+      if (/^(Prevenci|Movilidad)/.test(p) || (/^A\. Exposito/.test(p) && /reset|structural/.test(mat))) {
+        if (/gemelo|soleo|tibial|tobillo|aducci|copenhag|isquio|equilibrio|paso lateral|cadera|gluteo|rodilla|aterrizaje|ankle|knee|hip|glute|calf|adductor|squat|lunge/.test(n)) t.prevInf = 1;
+        if (/rotacion externa|y t w|hombro|toracica|deslizamientos en pared|escapul|shoulder|scap|thoracic|t spine|halo|hallo/.test(n)) t.prevSup = 1;
+        if (/^Movilidad/.test(p) || /equilibrio/.test(n)) t.movil = 1;
+      }
+      t.compuesto = /sentadilla|peso muerto|hip thrust|zancada|subida al|split|bulgara|press|remo|dominada|jalon|landmine|fondos|squat|deadlift|row|lunge/.test(n) && !/extension|curl|elevacion|pullover|isom/.test(n);
+      t.aislado = /extension de cuadriceps|curl femoral|hiperextension|elevaciones laterales|pullover|curl de|extension de triceps/.test(n);
+      t.isom = isom; t.impacto = impacto; t.uni = ST.esUnilateral(state, x.id) || /una pierna|un brazo|a una mano|lateral|copenhag|skater|cosaca/.test(n);
+      return t;
+    }
+    function generarSesion(c, r) {
+      var avisos = [], usados = {}, lun = ST.semanaDe(r.fecha), dom = ST.iso(ST.addDays(new Date(lun + 'T12:00:00'), 6)), semana = {};
+      state.sesiones.forEach(function (q) { if (q.clienteId === c.id && q.fecha >= lun && q.fecha <= dom) ST.ejerciciosPlanos(q).forEach(function (fx) { semana[fx.e.ejId] = 1; }); });
+      var zonas = r.dolor || [], mayor = Number(r.edad) >= 55, quitados = 0;
+      var pool = state.ejercicios.map(function (x) { return { x: x, t: genTags(x), n: ntx(x.nombre) }; }).filter(function (o) {
+        var malo = zonas.some(function (z) { return GEN_EXCL[z] && GEN_EXCL[z].test(o.n); }); if (malo) quitados++; return !malo; });
+      if (zonas.length) avisos.push('Dolor o lesión en ' + zonas.join(', ').toLowerCase() + ': quitados ' + quitados + ' ejercicios que cargan esa zona. Revísala antes de mandarla.');
+      function elegir(fn, extra) { var cand = pool.filter(function (o) { return !usados[o.x.id] && fn(o.t, o); }); if (!cand.length) return null;
+        cand.forEach(function (o) { o.p = Math.random() + (semana[o.x.id] ? 0 : 1.2) + (o.x.videoUrl ? 0.4 : 0) + (extra ? extra(o.t, o) : 0); }); cand.sort(function (a, b) { return b.p - a.p; });
+        usados[cand[0].x.id] = 1; return cand[0]; }
+      // series, reps y RPE (escala A) + actividad + mesociclo
+      var exp = r.exp || 'intermedio';
+      var S0 = exp === 'principiante' ? { s: 3, reps: 10, rpe: 6 } : (exp === 'avanzado' ? { s: 4, reps: 6, rpe: 8 } : { s: r.tiempo >= 45 ? 4 : 3, reps: 8, rpe: 7 });
+      if (r.act === 'baja') { S0.s = Math.max(2, S0.s - 1); S0.rpe = Math.max(5, S0.rpe - 1); avisos.push('Poca actividad semanal: una serie menos y RPE un punto más bajo.'); }
+      var sm = mesoSemana(c, r.fecha);
+      if (sm && r.tipo === 'fuerza') { var rr = rangoNum(sm.reps), rp = rangoNum(sm.rpe); if (rr) S0.reps = Math.round((rr[0] + rr[1]) / 2); if (rp) S0.rpe = rp[0]; avisos.push('Ajustada al mesociclo: semana ' + (sm.k + 1) + ' · ' + semMeso(sm).nombre + (sm.reps ? ' · ' + sm.reps + ' reps' : '') + (sm.rpe ? ' · RPE ' + sm.rpe : '') + '.'); }
+      if (mayor) avisos.push('Mayor de 55: sin saltos ni impacto y un ejercicio más de movilidad.');
+      function ej(o, cfg) { var x = o.x, lado = !!o.t.uni, seg = cfg.seg || (o.t.isom ? (lado ? 20 : 30) : 0), reps = seg ? 1 : cfg.reps;
+        return { _u: ST.uid(), _k: null, ejId: x.id, series: String(cfg.s), reps: String(reps), lado: lado, repsIzq: lado ? String(reps) : '', repsDer: lado ? String(reps) : '', seg: seg ? String(seg) : '', carga: '', descanso: String(cfg.desc || 60), tempo: '', rpe: cfg.rpe ? String(cfg.rpe) : '', ss: cfg.ss || '', nota: '' }; }
+      var foco = r.foco || 'inferior', inf = foco !== 'superior', sup = foco !== 'inferior';
+      // INICIO
+      var ini = [], o;
+      if ((o = elegir(function (t, oo) { return t.core && (t.isom || !/rueda|colgado|granjero/.test(oo.n)); }))) ini.push(ej(o, { s: 2, reps: 10, desc: 30 }));
+      zonas.forEach(function (z) { var re = GEN_PREV[z]; if (re && ini.length < 4 && (o = elegir(function (t, oo) { return re.test(oo.n); }))) ini.push(ej(o, { s: 2, reps: 10, desc: 30 })); });
+      if (inf && (o = elegir(function (t) { return t.prevInf && !(mayor && t.impacto); }))) ini.push(ej(o, { s: 2, reps: 10, desc: 30 }));
+      if (sup && (o = elegir(function (t) { return t.prevSup; }))) ini.push(ej(o, { s: 2, reps: 10, desc: 30 }));
+      if (mayor && (o = elegir(function (t) { return t.movil; }))) ini.push(ej(o, { s: 2, reps: 8, desc: 30 }));
+      var maxIni = mayor ? 4 : 3; if (ini.length > maxIni) { if (mayor) { var mv = ini.pop(); ini = ini.slice(0, maxIni - 1).concat([mv]); } else ini = ini.slice(0, maxIni); }
+      // PRINCIPAL
+      var N = r.tiempo >= 60 ? 9 : (r.tiempo >= 45 ? 7 : 5), F = r.tiempo >= 45 ? 2 : 1, M = N - F;
+      var aero = r.obj === 'salud' || r.obj === 'grasa';
+      var grupos = r.tipo === 'potencia' ? (M === 4 ? [2, 2] : (M === 5 ? [2, 3] : [2, 2, 3])) : (M === 4 ? [2, 2] : (M === 5 ? [3, 2] : [3, 2, 2]));
+      var ordenMain = foco === 'inferior' ? ['rodilla', 'cadera', 'rodilla'] : (foco === 'superior' ? ['empuje', 'traccion', 'empuje'] : ['rodilla', 'traccion', 'cadera', 'empuje']);
+      var potDe = { rodilla: 'potRodilla', cadera: 'potCadera', empuje: 'potEmpuje', traccion: 'potTraccion' };
+      var princ = [], letras = 'ABCDEF', sinPot = 0;
+      grupos.forEach(function (tam, gi) {
+        var tipoM = ordenMain[gi % ordenMain.length], L = letras[gi], grupo = [];
+        var ALT = { rodilla: 'cadera', cadera: 'rodilla', empuje: 'traccion', traccion: 'empuje' };
+        var pesoMain = function (t) { return (t.compuesto ? 3 : 0) - (t.aislado ? 3 : 0) + (gi === 2 && t.uni ? 1 : 0); };
+        var main = elegir(function (t) { return t[tipoM] && !t.isom; }, pesoMain);
+        if (!main && (main = elegir(function (t) { return t[ALT[tipoM]] && !t.isom; }, pesoMain))) tipoM = ALT[tipoM];
+        if (!main) main = elegir(function (t) { return t[tipoM] || t[ALT[tipoM]]; });
+        if (r.tipo === 'potencia') {
+          if (main) grupo.push(ej(main, { s: r.act === 'baja' ? 3 : 4, reps: 4, rpe: r.act === 'baja' ? 7 : 8, desc: 30, ss: L }));
+          var pot = elegir(function (t) { return t[potDe[tipoM]] && !(mayor && t.impacto); }) || elegir(function (t) { return (t.potRodilla || t.potCadera || t.potEmpuje || t.potTraccion) && !(mayor && t.impacto); });
+          if (pot) grupo.push(ej(pot, { s: r.act === 'baja' ? 3 : 4, reps: 4, desc: 120, ss: L })); else sinPot++;
+          if (tam === 3 && (o = elegir(function (t) { return t.core; }))) grupo.push(ej(o, { s: 3, reps: 10, desc: 60, ss: L }));
+        } else {
+          var esInf = tipoM === 'rodilla' || tipoM === 'cadera';
+          if (main) grupo.push(ej(main, { s: S0.s, reps: S0.reps, rpe: S0.rpe, desc: exp === 'avanzado' ? 120 : 90, ss: L }));
+          var acc = elegir(function (t) { return esInf ? t.abd : t.hombro && !t.empuje && !t.traccion; }) || elegir(function (t) { return esInf ? t.prevInf : t.prevSup || t.hombro; });
+          if (acc) grupo.push(ej(acc, { s: S0.s, reps: 12, desc: 60, ss: L }));
+          if (tam === 3 && (o = elegir(function (t) { return t.core; }))) grupo.push(ej(o, { s: S0.s, reps: 12, desc: 60, ss: L }));
+        }
+        if (grupo.length === 1) grupo[0].ss = '';
+        princ = princ.concat(grupo);
+      });
+      if (sinPot) avisos.push(mayor ? 'No hay ejercicios de potencia sin impacto suficientes: revisa los huecos.' : 'Faltan ejercicios de potencia en la Biblioteca para algún vector.');
+      // FINAL
+      var bloques = [{ _u: ST.uid(), titulo: 'Inicio · core y prevención', circuito: false, ejercicios: ini }, { _u: ST.uid(), titulo: r.tipo === 'potencia' ? 'Principal · potencia' : 'Principal · fuerza', circuito: false, ejercicios: princ }];
+      if (aero) bloques.push({ _u: ST.uid(), titulo: 'Final · aeróbico', ejercicios: [], _iv: null, intervalos: [ivBorrador({ tipo: 'calentamiento', seg: 120, rpm: 80, res: '3' }), ivBorrador({ tipo: 'trabajo', seg: F === 2 ? 600 : 360, rpm: 85, res: '4', nota: 'Ritmo cómodo: puedes hablar' })] });
+      else { var fin = [];
+        for (var k = 0; k < F; k++) { var pref = foco === 'superior' ? ['brazo', 'core', 'hombro'] : (foco === 'inferior' ? ['core', 'hombro', 'brazo'] : ['hombro', 'core', 'brazo']);
+          o = elegir(function (t) { return t[pref[k % 3]] && !t.empuje && !t.traccion; }) || elegir(function (t) { return t.core || t.brazo || t.hombro; }); if (o) fin.push(ej(o, { s: 3, reps: 12, desc: 45, ss: F > 1 ? 'F' : '' })); }
+        if (fin.length < 2) fin.forEach(function (e) { e.ss = ''; });
+        bloques.push({ _u: ST.uid(), titulo: 'Final', circuito: false, ejercicios: fin }); }
+      var huecos = N + 0 - princ.length - (aero ? 0 : bloques[2].ejercicios.length) - (aero ? F : 0); if (huecos > 0) avisos.push('Quedan ' + huecos + ' huecos sin ejercicio (no hay candidatos en la Biblioteca con esas condiciones).');
+      var nombreFoco = { inferior: 'Tren inferior', superior: 'Tren superior', completo: 'Cuerpo completo' }[foco];
+      return { titulo: nombreFoco + ' · ' + (r.tipo === 'potencia' ? 'potencia' : 'fuerza'), bloques: bloques, avisos: avisos };
+    }
+    function abrirGenerada(c, r) { var g = generarSesion(c, r);
+      setEd({ tipo: 'sesion', id: null, nombre: g.titulo, fecha: r.fecha, clienteId: c.id, volver: view === 'editor' && ed ? ed.volver : view, sucio: true, error: '', bloques: g.bloques, auto: { avisos: g.avisos, resp: r } }); setConf(''); setAviso(''); setView('editor'); }
+    function GenModal() {
+      if (!genQ) return null; var c = state.clientes.filter(function (q) { return q.id === genQ.cid; })[0]; if (!c) return null; var r = genQ;
+      function set(k, v) { var x = Object.assign({}, genQ); x[k] = v; setGenQ(x); }
+      function chips(k, ops, multi) { return h('div', { className: 'gq__chips' }, ops.map(function (op) { var v = op[0], on = multi ? (r[k] || []).indexOf(v) >= 0 : r[k] === v;
+        return h('button', { key: v, type: 'button', className: 'gq__chip' + (on ? ' is-on' : ''), 'aria-pressed': on ? 'true' : 'false', onClick: function () { if (multi) { var a = (r[k] || []).slice(); var i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else a.push(v); set(k, a); } else set(k, v); } }, op[1]); })); }
+      function fila(t, el) { return h('div', { className: 'gq__f' }, h('span', { className: 'gq__l' }, t), el); }
+      return h('div', { className: 'dses', role: 'dialog', 'aria-modal': 'true', onClick: function (ev) { if (ev.target === ev.currentTarget) setGenQ(null); } },
+        h('div', { className: 'dses__box gqbox' },
+          h('div', { className: 'dses__cab' }, h('div', null, h('p', { className: 'dses__q' }, c.nombre + ' · ' + ST.fmtFecha(r.fecha)), h('h2', { className: 'dses__t' }, 'Generar sesión')), h('button', { type: 'button', className: 'dses__x', 'aria-label': 'Cerrar', onClick: function () { setGenQ(null); } }, '×')),
+          fila('Actividad física semanal', chips('act', [['baja', '0-1 días'], ['media', '2-3 días'], ['alta', '4 o más']])),
+          fila('Experiencia en el gimnasio', chips('exp', [['principiante', 'Menos de 6 meses'], ['intermedio', '6 meses - 2 años'], ['avanzado', 'Más de 2 años']])),
+          fila('Edad', h('input', { className: 'edx__in gq__edad', inputMode: 'numeric', value: r.edad || '', placeholder: '30', onChange: function (ev) { set('edad', ev.target.value.replace(/[^0-9]/g, '')); } })),
+          fila('Dolor o lesión', chips('dolor', GEN_ZONAS.map(function (z) { return [z, z]; }), true)),
+          fila('Qué trabajar', chips('foco', [['inferior', 'Tren inferior'], ['superior', 'Tren superior'], ['completo', 'Cuerpo completo']])),
+          fila('Tipo de sesión', chips('tipo', [['fuerza', 'Fuerza'], ['potencia', 'Potencia']])),
+          fila('Objetivo', chips('obj', [['rendimiento', 'Rendimiento'], ['hipertrofia', 'Hipertrofia'], ['salud', 'Salud'], ['grasa', 'Perder grasa']])),
+          fila('Tiempo', chips('tiempo', [[30, '30 min'], [45, '45 min'], [60, '60 min']])),
+          fila('Día', h('input', { type: 'date', className: 'edx__in', value: r.fecha, onChange: function (ev) { if (ev.target.value) set('fecha', ev.target.value); } })),
+          h('div', { className: 'rowline', style: { marginTop: '8px' } },
+            h(G.Button, { size: 'md', variant: 'secondary', onClick: function () { setGenQ(null); } }, 'Cancelar'),
+            h(G.Button, { size: 'md', icon: 'check', onClick: function () { var resp = { act: r.act, exp: r.exp, edad: r.edad, dolor: r.dolor || [], foco: r.foco, tipo: r.tipo, obj: r.obj, tiempo: Number(r.tiempo), fecha: r.fecha };
+              commit(function (st) { var x = st.clientes.filter(function (q) { return q.id === c.id; })[0]; if (x) x.genPrefs = { act: resp.act, exp: resp.exp, edad: resp.edad, dolor: resp.dolor, foco: resp.foco, tipo: resp.tipo, obj: resp.obj, tiempo: resp.tiempo }; });
+              setGenQ(null); abrirGenerada(c, resp); } }, 'Generar sesión'))));
+    }
+    function preguntarGen(c, fecha) { var p0 = c.genPrefs || {}; setGenQ({ cid: c.id, fecha: fecha || hoyIso, act: p0.act || 'media', exp: p0.exp || 'intermedio', edad: p0.edad || '', dolor: p0.dolor || [], foco: p0.foco || 'inferior', tipo: p0.tipo || 'fuerza', obj: p0.obj || 'rendimiento', tiempo: p0.tiempo || 45 }); }
     // 1.42 · HIIT de bici: abre el editor con un bloque de intervalos ya montado (3' + 8 × 30/30 + 3')
     function nuevaBici(cid0, fecha) {
       var trs = [ivBorrador({ tipo: 'calentamiento', seg: 180, rpm: 80, res: '3', nota: 'Sentado, suelto' })];
@@ -7121,6 +7281,12 @@ window.GAGOR_reducirFoto = function (file) {
             h('span', null, h('b', null, res.ejercicios), res.ejercicios === 1 ? ' ejercicio' : ' ejercicios'),
             h('span', null, h('b', null, res.series), ' series'),
             h('span', null, h('b', null, '~' + res.minutos), ' min'))),
+        d.auto ? h('div', { key: 'auto', className: 'genav' },
+          h('p', { className: 'genav__t' }, h(G.Icon, { name: 'aviso', size: 18 }), 'Sesión generada automáticamente · revísala antes de guardar'),
+          (d.auto.avisos || []).map(function (a, i) { return h('p', { key: i, className: 'genav__a' }, '· ' + a); }),
+          h('div', { className: 'rowline', style: { justifyContent: 'flex-start', flexWrap: 'wrap' } },
+            h(G.Button, { size: 'sm', variant: 'secondary', icon: 'copiar', onClick: function () { if (cli) abrirGenerada(cli, d.auto.resp); } }, 'Generar otra'),
+            h(G.Button, { size: 'sm', variant: 'ghost', icon: 'editar', onClick: function () { if (cli) preguntarGen(cli, d.fecha); } }, 'Cambiar respuestas'))) : null,
         (function () { if (!esSesion || !cli || !d.fecha) return null; var sm = mesoSemana(cli, d.fecha); if (!sm) return null; var o = semMeso(sm);
           var rR = rangoNum(sm.reps), rP = rangoNum(sm.rpe); var fuera = [];
           d.bloques.forEach(function (b) { if (b.intervalos || /calent|movil|activa/i.test(b.titulo || '')) return; b.ejercicios.forEach(function (e) { if (!e.ejId || e.seg) return;
