@@ -3294,7 +3294,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.63";
+<script>window.GAGOR_VERSION = "1.64";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -7127,9 +7127,14 @@ window.GAGOR_reducirFoto = function (file) {
       var foco = r.foco || 'inferior', inf = foco !== 'superior', sup = foco !== 'inferior';
       var ini = [], o;
       // preventivos: de tren inferior, los de rodilla y cadera antes que tobillo/gemelo; de tren superior, los de hombro
-      var prefInf = function (t, oo) { return /rodilla|cuadriceps|isquio|gluteo|cadera|aduct|abduct|puente|tibial|90 90|flexor|knee|hip|glute|hamstring/.test(oo.n) ? 1.5 : (/gemelo|soleo|tobillo|calf|ankle/.test(oo.n) ? -1 : 0); };
-      var prefSup = function (t, oo) { return t.hombro || /hombro|rotacion externa|y t w|escapul|face pull|shoulder|scap/.test(oo.n) ? 1.5 : (/toracica|gato|thoracic/.test(oo.n) ? -0.5 : 0); };
-      var esPrevSup = function (t, oo) { return t.prevSup || (t.hombro && !t.empuje && !t.traccion && !/press|elevaciones laterales/.test(oo.n)); };
+      var prefInf = function (t, oo) { return /rodilla|cuadriceps|isquio|gluteo|cadera|aduct|abduct|puente|tibial|90 90|flexor|copenhag|knee|hip|glute|hamstring/.test(oo.n) ? 1.5 : (/gemelo|soleo|tobillo|calf|ankle/.test(oo.n) ? -1 : 0); };
+      // 1.64 · preventivo de tren superior (palabras del entrenador): primero empuje y tracción, el hombro como secundario.
+      // Dentro de empuje/tracción se prefieren variantes ligeras (goma, peso corporal, polea, escápulas) y se aparta lo pesado para no quitarle el básico al bloque principal.
+      var LIGERO = /goma|banda|band|flexion|push up|remo invertido|trx|anilla|escapul|serrato|polea|isom|y t w|face pull|pared|wall/, PESADO = /barra|banca|dominada|militar|lastrad|press de pecho en maquina|jalon/;
+      var supToca = Math.random() < 0.5 ? 'empuje' : 'traccion';
+      var prefSup = function (t, oo) { var v = 0; if (t.empuje || t.traccion || /face pull|remo|flexion|push up|pull/.test(oo.n)) v += 2.5 + (LIGERO.test(oo.n) ? 1 : 0) - (PESADO.test(oo.n) ? 2.5 : 0) + (t[supToca] ? 1 : 0);
+        else if (t.hombro || /hombro|rotacion externa|y t w|escapul|shoulder|scap/.test(oo.n)) v += 1.2; if (/toracica|gato|thoracic/.test(oo.n)) v -= 0.5; return v; };
+      var esPrevSup = function (t, oo) { return t.prevSup || ((t.empuje || t.traccion) && !t.isom) || (t.hombro && !/press|elevaciones laterales/.test(oo.n)); };
       if (foco === 'completo') {
         // 1.63 · cuerpo completo (palabras del entrenador): casi siempre 3-4 de core para empezar y luego 2-3 preventivos de tren inferior y superior
         var nCore = Math.random() < 0.7 ? 4 : 3;
@@ -7139,7 +7144,7 @@ window.GAGOR_reducirFoto = function (file) {
         zonas.forEach(function (z) { var re = GEN_PREV[z]; if (re && hechosPrev < nPrev && (o = elegir(function (t, oo) { return re.test(oo.n); }, null, 'ini'))) { ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' })); hechosPrev++; } });
         var orden = ['inf', 'sup', Math.random() < 0.5 ? 'inf' : 'sup'];
         for (var pi = 0; hechosPrev < nPrev && pi < 3; pi++) { var lado0 = orden[pi];
-          o = lado0 === 'inf' ? elegir(function (t) { return t.prevInf && !t.core && !(mayor && t.impacto); }, prefInf, 'ini') : elegir(esPrevSup, prefSup, 'ini');
+          o = lado0 === 'inf' ? elegir(function (t, oo) { return t.prevInf && (!t.core || /copenhag/.test(oo.n)) && !(mayor && t.impacto); }, prefInf, 'ini') : elegir(esPrevSup, prefSup, 'ini');
           if (o) { ini.push(ej(o, { s: 2, reps: 10, desc: 30, rol: 'ini' })); hechosPrev++; } }
         if (mayor && (o = elegir(function (t) { return t.movil; }, null, 'ini'))) ini.push(ej(o, { s: 2, reps: 8, desc: 30, rol: 'ini' }));
       } else {
