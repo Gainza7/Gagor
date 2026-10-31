@@ -634,6 +634,23 @@
 .gq__chip { padding: 8px 12px; border-radius: 99px; border: 1px solid var(--line-strong); background: var(--surface-card); color: var(--ink); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
 .gq__chip.is-on { background: var(--ink); color: var(--surface-card); border-color: var(--ink); }
 .gq__edad { width: 90px; }
+/* 1.69 · test de salto por vídeo (tiempo de vuelo) */
+.jt__vid { width: 100%; max-height: 46vh; background: #000; border-radius: 12px; display: block; }
+.jt__pick { display: grid; gap: 8px; padding: 18px; border: 2px dashed var(--line-strong); border-radius: 12px; text-align: center; cursor: pointer; }
+.jt__pick input { display: none; }
+.jt__ctl { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.jt__ctl button, .jt__mk button { padding: 10px 0; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface-card); color: var(--ink); font: inherit; font-weight: 700; font-variant-numeric: tabular-nums; cursor: pointer; }
+.jt__mk { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.jt__mk button { display: grid; gap: 2px; padding: 8px; }
+.jt__mk button small { font-weight: 500; color: var(--ink-muted); font-size: 12px; }
+.jt__mk button.is-on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--surface-card)); }
+.jt__rng { width: 100%; }
+.jt__res { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--surface-sunken); }
+.jt__res b { font-family: var(--font-display); font-size: 28px; white-space: nowrap; }
+.jt__int { display: flex; flex-wrap: wrap; gap: 6px; }
+.jt__int span { padding: 4px 8px; border-radius: 8px; background: var(--surface-sunken); font-weight: 700; font-variant-numeric: tabular-nums; }
+.jt__int span.is-best { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.jt__int button { border: 0; background: none; color: var(--ink-muted); cursor: pointer; padding: 0 0 0 4px; }
 /* 1.67 · actividades por su cuenta (carrera, bici…) */
 .actl { display: grid; gap: 6px; }
 .actl__r { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: var(--surface-sunken); min-width: 0; }
@@ -3334,7 +3351,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.68";
+<script>window.GAGOR_VERSION = "1.69";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -5971,7 +5988,7 @@ window.GAGOR_reducirFoto = function (file) {
       var rec = ST.recuperacion(state, cid); var carga = ST.cargasSemanales(state, cid, 7);
       var hechas = misSesiones.filter(function (s) { return s.estado === 'hecha'; }); var ult4 = misSesiones.filter(function (s) { return s.fecha >= ST.iso(ST.addDays(ST.hoy, -28)) && s.fecha <= hoyIso; });
       var pesos = state.peso.filter(function (p) { return p.clienteId === cid; }).map(function (p) { return { label: ST.fmtCorta(p.fecha), value: p.kg }; });
-      var saltos = state.salto.filter(function (p) { return p.clienteId === cid; }).map(function (p) { return { label: ST.fmtCorta(p.fecha), value: p.cm }; });
+      var saltos = state.salto.filter(function (p) { return p.clienteId === cid && (!p.tipo || p.tipo === 'CMJ'); }).map(function (p) { return { label: ST.fmtCorta(p.fecha), value: p.cm }; });
       var rpeMedio = hechas.length ? Math.round(hechas.reduce(function (a, s) { return a + (s.rpe || 0); }, 0) / hechas.length * 10) / 10 : null;
       var recs = ST.records(state, cid);
       return h('div', { className: 'phone' },
@@ -6264,6 +6281,8 @@ window.GAGOR_reducirFoto = function (file) {
     var crp = useState(''); var cierreRpe = crp[0], setCierreRpe = crp[1];
     var rva = useState({}); var revAb = rva[0], setRevAb = rva[1];
     var acf = useState(null); var actF = acf[0], setActF = acf[1];
+    var jts = useState(null); var jt = jts[0], setJt = jts[1];
+    var smn = useState(''); var saltoMano = smn[0], setSaltoMano = smn[1];
     var pke = useState(null); var pickEj = pke[0], setPickEj = pke[1];
     var gnq = useState(null); var genQ = gnq[0], setGenQ = gnq[1];
     var apo = useState(false); var aprOpen = apo[0], setAprOpen = apo[1];
@@ -6662,6 +6681,7 @@ window.GAGOR_reducirFoto = function (file) {
               h('small', null, 'Esta semana' + (prog ? ', contando lo programado que falta' : '') + '. Se calcula con el grupo de cada ejercicio en la Biblioteca.')));
         })(),
         actF && actF.cid === c.id ? h('div', { key: 'actm' }, ActModal()) : null,
+        jt && jt.cid === c.id ? h('div', { key: 'jtm' }, JumpModal()) : null,
         mesoEd && mesoEd.cid === c.id ? h('div', { key: 'mzm', className: 'dses', role: 'dialog', 'aria-modal': 'true', onClick: function (ev) { if (ev.target === ev.currentTarget) setMesoEd(null); } }, h('div', { className: 'dses__box mzbox' }, MesoPanel(c))) : null,
         (function () {
               var MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
@@ -6719,7 +6739,7 @@ window.GAGOR_reducirFoto = function (file) {
                     h('summary', null, h('span', { className: 'whist__t' }, 'Semana ' + rango(l) + (l === lunHoy ? ' · esta' : '')), h('span', { className: 'whist__m' + (sinH ? ' is-alert' : '') }, hh + '/' + g.length + ' hechas' + (sinH ? ' · ' + sinH + ' sin hacer' : '')), h(G.Icon, { name: 'abajo', size: 16, className: 'whist__chev' })),
                     h('div', { className: 'whist__body' }, g.map(fila)));
                 }) : h('p', { className: 'muted small', style: { margin: 0 } }, 'Aún no tiene sesiones.'));
-              return [carga.filter(function (x) { return x.value > 0; }).length >= 2 ? h(G.ProgressChart, { key: 'car', title: 'Carga semanal (gimnasio + por su cuenta)', unit: 'ua', data: carga }) : null, ActPanel(c), hist];
+              return [carga.filter(function (x) { return x.value > 0; }).length >= 2 ? h(G.ProgressChart, { key: 'car', title: 'Carga semanal (gimnasio + por su cuenta)', unit: 'ua', data: carga }) : null, ActPanel(c), SaltoPanel(c), hist];
             })()),
           h('div', { style: { display: 'grid', gap: '16px' } },
             (function () {
@@ -8192,6 +8212,82 @@ window.GAGOR_reducirFoto = function (file) {
             h('span', { className: 'actl__ua' }, x.rpe ? Math.round(x.minutos * x.rpe) + ' UA' : '—'),
             puede ? h('button', { type: 'button', className: 'actl__x', 'aria-label': 'Borrar', title: 'Borrar', onClick: function () { commit(function (st) { st.externos = st.externos.filter(function (q) { return q.id !== x.id; }); }); } }, '×') : null); })) : null,
         h(G.Button, { size: 'md', variant: 'secondary', icon: 'mas', onClick: function () { abrir(null); } }, 'Añadir actividad'));
+    }
+    // 1.69 · TEST DE SALTO POR VÍDEO. Altura por tiempo de vuelo: h = g·t²/8 (método de My Jump). El entrenador graba a cámara lenta,
+    // avanza fotograma a fotograma y marca despegue y aterrizaje. El vídeo NO se sube a ningún sitio: solo se guarda el resultado en state.salto.
+    function jtCm(a) { if (a.t1 == null || a.t2 == null || a.t2 <= a.t1) return null; var tv = (a.t2 - a.t1) / (a.factor || 1); return Math.round(9.81 * tv * tv / 8 * 1000) / 10; }
+    function jtVid() { return document.getElementById('jtvid'); }
+    function jtSet(k, v) { setJt(function (o) { if (!o) return o; var n2 = Object.assign({}, o); if (typeof k === 'object') Object.assign(n2, k); else n2[k] = v; return n2; }); }
+    function jtPaso(nf) { var v = jtVid(); if (!v || !jt) return; v.pause(); v.currentTime = Math.max(0, Math.min(v.duration || 0, v.currentTime + nf / (jt.fps || 240))); }
+    function jtDetectar() { var v = jtVid(); if (!v || !v.requestVideoFrameCallback) return; var ts = [], t0 = v.currentTime;
+      function cb(now, meta) { ts.push(meta.mediaTime); if (ts.length < 24 && !v.paused) v.requestVideoFrameCallback(cb); else fin(); }
+      function fin() { v.pause(); v.currentTime = t0; var d = []; for (var i = 1; i < ts.length; i++) if (ts[i] > ts[i - 1]) d.push(ts[i] - ts[i - 1]); d.sort(); if (d.length < 5) return;
+        var f = Math.round(1 / d[0]), cands = [30, 60, 120, 240], best = cands.reduce(function (a, b) { return Math.abs(b - f) < Math.abs(a - f) ? b : a; });
+        jtSet({ fps: best, fpsDet: best }); }
+      v.muted = true; v.playbackRate = 0.25; v.requestVideoFrameCallback(cb); var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); setTimeout(function () { if (!v.paused) fin(); }, 3000); }
+    function JumpModal() {
+      if (!jt) return null; var c = state.clientes.filter(function (q) { return q.id === jt.cid; })[0]; if (!c) return null; var a = jt, cm = jtCm(a);
+      var ms = function (x) { return x == null ? '—' : (Math.round(x * 1000) / 1000).toFixed(3) + ' s'; };
+      var tvReal = a.t1 != null && a.t2 != null && a.t2 > a.t1 ? Math.round((a.t2 - a.t1) / (a.factor || 1) * 1000) : null;
+      var mejor = a.intentos.length ? Math.max.apply(null, a.intentos.map(function (x) { return x.cm; })) : null;
+      function cerrar() { if (a.url) URL.revokeObjectURL(a.url); setJt(null); }
+      function chips(k, ops) { return h('div', { className: 'gq__chips' }, ops.map(function (o) { return h('button', { key: o[0], type: 'button', className: 'gq__chip' + (a[k] === o[0] ? ' is-on' : ''), onClick: function () { jtSet(k, o[0]); } }, o[1]); })); }
+      var raro = cm != null && (cm > 90 || cm < 3);
+      return h('div', { className: 'dses', role: 'dialog', 'aria-modal': 'true', onClick: function (ev) { if (ev.target === ev.currentTarget) cerrar(); } },
+        h('div', { className: 'dses__box gqbox' },
+          h('div', { className: 'dses__cab' }, h('div', null, h('p', { className: 'dses__q' }, c.nombre), h('h2', { className: 'dses__t' }, 'Test de salto · ' + a.tipo)), h('button', { type: 'button', className: 'dses__x', 'aria-label': 'Cerrar', onClick: cerrar }, '×')),
+          h('div', { className: 'gq__f' }, h('span', { className: 'gq__l' }, 'Salto'), chips('tipo', [['CMJ', 'CMJ'], ['SJ', 'SJ'], ['CMJ brazos', 'CMJ con brazos'], ['CMJ izq', 'Una pierna izq.'], ['CMJ der', 'Una pierna der.']])),
+          !a.url ? h('label', { className: 'jt__pick' },
+            h('b', null, '🎥 Elegir o grabar vídeo'),
+            h('span', { className: 'muted small' }, 'Cámara lenta (240 fps si puedes). Móvil quieto, apoyado en el suelo a 1-2 m, que se vean bien los pies. Puedes grabar los 3 intentos en el mismo vídeo.'),
+            h('input', { type: 'file', accept: 'video/*', onChange: function (ev) { var f = ev.target.files && ev.target.files[0]; if (!f) return; jtSet({ url: URL.createObjectURL(f), nombreVid: f.name, t1: null, t2: null, cur: 0 }); } }))
+          : h('div', { style: { display: 'grid', gap: '8px' } },
+            h('video', { id: 'jtvid', className: 'jt__vid', src: a.url, playsInline: true, muted: true, preload: 'auto',
+              onLoadedMetadata: function (ev) { jtSet({ dur: ev.target.duration || 0, cur: 0 }); setTimeout(jtDetectar, 150); },
+              onSeeked: function (ev) { jtSet('cur', ev.target.currentTime); }, onTimeUpdate: function (ev) { jtSet('cur', ev.target.currentTime); } }),
+            h('input', { type: 'range', className: 'jt__rng', min: 0, max: a.dur || 0, step: 1 / (a.fps || 240), value: a.cur || 0, 'aria-label': 'Posición del vídeo', onChange: function (ev) { var v = jtVid(); if (v) { v.pause(); v.currentTime = Number(ev.target.value); } } }),
+            h('div', { className: 'jt__ctl' },
+              h('button', { type: 'button', onClick: function () { jtPaso(-10); } }, '−10'), h('button', { type: 'button', onClick: function () { jtPaso(-1); } }, '−1'),
+              h('button', { type: 'button', onClick: function () { jtPaso(1); } }, '+1'), h('button', { type: 'button', onClick: function () { jtPaso(10); } }, '+10')),
+            h('p', { className: 'muted small', style: { margin: 0, textAlign: 'center' } }, 'Fotograma ' + Math.round((a.cur || 0) * (a.fps || 240)) + ' · ' + ms(a.cur || 0)),
+            h('div', { className: 'jt__mk' },
+              h('button', { type: 'button', className: a.t1 != null ? 'is-on' : '', onClick: function () { jtSet('t1', jtVid() ? jtVid().currentTime : a.cur); } }, 'Marcar despegue', h('small', null, a.t1 != null ? ms(a.t1) : 'Último fotograma con los pies en el suelo')),
+              h('button', { type: 'button', className: a.t2 != null ? 'is-on' : '', onClick: function () { jtSet('t2', jtVid() ? jtVid().currentTime : a.cur); } }, 'Marcar aterrizaje', h('small', null, a.t2 != null ? ms(a.t2) : 'Primer fotograma que toca el suelo'))),
+            h('div', { className: 'gq__f' }, h('span', { className: 'gq__l' }, 'Fotogramas por segundo' + (a.fpsDet ? ' · detectado ' + a.fpsDet : '')), chips('fps', [[240, '240'], [120, '120'], [60, '60'], [30, '30']])),
+            h('div', { className: 'gq__f' }, h('span', { className: 'gq__l' }, 'El vídeo se ve'), chips('factor', [[1, 'A velocidad real'], [4, 'Ralentizado ×4'], [8, 'Ralentizado ×8']])),
+            h('div', { className: 'jt__res' }, h('div', null, h('span', { className: 'muted small' }, 'Tiempo de vuelo ' + (tvReal != null ? tvReal + ' ms' : '—')), h('br'), h('b', null, cm != null ? String(cm).replace('.', ',') + ' cm' : '— cm')),
+              h(G.Button, { size: 'md', icon: 'mas', disabled: cm == null || raro, onClick: function () { jtSet({ intentos: a.intentos.concat([{ cm: cm, tv: tvReal }]), t1: null, t2: null }); } }, 'Guardar intento')),
+            raro ? h('p', { className: 'small', style: { margin: 0, color: 'var(--alert)' } }, cm > 90 ? 'Más de 90 cm: seguramente el vídeo está ralentizado. Prueba «Ralentizado ×8» (cámara lenta del iPhone a 240) o ×4 (a 120).' : 'Menos de 3 cm: revisa las marcas.') : null,
+            a.fps < 120 ? h('p', { className: 'small', style: { margin: 0, color: 'var(--alert)' } }, 'A ' + a.fps + ' fps cada fotograma son ' + Math.round(1000 / a.fps) + ' ms: el error puede ser de varios centímetros. Usa cámara lenta.') : null,
+            h('button', { type: 'button', className: 'g-btn g-btn--ghost g-btn--md', onClick: function () { URL.revokeObjectURL(a.url); jtSet({ url: null, t1: null, t2: null, fpsDet: null }); } }, 'Cambiar de vídeo')),
+          a.intentos.length ? h('div', { className: 'gq__f' }, h('span', { className: 'gq__l' }, 'Intentos (' + a.intentos.length + ')'),
+            h('div', { className: 'jt__int' }, a.intentos.map(function (x, i) { return h('span', { key: i, className: x.cm === mejor ? 'is-best' : '' }, String(x.cm).replace('.', ',') + ' cm', h('button', { type: 'button', 'aria-label': 'Quitar intento', onClick: function () { jtSet('intentos', a.intentos.filter(function (_, j) { return j !== i; })); } }, '×')); }))) : null,
+          h('div', { className: 'rowline', style: { marginTop: '4px' } },
+            h(G.Button, { size: 'md', variant: 'secondary', onClick: cerrar }, 'Cancelar'),
+            h(G.Button, { size: 'md', icon: 'check', disabled: !a.intentos.length, onClick: function () { var cms = a.intentos.map(function (x) { return x.cm; }), media = Math.round(cms.reduce(function (s0, x) { return s0 + x; }, 0) / cms.length * 10) / 10;
+              commit(function (st) { st.salto = st.salto || []; st.salto.push({ id: ST.uid(), clienteId: c.id, fecha: hoyIso, cm: Math.max.apply(null, cms), media: media, tipo: a.tipo, intentos: a.intentos, metodo: 'video', fps: a.fps, factor: a.factor }); });
+              cerrar(); } }, a.intentos.length ? 'Guardar test (mejor ' + String(mejor).replace('.', ',') + ' cm)' : 'Guardar test'))));
+    }
+    function SaltoPanel(c) {
+      var lista = (state.salto || []).map(function (x, i) { return { x: x, i: i }; }).filter(function (o) { return o.x.clienteId === c.id; }).sort(function (a, b) { return a.x.fecha < b.x.fecha ? 1 : (a.x.fecha > b.x.fecha ? -1 : b.i - a.i); }).map(function (o) { return o.x; });
+      var cmj = lista.filter(function (x) { return !x.tipo || x.tipo === 'CMJ'; }), ult = cmj[0], prev = cmj[1];
+      var dif = ult && prev ? Math.round((ult.cm - prev.cm) / prev.cm * 1000) / 10 : null;
+      var datos = cmj.slice(0, 12).reverse().map(function (x) { return { label: ST.fmtCorta(x.fecha), value: x.cm }; });
+      function abrir() { setJt({ cid: c.id, tipo: 'CMJ', url: null, fps: 240, factor: 1, t1: null, t2: null, cur: 0, dur: 0, intentos: [] }); }
+      return h('div', { key: 'salto', className: 'whist' },
+        h('div', { className: 'whist__head' }, h('span', { className: 'g-list__title' }, 'Test de salto'), h('span', { className: 'muted small' }, ult ? 'CMJ ' + String(ult.cm).replace('.', ',') + ' cm · ' + ST.fmtFecha(ult.fecha) : 'Sin tests todavía')),
+        dif != null ? h('p', { className: 'small', style: { margin: 0, color: dif <= -5 ? 'var(--alert)' : 'var(--ink-muted)' } }, (dif > 0 ? '+' : '') + String(dif).replace('.', ',') + ' % respecto al test anterior' + (dif <= -5 ? ' · bajada de más del 5 %: puede ir cargado de fatiga' : '')) : null,
+        datos.length >= 2 ? h(G.ProgressChart, { title: 'CMJ', unit: 'cm', data: datos }) : null,
+        lista.length ? h('div', { className: 'actl' }, lista.slice(0, 5).map(function (x) {
+          return h('div', { key: x.id, className: 'actl__r' }, h('span', { className: 'actl__ic', 'aria-hidden': true }, '⤒'),
+            h('div', { className: 'actl__tx' }, h('b', null, (x.tipo || 'CMJ') + ' · ' + ST.fmtFecha(x.fecha)), h('span', null, [x.intentos && x.intentos.length > 1 ? x.intentos.map(function (q) { return String(q.cm).replace('.', ','); }).join(' / ') + ' cm' : null, x.intentos && x.intentos.length > 1 ? 'media ' + String(x.media).replace('.', ',') : null, x.metodo === 'video' ? 'vídeo ' + x.fps + ' fps' + (x.factor > 1 ? ' ×' + x.factor : '') : (x.metodo === 'manual' ? 'a mano' : null)].filter(Boolean).join(' · '))),
+            h('span', { className: 'actl__ua' }, String(x.cm).replace('.', ',') + ' cm'),
+            h('button', { type: 'button', className: 'actl__x', 'aria-label': 'Borrar', title: 'Borrar', onClick: function () { commit(function (st) { st.salto = st.salto.filter(function (q) { return q.id !== x.id; }); }); } }, '×')); })) : null,
+        h('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' } },
+          h(G.Button, { size: 'md', variant: 'secondary', icon: 'mas', onClick: abrir }, 'Medir con vídeo'),
+          h('span', { style: { display: 'flex', gap: '6px', alignItems: 'center', flex: '0 0 auto' } },
+          h('input', { className: 'edx__in', style: { width: '76px', flex: '0 0 76px' }, inputMode: 'decimal', placeholder: 'cm', 'aria-label': 'CMJ a mano en cm', value: saltoMano, onChange: function (ev) { setSaltoMano(ev.target.value.replace(/[^0-9.,]/g, '')); } }),
+          h(G.Button, { size: 'md', variant: 'ghost', disabled: !(Number(String(saltoMano).replace(',', '.')) > 0), onClick: function () { var v = Number(String(saltoMano).replace(',', '.')); if (!(v > 0)) return; commit(function (st) { st.salto = st.salto || []; st.salto.push({ id: ST.uid(), clienteId: c.id, fecha: hoyIso, cm: Math.round(v * 10) / 10, tipo: 'CMJ', metodo: 'manual' }); }); setSaltoMano(''); } }, 'Apuntar'))));
     }
     // 1.66 · REVISIÓN: estado de cada serie frente al objetivo, resumen de la sesión y bloques desplegables
     function revEstado(e, r) { if (!r || !r.done) return 'no'; if (e.seg) return 'ok'; var t = e.lado ? ST.ladoReps(e) : [Number(e.reps) || 0, 0];
