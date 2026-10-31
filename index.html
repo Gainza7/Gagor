@@ -643,6 +643,7 @@
 .actl__ua { font-family: var(--font-display); font-weight: 700; font-size: 15px; white-space: nowrap; }
 .actl__x { flex: 0 0 auto; width: 30px; height: 30px; border: 0; border-radius: 50%; background: none; color: var(--ink-muted); font-size: 16px; cursor: pointer; }
 .actl__x:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.actm__nums { flex-wrap: nowrap; } .actm__nums .gq__f { flex: 1 1 0; min-width: 0; } .actm__nums .gq__edad { width: 100%; box-sizing: border-box; }
 .gq__rpe .gq__chip { min-width: 40px; padding: 8px 0; text-align: center; }
 /* 1.66 · Revisión compacta y desplegable */
 .rvs { display: grid; gap: 10px; }
@@ -3333,7 +3334,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.67";
+<script>window.GAGOR_VERSION = "1.68";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -8154,16 +8155,17 @@ window.GAGOR_reducirFoto = function (file) {
     function ActModal() {
       if (!actF) return null; var c = state.clientes.filter(function (q) { return q.id === actF.cid; })[0]; if (!c) return null; var a = actF;
       function set(k, v) { setActF(function (o) { var n2 = Object.assign({}, o); n2[k] = v; return n2; }); }
-      var min = Number(String(a.min).replace(',', '.')) || 0, ua = Math.round(min * (a.rpe || 0)), conKm = /carrera|bici|nadar|caminar/.test(a.tipo), listo = min > 0 && a.rpe;
+      var min = Number(String(a.min).replace(',', '.')) || 0, ua = Math.round(min * (a.rpe || 0)), conKm = /carrera|bici|nadar|caminar/.test(a.tipo), conDes = /carrera|bici|caminar|otro/.test(a.tipo), listo = min > 0 && a.rpe;
       function fila(l, x) { return h('div', { className: 'gq__f' }, h('span', { className: 'gq__l' }, l), x); }
       return h('div', { className: 'dses', role: 'dialog', 'aria-modal': 'true', onClick: function (ev) { if (ev.target === ev.currentTarget) setActF(null); } },
         h('div', { className: 'dses__box gqbox' },
           h('div', { className: 'dses__cab' }, h('div', null, h('p', { className: 'dses__q' }, c.nombre), h('h2', { className: 'dses__t' }, a.id ? 'Editar actividad' : 'Actividad por su cuenta')), h('button', { type: 'button', className: 'dses__x', 'aria-label': 'Cerrar', onClick: function () { setActF(null); } }, '×')),
           fila('Qué ha hecho', h('div', { className: 'gq__chips' }, ACT_TIPOS.map(function (q) { return h('button', { key: q[0], type: 'button', className: 'gq__chip' + (a.tipo === q[0] ? ' is-on' : ''), onClick: function () { set('tipo', q[0]); } }, q[2] + ' ' + q[1]); }))),
           fila('Día', h('input', { type: 'date', className: 'edx__in', value: a.fecha, max: hoyIso, onChange: function (ev) { if (ev.target.value) set('fecha', ev.target.value); } })),
-          h('div', { className: 'rowline', style: { alignItems: 'flex-end', gap: '12px' } },
+          h('div', { className: 'rowline actm__nums', style: { alignItems: 'flex-end', gap: '12px' } },
             fila('Minutos', h('input', { className: 'edx__in gq__edad', inputMode: 'numeric', value: a.min, placeholder: '45', onChange: function (ev) { set('min', ev.target.value.replace(/[^0-9]/g, '')); } })),
-            conKm ? fila('Km (opcional)', h('input', { className: 'edx__in gq__edad', inputMode: 'decimal', value: a.km, placeholder: '8', onChange: function (ev) { set('km', ev.target.value.replace(/[^0-9.,]/g, '')); } })) : null),
+            conKm ? fila('Km', h('input', { className: 'edx__in gq__edad', inputMode: 'decimal', value: a.km, placeholder: '8', onChange: function (ev) { set('km', ev.target.value.replace(/[^0-9.,]/g, '')); } })) : null,
+            conDes ? fila('Desnivel + m', h('input', { className: 'edx__in gq__edad', inputMode: 'numeric', value: a.des, placeholder: '250', onChange: function (ev) { set('des', ev.target.value.replace(/[^0-9]/g, '')); } })) : null),
           fila('RPE · cómo de duro fue (1-10)', h('div', { className: 'gq__chips gq__rpe' }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) { return h('button', { key: v, type: 'button', className: 'gq__chip' + (a.rpe === v ? ' is-on' : ''), onClick: function () { set('rpe', v); } }, v); }))),
           fila('Nota (opcional)', h('input', { className: 'edx__in', value: a.nota, placeholder: 'Rodaje suave, series en pista…', onChange: function (ev) { set('nota', ev.target.value); } })),
           h('p', { className: 'muted small', style: { margin: 0 } }, listo ? 'Suma ' + ua + ' UA (' + min + ' min × RPE ' + a.rpe + ') a la carga de la semana del ' + ST.fmtFecha(ST.semanaDe(a.fecha)) + '.' : 'Pon los minutos y el RPE para sumarla a su carga semanal.'),
@@ -8172,13 +8174,13 @@ window.GAGOR_reducirFoto = function (file) {
             h(G.Button, { size: 'md', icon: 'check', disabled: !listo, onClick: function () { if (!listo) return; var ty = actTipo(a.tipo) || ACT_TIPOS[5], km = Number(String(a.km || '').replace(',', '.')) || null;
               commit(function (st) { var x = a.id ? st.externos.filter(function (q) { return q.id === a.id; })[0] : null;
                 if (!x) { x = { id: ST.uid(), clienteId: c.id, origen: 'entrenador' }; st.externos.push(x); }
-                x.fecha = a.fecha; x.minutos = min; x.rpe = a.rpe; x.tipo = ty[0]; x.titulo = ty[1]; if (km) x.km = km; else delete x.km; if (a.nota && a.nota.trim()) x.nota = a.nota.trim(); else delete x.nota; });
+                x.fecha = a.fecha; x.minutos = min; x.rpe = a.rpe; x.tipo = ty[0]; x.titulo = ty[1]; if (km) x.km = km; else delete x.km; var des = conDes ? Number(a.des) || 0 : 0; if (des) x.desnivel = des; else delete x.desnivel; if (a.nota && a.nota.trim()) x.nota = a.nota.trim(); else delete x.nota; });
               setActF(null); } }, a.id ? 'Guardar cambios' : 'Añadir a su carga'))));
     }
     function ActPanel(c) {
       var lista = state.externos.filter(function (x) { return x.clienteId === c.id; }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; });
       var lun = ST.semanaDe(hoyIso), estaSem = lista.filter(function (x) { return x.fecha >= lun && x.rpe; }).reduce(function (s0, x) { return s0 + x.minutos * x.rpe; }, 0);
-      function abrir(x) { setActF(x ? { id: x.id, cid: c.id, tipo: x.tipo || 'otro', fecha: x.fecha, min: String(x.minutos || ''), km: x.km ? String(x.km).replace('.', ',') : '', rpe: x.rpe || null, nota: x.nota || '' } : { cid: c.id, tipo: 'carrera', fecha: hoyIso, min: '', km: '', rpe: null, nota: '' }); }
+      function abrir(x) { setActF(x ? { id: x.id, cid: c.id, tipo: x.tipo || 'otro', fecha: x.fecha, min: String(x.minutos || ''), km: x.km ? String(x.km).replace('.', ',') : '', des: x.desnivel ? String(x.desnivel) : '', rpe: x.rpe || null, nota: x.nota || '' } : { cid: c.id, tipo: 'carrera', fecha: hoyIso, min: '', km: '', des: '', rpe: null, nota: '' }); }
       return h('div', { key: 'act', className: 'whist' },
         h('div', { className: 'whist__head' }, h('span', { className: 'g-list__title' }, 'Por su cuenta'), h('span', { className: 'muted small' }, estaSem ? Math.round(estaSem) + ' UA esta semana' : 'Carrera, bici… suman a su carga')),
         lista.length ? h('div', { className: 'actl' }, lista.slice(0, 6).map(function (x) { var ty = actTipo(x.tipo), puede = x.origen !== 'sensor';
@@ -8186,7 +8188,7 @@ window.GAGOR_reducirFoto = function (file) {
             h('span', { className: 'actl__ic', 'aria-hidden': true }, ty ? ty[2] : (x.origen === 'sensor' ? '🏀' : '👥')),
             h('button', { type: 'button', className: 'actl__tx', style: { border: 0, background: 'none', padding: 0, color: 'inherit', font: 'inherit', textAlign: 'left', cursor: puede ? 'pointer' : 'default' }, onClick: puede ? function () { abrir(x); } : undefined },
               h('b', null, actEtiqueta(x) + ' · ' + ST.fmtFecha(x.fecha)),
-              h('span', null, [x.minutos ? Math.round(x.minutos) + ' min' : null, x.km ? String(x.km).replace('.', ',') + ' km' : null, x.rpe ? 'RPE ' + x.rpe : 'sin RPE', x.nota || null, x.origen === 'entrenador' ? null : (x.origen === 'sensor' ? 'del sensor' : 'lo apuntó él')].filter(Boolean).join(' · '))),
+              h('span', null, [x.minutos ? Math.round(x.minutos) + ' min' : null, x.km ? String(x.km).replace('.', ',') + ' km' : null, x.desnivel ? '+' + x.desnivel + ' m' : null, x.rpe ? 'RPE ' + x.rpe : 'sin RPE', x.nota || null, x.origen === 'entrenador' ? null : (x.origen === 'sensor' ? 'del sensor' : 'lo apuntó él')].filter(Boolean).join(' · '))),
             h('span', { className: 'actl__ua' }, x.rpe ? Math.round(x.minutos * x.rpe) + ' UA' : '—'),
             puede ? h('button', { type: 'button', className: 'actl__x', 'aria-label': 'Borrar', title: 'Borrar', onClick: function () { commit(function (st) { st.externos = st.externos.filter(function (q) { return q.id !== x.id; }); }); } }, '×') : null); })) : null,
         h(G.Button, { size: 'md', variant: 'secondary', icon: 'mas', onClick: function () { abrir(null); } }, 'Añadir actividad'));
