@@ -3361,7 +3361,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.74";
+<script>window.GAGOR_VERSION = "1.75";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -6303,6 +6303,8 @@ window.GAGOR_reducirFoto = function (file) {
     var crp = useState(''); var cierreRpe = crp[0], setCierreRpe = crp[1];
     var rva = useState({}); var revAb = rva[0], setRevAb = rva[1];
     var acf = useState(null); var actF = acf[0], setActF = acf[1];
+    var avv = useState(function () { try { return JSON.parse(localStorage.getItem('gagor_avisos_vistos') || '{}') || {}; } catch (e) { return {}; } }); var avVis = avv[0], setAvVis = avv[1];
+    var avn = useState([]); var avNuevos = avn[0], setAvNuevos = avn[1];
     var jts = useState(null); var jt = jts[0], setJt = jts[1];
     var smn = useState(''); var saltoMano = smn[0], setSaltoMano = smn[1];
     var pke = useState(null); var pickEj = pke[0], setPickEj = pke[1];
@@ -6371,11 +6373,11 @@ window.GAGOR_reducirFoto = function (file) {
     var cliente = state.clientes.filter(function (c) { return c.id === cid; })[0] || state.clientes[0];
 
     function Nav() {
-      var items = [['inicio', 'Inicio', 'hoy'], ['mensajes', 'Mensajes', 'mensaje'], ['clientes', 'Clientes', 'equipo'], ['planificador', 'Planificador', 'calendario'], ['programas', 'Programas', 'plantilla'], ['biblioteca', 'Biblioteca', 'ejercicios'], ['revision', 'Revisión', 'aviso'], ['partidos', 'Partidos', 'partido'], ['datos', 'Datos', 'exportar']];
+      var items = [['inicio', 'Inicio', 'hoy'], ['mensajes', 'Mensajes', 'mensaje'], ['clientes', 'Clientes', 'equipo'], ['planificador', 'Planificador', 'calendario'], ['programas', 'Programas', 'plantilla'], ['biblioteca', 'Biblioteca', 'ejercicios'], ['revision', 'Revisión', 'aviso'], ['datos', 'Datos', 'exportar']];
       return h('nav', { className: 'nav' },
         h('div', { className: 'nav__mark' }, h(G.Logo, { variant: 'horizontal', height: 24 })),
         items.map(function (it) { var on = view === it[0] || ((view === 'estados' || view === 'semana') && it[0] === 'inicio') || (view === 'cliente' && it[0] === 'clientes') || (view === 'editor' && ed && it[0] === (ed.tipo === 'sesion' ? 'planificador' : 'programas'));
-          var badge = it[0] === 'revision' && todosAvisos.length ? todosAvisos.length : (it[0] === 'mensajes' && sinLeer.length ? sinLeer.length : null);
+          var badge = it[0] === 'revision' && nuevosAv.length && view !== 'revision' ? nuevosAv.length : (it[0] === 'mensajes' && sinLeer.length ? sinLeer.length : null);
           return h('button', { key: it[0], type: 'button', className: 'nav__item' + (on ? ' is-on' : ''), 'aria-current': on ? 'page' : undefined, onClick: function () { setView(it[0]); setBajaConf(false); setConf(''); } }, h(G.Icon, { name: it[2], size: 20 }), h('span', { className: 'nav__txt' }, it[1]), badge ? h('span', { className: 'nav__badge' }, badge) : null); }),
         h('div', { className: 'nav__foot' },
           h(G.SyncBadge, { short: true, fase: sync.fase, error: sync.error, when: sync.ultima ? ST.horaCorta(sync.ultima) : '' }),
@@ -6451,6 +6453,15 @@ window.GAGOR_reducirFoto = function (file) {
     }
     function ultimo(c) { var s = state.sesiones.filter(function (x) { return x.clienteId === c.id && x.estado === 'hecha'; }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; })[0]; return s ? ST.relativo(s.fecha) : '—'; }
     var todosAvisos = ST.avisos(state);
+    // 1.75 · avisos vistos: al entrar en Revisión se marcan como vistos y el número del menú solo cuenta los nuevos (se guarda en este dispositivo)
+    function avKey(a) { return [a.kind, a.clienteId || '', a.label || '', a.title || ''].join('|'); }
+    var nuevosAv = todosAvisos.filter(function (a) { return !avVis[avKey(a)]; });
+    React.useEffect(function () {
+      if (view !== 'revision') return; var nk = nuevosAv.map(avKey); if (!nk.length) return;
+      setAvNuevos(nk); setAvVis(function (o) { var n2 = Object.assign({}, o); nk.forEach(function (k) { n2[k] = Date.now(); });
+        var ks = Object.keys(n2); if (ks.length > 600) ks.sort(function (a, b) { return n2[a] - n2[b]; }).slice(0, ks.length - 600).forEach(function (k) { delete n2[k]; });
+        try { localStorage.setItem('gagor_avisos_vistos', JSON.stringify(n2)); } catch (e) {} return n2; });
+    }, [view, nuevosAv.length]);
 
     function sinTildes(x) { return (x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
     function codigoSugerido(nombre) {
@@ -8375,8 +8386,8 @@ window.GAGOR_reducirFoto = function (file) {
     function Revision() {
       var recientes = state.sesiones.filter(function (s) { return s.estado === 'hecha'; }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; }).slice(0, 6);
       return shell([
-        h(G.AppHeader, { key: 'h', title: 'Revisión', subtitle: todosAvisos.length + ' avisos · ' + recientes.length + ' sesiones registradas recientes' }),
-        h('div', { key: 'a', style: { display: 'grid', gap: '12px' } }, todosAvisos.length ? todosAvisos.map(function (a, i) { return h(G.AlertItem, { key: i, kind: a.kind, label: a.label, title: a.title, detail: a.detail, onOpen: a.clienteId ? function () { setCid(a.clienteId); setView('cliente'); } : undefined }); }) : h(G.EmptyState, { title: 'Sin avisos', detail: 'Ningún cliente cumple hoy una condición de aviso.' })),
+        h(G.AppHeader, { key: 'h', title: 'Revisión', subtitle: todosAvisos.length + ' avisos' + (avNuevos.length ? ' (' + avNuevos.length + (avNuevos.length === 1 ? ' nuevo)' : ' nuevos)') : '') + ' · ' + recientes.length + ' sesiones registradas recientes' }),
+        h('div', { key: 'a', style: { display: 'grid', gap: '12px' } }, todosAvisos.length ? todosAvisos.map(function (a, i) { return h(G.AlertItem, { key: i, kind: a.kind, label: (avNuevos.indexOf(avKey(a)) >= 0 ? 'Nuevo · ' : '') + (a.label || ''), title: a.title, detail: a.detail, onOpen: a.clienteId ? function () { setCid(a.clienteId); setView('cliente'); } : undefined }); }) : h(G.EmptyState, { title: 'Sin avisos', detail: 'Ningún cliente cumple hoy una condición de aviso.' })),
         h('div', { key: 'r', style: { display: 'grid', gap: '16px' } }, recientes.map(function (s) {
           var c = state.clientes.filter(function (q) { return q.id === s.clienteId; })[0]; var R = revResumen(s), abierta = !!revAb[s.id];
           function tog(k) { setRevAb(function (o) { var n2 = Object.assign({}, o); n2[k] = !n2[k]; return n2; }); }
