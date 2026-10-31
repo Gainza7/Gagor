@@ -635,6 +635,9 @@
 .gq__chip.is-on { background: var(--ink); color: var(--surface-card); border-color: var(--ink); }
 .gq__edad { width: 90px; }
 /* 1.69 · test de salto por vídeo (tiempo de vuelo) */
+.jt__nor { padding: 8px 12px; border-radius: 10px; background: var(--surface-sunken); font-size: 13px; line-height: 1.45; }
+.jt__nor summary { font-weight: 700; cursor: pointer; }
+.jt__nor ol { margin: 6px 0 2px; padding-left: 18px; display: grid; gap: 4px; }
 .jt__vid { width: 100%; max-height: 46vh; background: #000; border-radius: 12px; display: block; }
 .jt__pick { display: grid; gap: 8px; padding: 18px; border: 2px dashed var(--line-strong); border-radius: 12px; text-align: center; cursor: pointer; }
 .jt__pick input { display: none; }
@@ -3351,7 +3354,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.69";
+<script>window.GAGOR_VERSION = "1.70";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -8237,9 +8240,19 @@ window.GAGOR_reducirFoto = function (file) {
         h('div', { className: 'dses__box gqbox' },
           h('div', { className: 'dses__cab' }, h('div', null, h('p', { className: 'dses__q' }, c.nombre), h('h2', { className: 'dses__t' }, 'Test de salto · ' + a.tipo)), h('button', { type: 'button', className: 'dses__x', 'aria-label': 'Cerrar', onClick: cerrar }, '×')),
           h('div', { className: 'gq__f' }, h('span', { className: 'gq__l' }, 'Salto'), chips('tipo', [['CMJ', 'CMJ'], ['SJ', 'SJ'], ['CMJ brazos', 'CMJ con brazos'], ['CMJ izq', 'Una pierna izq.'], ['CMJ der', 'Una pierna der.']])),
+          h('details', { className: 'jt__nor' }, h('summary', null, 'Normas de grabación y de salto'),
+            h('ol', null,
+              h('li', null, h('b', null, 'Cámara lenta 240 fps'), ' (iPhone: Ajustes › Cámara › Grabar a cámara lenta › 1080p a 240).'),
+              h('li', null, h('b', null, 'Móvil quieto'), ', apoyado en el suelo o en un trípode bajo, a 1-2 m, a la altura de los pies y de frente o de lado. Que los dos pies se vean siempre.'),
+              h('li', null, h('b', null, 'Buena luz'), ' y sin contraluz; mejor zapatilla que contraste con el suelo.'),
+              h('li', null, h('b', null, 'Manos en la cadera'), ' (salvo «CMJ con brazos»).'),
+              h('li', null, h('b', null, 'Piernas estiradas al despegar y al caer'), ', tobillos en punta. Si dobla las rodillas en el aire o al caer, el vuelo se alarga y sale más alto de lo real: repite el intento.'),
+              h('li', null, h('b', null, 'Cae en el mismo sitio'), ' en el que despega.'),
+              h('li', null, h('b', null, 'SJ'), ': aguanta 2-3 s abajo con las rodillas a 90° y sube sin rebote.'),
+              h('li', null, h('b', null, '3 intentos'), ' con 30-60 s de descanso. Mismo calentamiento, calzado, suelo y hora en cada test, y no el día después de una sesión dura de pierna.'))),
           !a.url ? h('label', { className: 'jt__pick' },
             h('b', null, '🎥 Elegir o grabar vídeo'),
-            h('span', { className: 'muted small' }, 'Cámara lenta (240 fps si puedes). Móvil quieto, apoyado en el suelo a 1-2 m, que se vean bien los pies. Puedes grabar los 3 intentos en el mismo vídeo.'),
+            h('span', { className: 'muted small' }, 'A cámara lenta y con el móvil quieto en el suelo (mira las normas). Puedes grabar los 3 intentos en el mismo vídeo.'),
             h('input', { type: 'file', accept: 'video/*', onChange: function (ev) { var f = ev.target.files && ev.target.files[0]; if (!f) return; jtSet({ url: URL.createObjectURL(f), nombreVid: f.name, t1: null, t2: null, cur: 0 }); } }))
           : h('div', { style: { display: 'grid', gap: '8px' } },
             h('video', { id: 'jtvid', className: 'jt__vid', src: a.url, playsInline: true, muted: true, preload: 'auto',
@@ -8251,8 +8264,8 @@ window.GAGOR_reducirFoto = function (file) {
               h('button', { type: 'button', onClick: function () { jtPaso(1); } }, '+1'), h('button', { type: 'button', onClick: function () { jtPaso(10); } }, '+10')),
             h('p', { className: 'muted small', style: { margin: 0, textAlign: 'center' } }, 'Fotograma ' + Math.round((a.cur || 0) * (a.fps || 240)) + ' · ' + ms(a.cur || 0)),
             h('div', { className: 'jt__mk' },
-              h('button', { type: 'button', className: a.t1 != null ? 'is-on' : '', onClick: function () { jtSet('t1', jtVid() ? jtVid().currentTime : a.cur); } }, 'Marcar despegue', h('small', null, a.t1 != null ? ms(a.t1) : 'Último fotograma con los pies en el suelo')),
-              h('button', { type: 'button', className: a.t2 != null ? 'is-on' : '', onClick: function () { jtSet('t2', jtVid() ? jtVid().currentTime : a.cur); } }, 'Marcar aterrizaje', h('small', null, a.t2 != null ? ms(a.t2) : 'Primer fotograma que toca el suelo'))),
+              h('button', { type: 'button', className: a.t1 != null ? 'is-on' : '', onClick: function () { jtSet('t1', jtVid() ? jtVid().currentTime : a.cur); } }, 'Marcar despegue', h('small', null, a.t1 != null ? ms(a.t1) : 'Primer fotograma con los dos pies en el aire')),
+              h('button', { type: 'button', className: a.t2 != null ? 'is-on' : '', onClick: function () { jtSet('t2', jtVid() ? jtVid().currentTime : a.cur); } }, 'Marcar aterrizaje', h('small', null, a.t2 != null ? ms(a.t2) : 'Primer fotograma en que un pie toca el suelo'))),
             h('div', { className: 'gq__f' }, h('span', { className: 'gq__l' }, 'Fotogramas por segundo' + (a.fpsDet ? ' · detectado ' + a.fpsDet : '')), chips('fps', [[240, '240'], [120, '120'], [60, '60'], [30, '30']])),
             h('div', { className: 'gq__f' }, h('span', { className: 'gq__l' }, 'El vídeo se ve'), chips('factor', [[1, 'A velocidad real'], [4, 'Ralentizado ×4'], [8, 'Ralentizado ×8']])),
             h('div', { className: 'jt__res' }, h('div', null, h('span', { className: 'muted small' }, 'Tiempo de vuelo ' + (tvReal != null ? tvReal + ' ms' : '—')), h('br'), h('b', null, cm != null ? String(cm).replace('.', ',') + ' cm' : '— cm')),
