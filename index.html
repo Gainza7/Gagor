@@ -1341,6 +1341,12 @@ details[open] > summary .whist__chev { transform: rotate(180deg); }
 /* 1.3 · unilateral: repeticiones por lado */
 .edx__sub { display: flex; align-items: center; gap: 10px; margin-left: 38px; min-width: 0; }
 .edx__sub .edx__nota { margin-left: 0; flex: 1; }
+.edx__sub { flex-wrap: wrap; }
+.edx__clb { flex: 0 0 auto; height: 28px; padding: 0 10px; border: 1px dashed var(--line-strong); border-radius: 99px; background: none; color: var(--ink-muted); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.edx__clb:hover { color: var(--ink); border-style: solid; }
+.edx__cl { display: inline-flex; flex-wrap: wrap; max-width: 100%; box-sizing: border-box; align-items: center; gap: 6px; flex: 0 1 auto; padding: 2px 4px 2px 10px; border-radius: 99px; background: color-mix(in srgb, var(--accent) 12%, transparent); font-size: 13px; }
+.edx__cl .edx__in { width: 42px; height: 28px; padding: 0 6px; text-align: center; }
+.edx__clr { color: var(--ink-muted); font-variant-numeric: tabular-nums; } .edx__clr.is-al { color: var(--alert); }
 .edx__lado { display: inline-flex; align-items: center; gap: 6px; flex: none; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; line-height: 18px; font-weight: 600; color: var(--ink-muted); cursor: pointer; user-select: none; }
 .edx__lado input { margin: 0; accent-color: var(--accent); }
 .edx__rw { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 4px; }
@@ -3354,7 +3360,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.70";
+<script>window.GAGOR_VERSION = "1.71";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -3940,9 +3946,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function repTxt(e) {
     if (!e) return '';
     var uno = function (n) { return e.seg ? ((Number(n) > 1 ? n + ' \u00d7 ' : '') + e.seg + ' s') : n; };
-    if (!e.lado) return uno(e.reps);
-    var r = ladoReps(e); return r[0] === r[1] ? uno(r[0]) + ' por lado' : uno(r[0]) + ' izq · ' + uno(r[1]) + ' der';
+    if (!e.lado) return String(uno(e.reps)) + clusterTxt(e, Number(e.reps));
+    var r = ladoReps(e); return (r[0] === r[1] ? uno(r[0]) + ' por lado' : uno(r[0]) + ' izq · ' + uno(r[1]) + ' der') + clusterTxt(e, r[0]);
   }
+  // 1.71 · series cluster: e.cluster = { t: tramos, d: segundos de descanso entre tramos }. «6 (3×2 · 10″)»
+  function clusterTxt(e, total) { var c = e && e.cluster; if (!c || !(c.t > 1) || e.seg) return ''; var t0 = Math.round(c.t), per = total && total % t0 === 0 ? total / t0 : null;
+    return ' (' + (per ? t0 + '\u00d7' + per : t('en ') + t0 + t(' tramos')) + (c.d ? ' · ' + c.d + '\u2033' : '') + ')'; }
   function esUnilateral(st, id) { var x = (st.ejercicios || []).filter(function (q) { return q.id === id; })[0]; return !!(x && /^Unilateral/.test(x.patron || '')); }
   function aplicarEdicion(ses, bloques) {
     var reg = {};
@@ -5819,6 +5828,7 @@ window.GAGOR_reducirFoto = function (file) {
           ex.videoUrl ? h(G.ExerciseVideo, { title: ex.nombre, url: ex.videoUrl }) : null,
           h('div', { className: 'target' },
             cur.circ ? null : h('p', { className: 'target__big' }, e.series + ' \u00d7 ' + ST.repTxt(e), e.carga ? (e.cargaX === 2 ? h('span', { style: { display: 'block', fontSize: '0.55em', marginTop: '4px' } }, t('2 mancuernas de ') + n(e.carga) + t(' kg')) : h('span', null, ' · ' + n(e.carga) + t(' kg'))) : null),
+            e.cluster && e.cluster.t > 1 && !e.seg ? h('p', { className: 'small', style: { margin: '6px 0 0', padding: '8px 12px', borderRadius: '10px', background: 'var(--surface-sunken)' } }, h('b', null, t('Serie cluster: ')), (function () { var tot = e.lado ? ST.ladoReps(e)[0] : Number(e.reps) || 0, tr = e.cluster.t; return (tot % tr === 0 ? tr + t(' tramos de ') + (tot / tr) : t('reparte ') + tot + t(' en ') + tr + t(' tramos')) + (e.lado ? t(' por lado') : '') + t(', descansando ') + (e.cluster.d || 10) + t(' s entre tramos. Cuenta como una sola serie.'); })()) : null,
             h('ul', { className: 'chips' }, chips.map(function (c, i) { return h('li', { key: i }, c); })),
             ssCon.length ? h('p', { className: 'target__note' }, t('Alterna con ') + ssCon.map(function (f) { return ST.nombreEj(state, f.e.ejId); }).join(t(' y ')) + t(': una serie de cada y luego descansa.')) : null,
             null),
@@ -5874,7 +5884,7 @@ window.GAGOR_reducirFoto = function (file) {
       }
       var body;
       if (guide.phase === 'work') body = [
-        h(G.PhaseTimer, { key: 'w' + guide.key, phase: 'work', resetKey: guide.key, countdown: e.seg ? (Number(objReps(e, guide.si)) || 1) * e.seg : 0, detail: (e.lado ? ST.repTxt(e) : (e.seg ? ST.repTxt(e) : e.reps + t(' reps'))) + cargaTxt(e) + (e.tempo ? t(' · tempo ') + e.tempo : ''), onDone: function (secs) { setRow(ses, cur.key, e, guide.si, Object.assign({}, row, { tWork: secs })); setGuide(Object.assign({}, guide, { phase: 'confirm' })); } }),
+        h(G.PhaseTimer, { key: 'w' + guide.key, phase: 'work', resetKey: guide.key, countdown: e.seg ? (Number(objReps(e, guide.si)) || 1) * e.seg : 0, detail: (e.lado || e.cluster ? ST.repTxt(e) : (e.seg ? ST.repTxt(e) : e.reps + t(' reps'))) + cargaTxt(e) + (e.tempo ? t(' · tempo ') + e.tempo : ''), onDone: function (secs) { setRow(ses, cur.key, e, guide.si, Object.assign({}, row, { tWork: secs })); setGuide(Object.assign({}, guide, { phase: 'confirm' })); } }),
         h(G.ExerciseVideo, { key: 'v', title: ex.nombre, url: ex.videoUrl }),
         null];
       if (guide.phase === 'work' && String(e.nota || '').trim()) body.unshift(NotaEnt(String(e.nota).trim(), { key: 'nt' }));
@@ -6861,10 +6871,10 @@ window.GAGOR_reducirFoto = function (file) {
        convierte al guardar.                                                   */
     function txtNum(v) { return v === null || v === undefined || v === '' ? '' : String(v).replace('.', ','); }
     function numTxt(v) { var x = parseFloat(String(v || '').replace(',', '.')); return isFinite(x) ? x : null; }
-    function aBorrador(e, k) { return { _u: ST.uid(), _k: k, ejId: e.ejId, series: txtNum(e.series), reps: txtNum(e.reps), lado: !!e.lado, repsIzq: txtNum(e.repsIzq), repsDer: txtNum(e.repsDer), seg: txtNum(e.seg), carga: txtNum(e.carga), cargaX: e.cargaX === 2 ? 2 : 1, descanso: txtNum(e.descanso), tempo: e.tempo || '', rpe: txtNum(e.rpe), ss: e.ss || '', nota: e.nota || '' }; }
+    function aBorrador(e, k) { return { _u: ST.uid(), _k: k, ejId: e.ejId, series: txtNum(e.series), reps: txtNum(e.reps), lado: !!e.lado, repsIzq: txtNum(e.repsIzq), repsDer: txtNum(e.repsDer), seg: txtNum(e.seg), carga: txtNum(e.carga), cargaX: e.cargaX === 2 ? 2 : 1, descanso: txtNum(e.descanso), tempo: e.tempo || '', rpe: txtNum(e.rpe), ss: e.ss || '', nota: e.nota || '', clT: e.cluster ? String(e.cluster.t) : '', clD: e.cluster && e.cluster.d ? String(e.cluster.d) : '', clOn: !!e.cluster }; }
     function deBorrador(d, conClave) {
       var e = { ejId: d.ejId, series: Math.round(numTxt(d.series) || 0), reps: Math.round(numTxt(d.reps) || 0), carga: numTxt(d.carga), descanso: Math.round(numTxt(d.descanso) || 0) };
-      if (numTxt(d.seg) > 0) e.seg = Math.round(numTxt(d.seg)); if (d.cargaX === 2) e.cargaX = 2; if (d.lado) { e.lado = true; if (numTxt(d.repsIzq) > 0) e.reps = Math.round(numTxt(d.repsIzq)); if (numTxt(d.repsIzq) > 0) e.repsIzq = Math.round(numTxt(d.repsIzq)); if (numTxt(d.repsDer) > 0) e.repsDer = Math.round(numTxt(d.repsDer)); } if (d.tempo && d.tempo.trim()) e.tempo = d.tempo.trim(); if (numTxt(d.rpe)) e.rpe = numTxt(d.rpe); if (d.ss) e.ss = d.ss; if (d.nota && d.nota.trim()) e.nota = d.nota.trim();
+      if (numTxt(d.seg) > 0) e.seg = Math.round(numTxt(d.seg)); if (d.cargaX === 2) e.cargaX = 2; if (d.lado) { e.lado = true; if (numTxt(d.repsIzq) > 0) e.reps = Math.round(numTxt(d.repsIzq)); if (numTxt(d.repsIzq) > 0) e.repsIzq = Math.round(numTxt(d.repsIzq)); if (numTxt(d.repsDer) > 0) e.repsDer = Math.round(numTxt(d.repsDer)); } if (d.tempo && d.tempo.trim()) e.tempo = d.tempo.trim(); if (numTxt(d.rpe)) e.rpe = numTxt(d.rpe); if (d.ss) e.ss = d.ss; if (d.nota && d.nota.trim()) e.nota = d.nota.trim(); if (d.clOn && Math.round(numTxt(d.clT) || 0) >= 2 && !e.seg) e.cluster = { t: Math.round(numTxt(d.clT)), d: Math.round(numTxt(d.clD) || 0) || 10 };
       if (conClave && d._k) e._k = d._k; return e;
     }
     // 1.41 · tramos de intervalos: en el borrador la duración va como texto «1:30» o «90»
@@ -7637,6 +7647,13 @@ window.GAGOR_reducirFoto = function (file) {
                         hx.ult.kg !== null && String(e.carga).replace(',', '.') !== String(hx.ult.kg) ? h('button', { type: 'button', className: 'edx__usar', onClick: function () { campoEj(bi, ei, 'carga', String(hx.ult.kg).replace('.', ',')); } }, 'Poner ' + String(hx.ult.kg).replace('.', ',') + ' kg') : null);
                     })() : null,
                     e.ejId && repSem[e.ejId] ? h('p', { className: 'edx__rep', role: 'note' }, '▲ Ya lo tiene esta semana: ' + repSem[e.ejId].join(', ')) : null,
+                    e.seg && !e.clOn ? null : (e.clOn ? h('span', { className: 'edx__cl' },
+                        h('b', null, 'Cluster'),
+                        h('input', { className: 'edx__in', value: e.clT, placeholder: '3', inputMode: 'numeric', 'aria-label': 'Tramos por serie', title: 'Tramos en que se divide cada serie', onChange: function (ev) { campoEj(bi, ei, 'clT', ev.target.value.replace(/[^0-9]/g, '')); } }), h('span', null, 'tramos ·'),
+                        h('input', { className: 'edx__in', value: e.clD, placeholder: '10', inputMode: 'numeric', 'aria-label': 'Segundos de descanso entre tramos', title: 'Descanso entre tramos, en segundos', onChange: function (ev) { campoEj(bi, ei, 'clD', ev.target.value.replace(/[^0-9]/g, '')); } }), h('span', null, 's'),
+                        (function () { var tot = Math.round(numTxt(e.lado ? e.repsIzq : e.reps) || 0), tr = Math.round(numTxt(e.clT) || 0); return h('span', { className: 'edx__clr' + (tr >= 2 && tot && tot % tr ? ' is-al' : '') }, tr >= 2 && tot ? (tot % tr ? tot + ' no se reparte igual en ' + tr : '= ' + tr + ' × ' + (tot / tr)) : ''); })(),
+                        h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Quitar cluster', title: 'Quitar cluster', onClick: function () { up(function (x) { var q = x.bloques[bi].ejercicios[ei]; q.clOn = false; q.clT = ''; q.clD = ''; }); } }, h(G.Icon, { name: 'cerrar', size: 14 })))
+                      : h('button', { type: 'button', className: 'edx__clb', title: 'Serie cluster: dividir cada serie en tramos con un descanso corto', onClick: function () { up(function (x) { var q = x.bloques[bi].ejercicios[ei]; q.clOn = true; var tot = Math.round(numTxt(q.lado ? q.repsIzq : q.reps) || 0); q.clT = q.clT || String(tot % 3 === 0 && tot >= 6 ? 3 : (tot % 2 === 0 && tot >= 4 ? 2 : 3)); q.clD = q.clD || '10'; }); } }, '+ Cluster')),
                     h('input', { className: 'edx__nota', value: e.nota, placeholder: 'Nota para el jugador (opcional)', 'aria-label': 'Nota', onChange: function (ev) { campoEj(bi, ei, 'nota', ev.target.value); } })));
               })) : h('p', { className: 'muted small', style: { margin: '4px 0 0' } }, 'Bloque vacío. Añade el primer ejercicio.'),
             h('button', { type: 'button', className: 'g-import__select edx__add edx__pick', 'aria-label': 'Añadir ejercicio a ' + b.titulo, onClick: function () { setPickEj({ bi: bi, ei: null, q: '' }); } }, h(G.Icon, { name: 'buscar', size: 16 }), h('span', null, 'Añadir ejercicio…')));
