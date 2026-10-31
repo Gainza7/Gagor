@@ -634,6 +634,16 @@
 .gq__chip { padding: 8px 12px; border-radius: 99px; border: 1px solid var(--line-strong); background: var(--surface-card); color: var(--ink); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
 .gq__chip.is-on { background: var(--ink); color: var(--surface-card); border-color: var(--ink); }
 .gq__edad { width: 90px; }
+/* 1.67 · actividades por su cuenta (carrera, bici…) */
+.actl { display: grid; gap: 6px; }
+.actl__r { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: var(--surface-sunken); min-width: 0; }
+.actl__ic { flex: 0 0 auto; font-size: 18px; }
+.actl__tx { flex: 1; min-width: 0; display: grid; }
+.actl__tx b { font-size: 14px; } .actl__tx span { font-size: 12px; color: var(--ink-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.actl__ua { font-family: var(--font-display); font-weight: 700; font-size: 15px; white-space: nowrap; }
+.actl__x { flex: 0 0 auto; width: 30px; height: 30px; border: 0; border-radius: 50%; background: none; color: var(--ink-muted); font-size: 16px; cursor: pointer; }
+.actl__x:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.gq__rpe .gq__chip { min-width: 40px; padding: 8px 0; text-align: center; }
 /* 1.66 · Revisión compacta y desplegable */
 .rvs { display: grid; gap: 10px; }
 .rvs__hd { display: flex; align-items: center; gap: 10px; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
@@ -3323,7 +3333,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.66";
+<script>window.GAGOR_VERSION = "1.67";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -5451,7 +5461,7 @@ window.GAGOR_reducirFoto = function (file) {
     function marcas() {
       var marks = {}, labels = {};
       misSesiones.forEach(function (s) { marks[s.fecha] = s.estado === 'hecha' ? 'done' : (s.fecha < hoyIso ? 'missed' : 'planned'); labels[s.fecha] = t(corto(s.titulo)); });
-      state.externos.filter(function (e) { return e.clienteId === cid; }).forEach(function (e) { if (!marks[e.fecha]) { marks[e.fecha] = 'team'; labels[e.fecha] = t(e.origen === 'sensor' ? 'Partido' : 'Equipo'); } });
+      state.externos.filter(function (e) { return e.clienteId === cid; }).forEach(function (e) { if (!marks[e.fecha]) { marks[e.fecha] = 'team'; labels[e.fecha] = t(e.tipo && e.titulo ? e.titulo : (e.origen === 'sensor' ? 'Partido' : 'Equipo')); } });
       return { marks: marks, labels: labels };
     }
     function SesionDia(props) {
@@ -6252,6 +6262,7 @@ window.GAGOR_reducirFoto = function (file) {
     var mze = useState(null); var mesoEd = mze[0], setMesoEd = mze[1];
     var crp = useState(''); var cierreRpe = crp[0], setCierreRpe = crp[1];
     var rva = useState({}); var revAb = rva[0], setRevAb = rva[1];
+    var acf = useState(null); var actF = acf[0], setActF = acf[1];
     var pke = useState(null); var pickEj = pke[0], setPickEj = pke[1];
     var gnq = useState(null); var genQ = gnq[0], setGenQ = gnq[1];
     var apo = useState(false); var aprOpen = apo[0], setAprOpen = apo[1];
@@ -6649,6 +6660,7 @@ window.GAGOR_reducirFoto = function (file) {
             h('div', { className: 'cbal__tx' }, avs.map(function (a, i) { return h('p', { key: i }, h('b', null, a.t), ' · ', a.d); }),
               h('small', null, 'Esta semana' + (prog ? ', contando lo programado que falta' : '') + '. Se calcula con el grupo de cada ejercicio en la Biblioteca.')));
         })(),
+        actF && actF.cid === c.id ? h('div', { key: 'actm' }, ActModal()) : null,
         mesoEd && mesoEd.cid === c.id ? h('div', { key: 'mzm', className: 'dses', role: 'dialog', 'aria-modal': 'true', onClick: function (ev) { if (ev.target === ev.currentTarget) setMesoEd(null); } }, h('div', { className: 'dses__box mzbox' }, MesoPanel(c))) : null,
         (function () {
               var MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
@@ -6706,7 +6718,7 @@ window.GAGOR_reducirFoto = function (file) {
                     h('summary', null, h('span', { className: 'whist__t' }, 'Semana ' + rango(l) + (l === lunHoy ? ' · esta' : '')), h('span', { className: 'whist__m' + (sinH ? ' is-alert' : '') }, hh + '/' + g.length + ' hechas' + (sinH ? ' · ' + sinH + ' sin hacer' : '')), h(G.Icon, { name: 'abajo', size: 16, className: 'whist__chev' })),
                     h('div', { className: 'whist__body' }, g.map(fila)));
                 }) : h('p', { className: 'muted small', style: { margin: 0 } }, 'Aún no tiene sesiones.'));
-              return [carga.filter(function (x) { return x.value > 0; }).length >= 3 ? h(G.ProgressChart, { key: 'car', title: 'Carga semanal · duración × RPE', unit: 'ua', data: carga }) : null, hist];
+              return [carga.filter(function (x) { return x.value > 0; }).length >= 2 ? h(G.ProgressChart, { key: 'car', title: 'Carga semanal (gimnasio + por su cuenta)', unit: 'ua', data: carga }) : null, ActPanel(c), hist];
             })()),
           h('div', { style: { display: 'grid', gap: '16px' } },
             (function () {
@@ -6738,7 +6750,7 @@ window.GAGOR_reducirFoto = function (file) {
                     h('div', { className: 'rowline' }, h(G.Button, { size: 'md', variant: 'secondary', onClick: function () { setBajaConf(false); } }, 'Cancelar'), h(G.Button, { size: 'md', icon: 'borrar', className: 'g-btn--danger', onClick: function () { var id = c.id; commit(function (st) { st.clientes = st.clientes.filter(function (q) { return q.id !== id; }); }); setBajaConf(false); setView('clientes'); } }, 'Confirmar baja')))
                   : h(G.Button, { full: true, size: 'md', variant: 'ghost', icon: 'borrar', onClick: function () { setBajaConf(true); } }, 'Dar de baja'))),
             h('div', { className: 'panel' }, (function () { var marks = {}, labels = {}; ses.forEach(function (s) { marks[s.fecha] = s.estado === 'hecha' ? 'done' : (s.fecha < hoyIso ? 'missed' : 'planned'); labels[s.fecha] = (function (w) { return w.charAt(0).toUpperCase() + w.slice(1); })((s.titulo || '').replace(/^Fuerza\s+/i, '').split(' ')[0]); });
-              state.externos.filter(function (x) { return x.clienteId === c.id; }).forEach(function (x) { if (!marks[x.fecha]) { marks[x.fecha] = 'team'; labels[x.fecha] = x.origen === 'sensor' ? 'Partido' : 'Equipo'; } });
+              state.externos.filter(function (x) { return x.clienteId === c.id; }).forEach(function (x) { if (!marks[x.fecha]) { marks[x.fecha] = 'team'; labels[x.fecha] = actEtiqueta(x); } });
               var wks = {}; if (c.meso && c.meso.semanas) c.meso.semanas.forEach(function (w, k) { var sm = semMeso(w); wks[ST.iso(ST.addDays(new Date(c.meso.inicio + 'T12:00:00'), 7 * k))] = { c: sm.color, n: sm.nombre, t: 'Semana ' + (k + 1) + ' · ' + sm.nombre + (w.reps ? ' · ' + w.reps + ' reps' : '') + (w.rpe ? ' · RPE ' + w.rpe : '') }; });
               var abrirMz = function () { setConf(''); if (c.meso) setMesoEd({ cid: c.id, inicio: c.meso.inicio, semanas: JSON.parse(JSON.stringify(c.meso.semanas)) }); else { var p0 = OBJ.hipertrofia, d0 = OBJ.descarga; setMesoEd({ cid: c.id, inicio: ST.semanaDe(hoyIso), semanas: [0, 1, 2].map(function () { return { obj: 'hipertrofia', reps: p0.reps, rpe: p0.rpe, vol: p0.vol, nota: '' }; }).concat([{ obj: 'descarga', reps: d0.reps, rpe: d0.rpe, vol: d0.vol, nota: '' }]) }); } };
               return h(G.MonthCalendar, { month: mesCal || hoyIso.slice(0, 7), today: hoyIso, marks: marks, labels: labels, weeks: wks, extra: h('button', { type: 'button', className: 'g-cal__mz', onClick: abrirMz }, c.meso ? 'Editar mesociclo' : '+ Mesociclo'), onMonth: setMesCal, onChange: function (d) { var lun = new Date(ST.semanaDe(d) + 'T12:00:00'); var hoyL = new Date(ST.semanaDe(hoyIso) + 'T12:00:00'); setWeek(Math.round((lun - hoyL) / (7 * 86400000))); setView('planificador'); } }); })()),
@@ -8134,6 +8146,51 @@ window.GAGOR_reducirFoto = function (file) {
     }
 
     /* ------------------------------------------------------------ REVISIÓN */
+    // 1.67 · ACTIVIDADES POR SU CUENTA: el entrenador apunta lo que el cliente hace fuera (correr, bici…). Van a state.externos
+    // (colección que ya se sincroniza y que ya suma en la carga semanal: minutos × RPE).
+    var ACT_TIPOS = [['carrera', 'Carrera', '🏃'], ['bici', 'Bici', '🚴'], ['nadar', 'Natación', '🏊'], ['caminar', 'Caminata', '🚶'], ['deporte', 'Deporte', '⚽'], ['otro', 'Otra actividad', '•']];
+    function actTipo(k) { return ACT_TIPOS.filter(function (q) { return q[0] === k; })[0] || null; }
+    function actEtiqueta(x) { var ty = actTipo(x.tipo); return ty ? ty[1] : (x.origen === 'sensor' ? 'Partido' : 'Equipo'); }
+    function ActModal() {
+      if (!actF) return null; var c = state.clientes.filter(function (q) { return q.id === actF.cid; })[0]; if (!c) return null; var a = actF;
+      function set(k, v) { setActF(function (o) { var n2 = Object.assign({}, o); n2[k] = v; return n2; }); }
+      var min = Number(String(a.min).replace(',', '.')) || 0, ua = Math.round(min * (a.rpe || 0)), conKm = /carrera|bici|nadar|caminar/.test(a.tipo), listo = min > 0 && a.rpe;
+      function fila(l, x) { return h('div', { className: 'gq__f' }, h('span', { className: 'gq__l' }, l), x); }
+      return h('div', { className: 'dses', role: 'dialog', 'aria-modal': 'true', onClick: function (ev) { if (ev.target === ev.currentTarget) setActF(null); } },
+        h('div', { className: 'dses__box gqbox' },
+          h('div', { className: 'dses__cab' }, h('div', null, h('p', { className: 'dses__q' }, c.nombre), h('h2', { className: 'dses__t' }, a.id ? 'Editar actividad' : 'Actividad por su cuenta')), h('button', { type: 'button', className: 'dses__x', 'aria-label': 'Cerrar', onClick: function () { setActF(null); } }, '×')),
+          fila('Qué ha hecho', h('div', { className: 'gq__chips' }, ACT_TIPOS.map(function (q) { return h('button', { key: q[0], type: 'button', className: 'gq__chip' + (a.tipo === q[0] ? ' is-on' : ''), onClick: function () { set('tipo', q[0]); } }, q[2] + ' ' + q[1]); }))),
+          fila('Día', h('input', { type: 'date', className: 'edx__in', value: a.fecha, max: hoyIso, onChange: function (ev) { if (ev.target.value) set('fecha', ev.target.value); } })),
+          h('div', { className: 'rowline', style: { alignItems: 'flex-end', gap: '12px' } },
+            fila('Minutos', h('input', { className: 'edx__in gq__edad', inputMode: 'numeric', value: a.min, placeholder: '45', onChange: function (ev) { set('min', ev.target.value.replace(/[^0-9]/g, '')); } })),
+            conKm ? fila('Km (opcional)', h('input', { className: 'edx__in gq__edad', inputMode: 'decimal', value: a.km, placeholder: '8', onChange: function (ev) { set('km', ev.target.value.replace(/[^0-9.,]/g, '')); } })) : null),
+          fila('RPE · cómo de duro fue (1-10)', h('div', { className: 'gq__chips gq__rpe' }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) { return h('button', { key: v, type: 'button', className: 'gq__chip' + (a.rpe === v ? ' is-on' : ''), onClick: function () { set('rpe', v); } }, v); }))),
+          fila('Nota (opcional)', h('input', { className: 'edx__in', value: a.nota, placeholder: 'Rodaje suave, series en pista…', onChange: function (ev) { set('nota', ev.target.value); } })),
+          h('p', { className: 'muted small', style: { margin: 0 } }, listo ? 'Suma ' + ua + ' UA (' + min + ' min × RPE ' + a.rpe + ') a la carga de la semana del ' + ST.fmtFecha(ST.semanaDe(a.fecha)) + '.' : 'Pon los minutos y el RPE para sumarla a su carga semanal.'),
+          h('div', { className: 'rowline', style: { marginTop: '4px' } },
+            h(G.Button, { size: 'md', variant: 'secondary', onClick: function () { setActF(null); } }, 'Cancelar'),
+            h(G.Button, { size: 'md', icon: 'check', disabled: !listo, onClick: function () { if (!listo) return; var ty = actTipo(a.tipo) || ACT_TIPOS[5], km = Number(String(a.km || '').replace(',', '.')) || null;
+              commit(function (st) { var x = a.id ? st.externos.filter(function (q) { return q.id === a.id; })[0] : null;
+                if (!x) { x = { id: ST.uid(), clienteId: c.id, origen: 'entrenador' }; st.externos.push(x); }
+                x.fecha = a.fecha; x.minutos = min; x.rpe = a.rpe; x.tipo = ty[0]; x.titulo = ty[1]; if (km) x.km = km; else delete x.km; if (a.nota && a.nota.trim()) x.nota = a.nota.trim(); else delete x.nota; });
+              setActF(null); } }, a.id ? 'Guardar cambios' : 'Añadir a su carga'))));
+    }
+    function ActPanel(c) {
+      var lista = state.externos.filter(function (x) { return x.clienteId === c.id; }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; });
+      var lun = ST.semanaDe(hoyIso), estaSem = lista.filter(function (x) { return x.fecha >= lun && x.rpe; }).reduce(function (s0, x) { return s0 + x.minutos * x.rpe; }, 0);
+      function abrir(x) { setActF(x ? { id: x.id, cid: c.id, tipo: x.tipo || 'otro', fecha: x.fecha, min: String(x.minutos || ''), km: x.km ? String(x.km).replace('.', ',') : '', rpe: x.rpe || null, nota: x.nota || '' } : { cid: c.id, tipo: 'carrera', fecha: hoyIso, min: '', km: '', rpe: null, nota: '' }); }
+      return h('div', { key: 'act', className: 'whist' },
+        h('div', { className: 'whist__head' }, h('span', { className: 'g-list__title' }, 'Por su cuenta'), h('span', { className: 'muted small' }, estaSem ? Math.round(estaSem) + ' UA esta semana' : 'Carrera, bici… suman a su carga')),
+        lista.length ? h('div', { className: 'actl' }, lista.slice(0, 6).map(function (x) { var ty = actTipo(x.tipo), puede = x.origen !== 'sensor';
+          return h('div', { key: x.id, className: 'actl__r' },
+            h('span', { className: 'actl__ic', 'aria-hidden': true }, ty ? ty[2] : (x.origen === 'sensor' ? '🏀' : '👥')),
+            h('button', { type: 'button', className: 'actl__tx', style: { border: 0, background: 'none', padding: 0, color: 'inherit', font: 'inherit', textAlign: 'left', cursor: puede ? 'pointer' : 'default' }, onClick: puede ? function () { abrir(x); } : undefined },
+              h('b', null, actEtiqueta(x) + ' · ' + ST.fmtFecha(x.fecha)),
+              h('span', null, [x.minutos ? Math.round(x.minutos) + ' min' : null, x.km ? String(x.km).replace('.', ',') + ' km' : null, x.rpe ? 'RPE ' + x.rpe : 'sin RPE', x.nota || null, x.origen === 'entrenador' ? null : (x.origen === 'sensor' ? 'del sensor' : 'lo apuntó él')].filter(Boolean).join(' · '))),
+            h('span', { className: 'actl__ua' }, x.rpe ? Math.round(x.minutos * x.rpe) + ' UA' : '—'),
+            puede ? h('button', { type: 'button', className: 'actl__x', 'aria-label': 'Borrar', title: 'Borrar', onClick: function () { commit(function (st) { st.externos = st.externos.filter(function (q) { return q.id !== x.id; }); }); } }, '×') : null); })) : null,
+        h(G.Button, { size: 'md', variant: 'secondary', icon: 'mas', onClick: function () { abrir(null); } }, 'Añadir actividad'));
+    }
     // 1.66 · REVISIÓN: estado de cada serie frente al objetivo, resumen de la sesión y bloques desplegables
     function revEstado(e, r) { if (!r || !r.done) return 'no'; if (e.seg) return 'ok'; var t = e.lado ? ST.ladoReps(e) : [Number(e.reps) || 0, 0];
       var hr = (Number(r.reps) || 0) + (e.lado ? Number(r.repsD) || 0 : 0), tr = t[0] + (e.lado ? t[1] : 0), hc = Number(r.carga) || 0, tc = Number(e.carga) || 0;
