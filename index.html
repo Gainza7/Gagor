@@ -3360,7 +3360,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.71";
+<script>window.GAGOR_VERSION = "1.72";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -3950,8 +3950,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var r = ladoReps(e); return (r[0] === r[1] ? uno(r[0]) + ' por lado' : uno(r[0]) + ' izq · ' + uno(r[1]) + ' der') + clusterTxt(e, r[0]);
   }
   // 1.71 · series cluster: e.cluster = { t: tramos, d: segundos de descanso entre tramos }. «6 (3×2 · 10″)»
-  function clusterTxt(e, total) { var c = e && e.cluster; if (!c || !(c.t > 1) || e.seg) return ''; var t0 = Math.round(c.t), per = total && total % t0 === 0 ? total / t0 : null;
-    return ' (' + (per ? t0 + '\u00d7' + per : t('en ') + t0 + t(' tramos')) + (c.d ? ' · ' + c.d + '\u2033' : '') + ')'; }
+  // 1.72 · se escribe como tramos: 6 en 3 → «2-2-2»; 7 en 3 → «3-2-2»
+  function clusterTramos(total, tr) { total = Math.round(Number(total) || 0); tr = Math.round(Number(tr) || 0); if (!(tr > 1) || !(total > 0)) return ''; var b = Math.floor(total / tr), r = total % tr, a = []; for (var i = 0; i < tr; i++) a.push(b + (i < r ? 1 : 0)); return a.join('-'); }
+  function clusterTxt(e, total) { var c = e && e.cluster; if (!c || !(c.t > 1) || e.seg) return ''; var tx = clusterTramos(total, c.t);
+    return ' (' + (tx || t('en ') + Math.round(c.t) + t(' tramos')) + (c.d ? ' · ' + c.d + '\u2033' : '') + ')'; }
   function esUnilateral(st, id) { var x = (st.ejercicios || []).filter(function (q) { return q.id === id; })[0]; return !!(x && /^Unilateral/.test(x.patron || '')); }
   function aplicarEdicion(ses, bloques) {
     var reg = {};
@@ -4500,7 +4502,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
 
   global.GAGOR_STORE = { rango: rango, horaCorta: horaCorta, vacio: vacio, cargar: cargar, guardar: guardar, borrar: borrar, semilla: semilla, iso: iso, addDays: addDays, hoy: hoy, uid: uid,
-    fmtFecha: fmtFecha, fmtFechaMin: fmtFechaMin, fmtCorta: fmtCorta, relativo: relativo, sesionDesde: sesionDesde, ejerciciosPlanos: ejerciciosPlanos, etiquetas: etiquetas, ejerciciosNuevos: ejerciciosNuevos, companeros: companeros, resumenBloques: resumenBloques, sesionEnBlanco: sesionEnBlanco, aplicarEdicion: aplicarEdicion, repTxt: repTxt, ladoReps: ladoReps, ordenSesion: ordenSesion, esUnilateral: esUnilateral, borradorBloques: borradorBloques,
+    fmtFecha: fmtFecha, fmtFechaMin: fmtFechaMin, fmtCorta: fmtCorta, relativo: relativo, sesionDesde: sesionDesde, ejerciciosPlanos: ejerciciosPlanos, etiquetas: etiquetas, ejerciciosNuevos: ejerciciosNuevos, companeros: companeros, resumenBloques: resumenBloques, sesionEnBlanco: sesionEnBlanco, aplicarEdicion: aplicarEdicion, repTxt: repTxt, clusterTramos: clusterTramos, ladoReps: ladoReps, ordenSesion: ordenSesion, esUnilateral: esUnilateral, borradorBloques: borradorBloques,
     bloquesSemana: bloquesSemana, grupos: grupos, grupoBase: grupoBase, clientesDestino: clientesDestino, calendarioPrograma: calendarioPrograma, asignarPrograma: asignarPrograma, retirarAsignacion: retirarAsignacion, nombreDestino: nombreDestino,
     cargasSemanales: cargasSemanales, recuperacion: recuperacion, records: records, nombreEj: nombreEj, ejercicio: ejercicio,
     ultimaCargaReal: ultimaCargaReal, historialPesos: historialPesos, animoDe: animoDe, estadoDe: estadoDe, avisos: avisos, semanaDe: semanaDe, DIAS: DIAS,
@@ -5828,7 +5830,7 @@ window.GAGOR_reducirFoto = function (file) {
           ex.videoUrl ? h(G.ExerciseVideo, { title: ex.nombre, url: ex.videoUrl }) : null,
           h('div', { className: 'target' },
             cur.circ ? null : h('p', { className: 'target__big' }, e.series + ' \u00d7 ' + ST.repTxt(e), e.carga ? (e.cargaX === 2 ? h('span', { style: { display: 'block', fontSize: '0.55em', marginTop: '4px' } }, t('2 mancuernas de ') + n(e.carga) + t(' kg')) : h('span', null, ' · ' + n(e.carga) + t(' kg'))) : null),
-            e.cluster && e.cluster.t > 1 && !e.seg ? h('p', { className: 'small', style: { margin: '6px 0 0', padding: '8px 12px', borderRadius: '10px', background: 'var(--surface-sunken)' } }, h('b', null, t('Serie cluster: ')), (function () { var tot = e.lado ? ST.ladoReps(e)[0] : Number(e.reps) || 0, tr = e.cluster.t; return (tot % tr === 0 ? tr + t(' tramos de ') + (tot / tr) : t('reparte ') + tot + t(' en ') + tr + t(' tramos')) + (e.lado ? t(' por lado') : '') + t(', descansando ') + (e.cluster.d || 10) + t(' s entre tramos. Cuenta como una sola serie.'); })()) : null,
+            e.cluster && e.cluster.t > 1 && !e.seg ? h('p', { className: 'small', style: { margin: '6px 0 0', padding: '8px 12px', borderRadius: '10px', background: 'var(--surface-sunken)' } }, h('b', null, t('Serie cluster: ')), (function () { var tot = e.lado ? ST.ladoReps(e)[0] : Number(e.reps) || 0, tr = e.cluster.t; return (tot % tr === 0 ? tr + t(' tramos de ') + (tot / tr) : tr + t(' tramos: ') + ST.clusterTramos(tot, tr)) + (e.lado ? t(' por lado') : '') + t(', descansando ') + (e.cluster.d || 10) + t(' s entre tramos. Cuenta como una sola serie.'); })()) : null,
             h('ul', { className: 'chips' }, chips.map(function (c, i) { return h('li', { key: i }, c); })),
             ssCon.length ? h('p', { className: 'target__note' }, t('Alterna con ') + ssCon.map(function (f) { return ST.nombreEj(state, f.e.ejId); }).join(t(' y ')) + t(': una serie de cada y luego descansa.')) : null,
             null),
@@ -7651,7 +7653,7 @@ window.GAGOR_reducirFoto = function (file) {
                         h('b', null, 'Cluster'),
                         h('input', { className: 'edx__in', value: e.clT, placeholder: '3', inputMode: 'numeric', 'aria-label': 'Tramos por serie', title: 'Tramos en que se divide cada serie', onChange: function (ev) { campoEj(bi, ei, 'clT', ev.target.value.replace(/[^0-9]/g, '')); } }), h('span', null, 'tramos ·'),
                         h('input', { className: 'edx__in', value: e.clD, placeholder: '10', inputMode: 'numeric', 'aria-label': 'Segundos de descanso entre tramos', title: 'Descanso entre tramos, en segundos', onChange: function (ev) { campoEj(bi, ei, 'clD', ev.target.value.replace(/[^0-9]/g, '')); } }), h('span', null, 's'),
-                        (function () { var tot = Math.round(numTxt(e.lado ? e.repsIzq : e.reps) || 0), tr = Math.round(numTxt(e.clT) || 0); return h('span', { className: 'edx__clr' + (tr >= 2 && tot && tot % tr ? ' is-al' : '') }, tr >= 2 && tot ? (tot % tr ? tot + ' no se reparte igual en ' + tr : '= ' + tr + ' × ' + (tot / tr)) : ''); })(),
+                        (function () { var tot = Math.round(numTxt(e.lado ? e.repsIzq : e.reps) || 0), tr = Math.round(numTxt(e.clT) || 0); return h('span', { className: 'edx__clr' + (tr >= 2 && tot && (tot % tr || tot < tr) ? ' is-al' : '') }, tr >= 2 && tot ? (tot < tr ? 'menos reps que tramos' : '= ' + ST.clusterTramos(tot, tr) + (tot % tr ? ' (no es igual)' : '')) : ''); })(),
                         h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Quitar cluster', title: 'Quitar cluster', onClick: function () { up(function (x) { var q = x.bloques[bi].ejercicios[ei]; q.clOn = false; q.clT = ''; q.clD = ''; }); } }, h(G.Icon, { name: 'cerrar', size: 14 })))
                       : h('button', { type: 'button', className: 'edx__clb', title: 'Serie cluster: dividir cada serie en tramos con un descanso corto', onClick: function () { up(function (x) { var q = x.bloques[bi].ejercicios[ei]; q.clOn = true; var tot = Math.round(numTxt(q.lado ? q.repsIzq : q.reps) || 0); q.clT = q.clT || String(tot % 3 === 0 && tot >= 6 ? 3 : (tot % 2 === 0 && tot >= 4 ? 2 : 3)); q.clD = q.clD || '10'; }); } }, '+ Cluster')),
                     h('input', { className: 'edx__nota', value: e.nota, placeholder: 'Nota para el jugador (opcional)', 'aria-label': 'Nota', onChange: function (ev) { campoEj(bi, ei, 'nota', ev.target.value); } })));
