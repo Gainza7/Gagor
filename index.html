@@ -3360,7 +3360,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.72";
+<script>window.GAGOR_VERSION = "1.73";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -3950,9 +3950,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var r = ladoReps(e); return (r[0] === r[1] ? uno(r[0]) + ' por lado' : uno(r[0]) + ' izq · ' + uno(r[1]) + ' der') + clusterTxt(e, r[0]);
   }
   // 1.71 · series cluster: e.cluster = { t: tramos, d: segundos de descanso entre tramos }. «6 (3×2 · 10″)»
-  // 1.72 · se escribe como tramos: 6 en 3 → «2-2-2»; 7 en 3 → «3-2-2»
+  // 1.73 · 6 en 3 → «3×2»; si no es exacto, por tramos: 7 en 3 → «3-2-2»
   function clusterTramos(total, tr) { total = Math.round(Number(total) || 0); tr = Math.round(Number(tr) || 0); if (!(tr > 1) || !(total > 0)) return ''; var b = Math.floor(total / tr), r = total % tr, a = []; for (var i = 0; i < tr; i++) a.push(b + (i < r ? 1 : 0)); return a.join('-'); }
-  function clusterTxt(e, total) { var c = e && e.cluster; if (!c || !(c.t > 1) || e.seg) return ''; var tx = clusterTramos(total, c.t);
+  function clusterTxt(e, total) { var c = e && e.cluster; if (!c || !(c.t > 1) || e.seg) return ''; var t0 = Math.round(c.t), tt = Math.round(Number(total) || 0), tx = tt && tt % t0 === 0 ? t0 + '\u00d7' + (tt / t0) : clusterTramos(total, c.t);
     return ' (' + (tx || t('en ') + Math.round(c.t) + t(' tramos')) + (c.d ? ' · ' + c.d + '\u2033' : '') + ')'; }
   function esUnilateral(st, id) { var x = (st.ejercicios || []).filter(function (q) { return q.id === id; })[0]; return !!(x && /^Unilateral/.test(x.patron || '')); }
   function aplicarEdicion(ses, bloques) {
@@ -7653,7 +7653,7 @@ window.GAGOR_reducirFoto = function (file) {
                         h('b', null, 'Cluster'),
                         h('input', { className: 'edx__in', value: e.clT, placeholder: '3', inputMode: 'numeric', 'aria-label': 'Tramos por serie', title: 'Tramos en que se divide cada serie', onChange: function (ev) { campoEj(bi, ei, 'clT', ev.target.value.replace(/[^0-9]/g, '')); } }), h('span', null, 'tramos ·'),
                         h('input', { className: 'edx__in', value: e.clD, placeholder: '10', inputMode: 'numeric', 'aria-label': 'Segundos de descanso entre tramos', title: 'Descanso entre tramos, en segundos', onChange: function (ev) { campoEj(bi, ei, 'clD', ev.target.value.replace(/[^0-9]/g, '')); } }), h('span', null, 's'),
-                        (function () { var tot = Math.round(numTxt(e.lado ? e.repsIzq : e.reps) || 0), tr = Math.round(numTxt(e.clT) || 0); return h('span', { className: 'edx__clr' + (tr >= 2 && tot && (tot % tr || tot < tr) ? ' is-al' : '') }, tr >= 2 && tot ? (tot < tr ? 'menos reps que tramos' : '= ' + ST.clusterTramos(tot, tr) + (tot % tr ? ' (no es igual)' : '')) : ''); })(),
+                        (function () { var tot = Math.round(numTxt(e.lado ? e.repsIzq : e.reps) || 0), tr = Math.round(numTxt(e.clT) || 0); return h('span', { className: 'edx__clr' + (tr >= 2 && tot && (tot % tr || tot < tr) ? ' is-al' : '') }, tr >= 2 && tot ? (tot < tr ? 'menos reps que tramos' : '= ' + (tot % tr ? ST.clusterTramos(tot, tr) + ' (no es igual)' : tr + ' × ' + (tot / tr))) : ''); })(),
                         h('button', { type: 'button', className: 'edx__ib', 'aria-label': 'Quitar cluster', title: 'Quitar cluster', onClick: function () { up(function (x) { var q = x.bloques[bi].ejercicios[ei]; q.clOn = false; q.clT = ''; q.clD = ''; }); } }, h(G.Icon, { name: 'cerrar', size: 14 })))
                       : h('button', { type: 'button', className: 'edx__clb', title: 'Serie cluster: dividir cada serie en tramos con un descanso corto', onClick: function () { up(function (x) { var q = x.bloques[bi].ejercicios[ei]; q.clOn = true; var tot = Math.round(numTxt(q.lado ? q.repsIzq : q.reps) || 0); q.clT = q.clT || String(tot % 3 === 0 && tot >= 6 ? 3 : (tot % 2 === 0 && tot >= 4 ? 2 : 3)); q.clD = q.clD || '10'; }); } }, '+ Cluster')),
                     h('input', { className: 'edx__nota', value: e.nota, placeholder: 'Nota para el jugador (opcional)', 'aria-label': 'Nota', onChange: function (ev) { campoEj(bi, ei, 'nota', ev.target.value); } })));
