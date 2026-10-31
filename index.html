@@ -3294,7 +3294,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.64";
+<script>window.GAGOR_VERSION = "1.65";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -7109,8 +7109,10 @@ window.GAGOR_reducirFoto = function (file) {
       function habito(id, rol) { if (!rol) return 0; var c = HB.pos[posRol(rol)][id] || 0, tot = HB.total[id] || 0, par = 0;
         enGrupo.forEach(function (m) { par += HB.pares[m + '>' + id] || 0; });
         return Math.min(2, 0.6 * Math.log(1 + c)) + Math.min(0.6, 0.25 * Math.log(1 + tot)) + Math.min(1.5, 0.7 * par); }
+      function esMovilidad(o) { return o.t.movil || /movilidad|estiramiento|90 90|stretch|mobility|gato camello|cat cow/.test(o.n); }
       function elegir(fn, extra, rol) { var ctx = rol ? ctxDe(rol) : null;
-        var cand = pool.filter(function (o) { var g = o.x.gen || {}; return !usados[o.x.id] && fn(o.t, o) && !(ctx && g.veto && g.veto[ctx]); }); if (!cand.length) return null;
+        // 1.65 · movilidad y estiramientos (90/90, movilidad de…) SOLO en el inicio, nunca en mitad o al final de la sesión
+        var cand = pool.filter(function (o) { var g = o.x.gen || {}; return !usados[o.x.id] && fn(o.t, o) && !(ctx && g.veto && g.veto[ctx]) && (rol === 'ini' || !esMovilidad(o)); }); if (!cand.length) return null;
         cand.forEach(function (o) { var g = o.x.gen || {}, ap = 0; if (ctx) { if (g.fav && g.fav[ctx]) ap += 2.5; var pe = AP.pen[o.x.id + '|' + ctx]; if (pe) ap += pe.score; } if (AP.bonus[o.x.id]) ap += AP.bonus[o.x.id].score;
           o.ap = ap; o.hb = habito(o.x.id, rol); o.p = Math.random() + (semana[o.x.id] ? 0 : 1.2) + (o.x.videoUrl ? 0.4 : 0) + (extra ? extra(o.t, o) : 0) + ap + penCore(o.t) + o.hb; });
         cand.sort(function (a, b) { return b.p - a.p; }); if (cand[0].ap) usoAp++; if (cand[0].hb >= 0.5) usoHab++; usados[cand[0].x.id] = 1; if (rol && rol !== 'ini' && rol !== 'fin') enGrupo.push(cand[0].x.id); if (cand[0].t.core) coreUsado[tipoCore(cand[0].t)] = 1; return cand[0]; }
