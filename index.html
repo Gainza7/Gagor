@@ -602,6 +602,14 @@
 .pk__vid::after { content: ''; position: absolute; width: 22px; height: 2px; background: currentColor; transform: rotate(-45deg); border-radius: 1px; }
 .pk__vid.is-on { color: #fff; background: var(--accent); opacity: 1; }
 .pk__vid.is-on::after { display: none; }
+.pk__vid.is-on { cursor: pointer; transition: transform .12s; } .pk__vid.is-on:hover { transform: scale(1.1); } .pk__vid.is-on:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pk__vid.is-open { background: var(--ink); color: var(--surface); }
+.pk__pv { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; margin: 2px 0 8px 18px; padding: 8px; border-radius: 12px; background: color-mix(in srgb, var(--gc, var(--accent)) 10%, var(--surface-sunken)); }
+.pk__pvf { width: min(300px, 100%); aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: #000; }
+.pk__pvf.is-v { width: min(180px, 100%); aspect-ratio: 9 / 16; }
+.pk__pvf iframe { width: 100%; height: 100%; border: 0; display: block; }
+.pk__pvb { display: flex; flex-wrap: wrap; gap: 6px; }
+.pk__pvl { padding: 10px 14px; border-radius: 10px; background: var(--surface-card); color: var(--ink); font-weight: 600; }
 .pk__it::before { content: ''; position: absolute; left: 6px; top: 10px; bottom: 10px; width: 4px; border-radius: 2px; background: var(--gc, var(--accent)); opacity: .75; }
 .pk__it:hover, .pk__it:focus-visible, .pk__it.is-first { background: color-mix(in srgb, var(--gc, var(--accent)) 12%, transparent); border-color: color-mix(in srgb, var(--gc, var(--accent)) 40%, transparent); }
 .pk__grp { display: grid; gap: 2px; }
@@ -3361,7 +3369,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   };
 })(window);
 </script>
-<script>window.GAGOR_VERSION = "1.75";
+<script>window.GAGOR_VERSION = "1.76";
 /* ======================================================= GAGOR · beta · idiomas */
 /* Los textos de la app están escritos en castellano y pasan por t(). Aquí viven las
    traducciones al inglés y al catalán, con el texto castellano como clave. Lo que no
@@ -7552,6 +7560,7 @@ window.GAGOR_reducirFoto = function (file) {
       var titulo = esSesion ? (d.id ? 'Editar sesión' : 'Nueva sesión') : (d.id ? 'Editar plantilla' : 'Nueva plantilla');
       var subt = esSesion ? (cli ? cli.nombre : '—') + ' · ' + ST.fmtFecha(d.fecha) : (d.id ? (usos ? 'Programada en ' + usos + (usos === 1 ? ' sesión' : ' sesiones') : 'Aún sin programar') : 'Bloques, ejercicios y cargas de partida');
       var sal = conf === 'salir-editor';
+      function ytIdDe(u) { var m = /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/.exec(u || ''); return m ? m[1] : null; }
       function elegirEj(id) { var pk = pickEj; setPickEj(null); if (!pk || !id) return;
         if (pk.ei === null) up(function (x) { x.bloques[pk.bi].ejercicios.push({ _u: ST.uid(), _k: null, ejId: id, series: '3', reps: '8', lado: ST.esUnilateral(state, id), repsIzq: ST.esUnilateral(state, id) ? '8' : '', repsDer: ST.esUnilateral(state, id) ? '8' : '', seg: '', carga: '', descanso: '90', tempo: '', rpe: '', ss: '', nota: '' }); });
         else up(function (x) { var q = x.bloques[pk.bi].ejercicios[pk.ei]; q.ejId = id; q.lado = ST.esUnilateral(state, id); if (q.lado) { q.repsIzq = q.repsIzq || q.reps; q.repsDer = q.repsDer || q.reps; } }); }
@@ -7567,7 +7576,8 @@ window.GAGOR_reducirFoto = function (file) {
             h('div', { className: 'pk__list' }, grp.map(function (o) {
               return h('div', { key: o.g, className: 'pk__grp', style: { '--gc': colorGrupo(o.g) } }, h('p', { className: 'pk__gh' }, h('i', null), h('b', null, o.g), h('span', null, o.items.length)),
                 o.items.map(function (x) {
-                  return h('button', { key: x.id, type: 'button', className: 'pk__it' + (mejor && x.id === mejor.id && pickEj.q.trim() ? ' is-first' : ''), onClick: function () { elegirEj(x.id); } },
+                  var vAbierto = pickEj.vid === x.id && x.videoUrl, vId = vAbierto ? ytIdDe(x.videoUrl) : null;
+                  return [h('button', { key: x.id, type: 'button', className: 'pk__it' + (mejor && x.id === mejor.id && pickEj.q.trim() ? ' is-first' : ''), onClick: function () { elegirEj(x.id); } },
                     h('span', { className: 'pk__tx' }, h('b', null, x.nombre), (x.material || []).length ? h('small', null, (x.material || []).join(', ')) : null,
                       // 1.56 · si este cliente ya lo tiene esta semana (hecho, programado o sin hacer) y si ya está en esta sesión
                       (function () { var ya = esSesion ? (repSem[x.id] || []) : []; var aqui = d.bloques.some(function (b) { return (b.ejercicios || []).some(function (q) { return q.ejId === x.id; }); });
@@ -7575,7 +7585,17 @@ window.GAGOR_reducirFoto = function (file) {
                         return h('span', { className: 'pk__sem' }, aqui ? h('i', { className: 'is-aqui' }, 'Ya en esta sesión') : null, ya.map(function (txt, k) { var m = /^(.*?) \((.*)\)$/.exec(txt) || [null, txt, '']; var est = m[2] === 'hecho' ? 'hecho' : (m[2] === 'sin hacer' ? 'mal' : 'prog');
                           return h('i', { key: k, className: 'is-' + est }, (est === 'hecho' ? '✓ Hecho ' : (est === 'mal' ? '✗ Sin hacer ' : (m[2] === 'hoy' ? 'Programado hoy' : 'Programado '))) + (m[2] === 'hoy' ? '' : m[1])); })); })()),
                     // 1.55 · a la derecha: si el ejercicio tiene vídeo o no
-                    h('span', { className: 'pk__vid' + (x.videoUrl ? ' is-on' : ''), title: x.videoUrl ? 'Tiene vídeo' : 'Sin vídeo', 'aria-label': x.videoUrl ? 'Tiene vídeo' : 'Sin vídeo' }, h(G.Icon, { name: 'video', size: 16 }))); })); }))));
+                    // 1.76 · tocar el icono verde abre el vídeo en un cuadro pequeño debajo, sin elegir el ejercicio
+                    x.videoUrl ? h('span', { className: 'pk__vid is-on' + (vAbierto ? ' is-open' : ''), role: 'button', tabIndex: 0, title: vAbierto ? 'Cerrar vídeo' : 'Ver vídeo', 'aria-label': (vAbierto ? 'Cerrar vídeo de ' : 'Ver vídeo de ') + x.nombre, 'aria-expanded': !!vAbierto,
+                        onClick: function (ev) { ev.stopPropagation(); ev.preventDefault(); setPickEj(function (o) { return o ? Object.assign({}, o, { vid: o.vid === x.id ? null : x.id }) : o; }); },
+                        onKeyDown: function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.stopPropagation(); ev.preventDefault(); setPickEj(function (o) { return o ? Object.assign({}, o, { vid: o.vid === x.id ? null : x.id }) : o; }); } } }, h(G.Icon, { name: vAbierto ? 'cerrar' : 'video', size: 16 }))
+                      : h('span', { className: 'pk__vid', title: 'Sin vídeo', 'aria-label': 'Sin vídeo' }, h(G.Icon, { name: 'video', size: 16 }))),
+                  vAbierto ? h('div', { key: x.id + '-v', className: 'pk__pv', style: { '--gc': colorGrupo(o.g) } },
+                    vId ? h('div', { className: 'pk__pvf' + (/shorts\//.test(x.videoUrl) ? ' is-v' : '') }, h('iframe', { src: 'https://www.youtube-nocookie.com/embed/' + vId + '?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&loop=1&playlist=' + vId, title: 'Vídeo de ' + x.nombre, allow: 'autoplay; encrypted-media; picture-in-picture', allowFullScreen: true }))
+                      : h('a', { className: 'pk__pvl', href: x.videoUrl, target: '_blank', rel: 'noopener' }, 'Abrir el vídeo'),
+                    h('div', { className: 'pk__pvb' },
+                      h(G.Button, { size: 'md', icon: 'mas', onClick: function () { elegirEj(x.id); } }, 'Elegir'),
+                      h(G.Button, { size: 'md', variant: 'ghost', onClick: function () { setPickEj(function (o2) { return o2 ? Object.assign({}, o2, { vid: null }) : o2; }); } }, 'Cerrar'))) : null]; })); }))));
       })() : null;
       return shell([pickModal,
         h(G.AppHeader, { key: 'h', title: titulo, subtitle: subt, onBack: function () { if (d.sucio) setConf('salir-editor'); else salirSin(); },
